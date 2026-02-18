@@ -73,12 +73,12 @@ class LoginForm extends HTMLElement {
                 </span>
               </span>
               <div class="button-glide-over__background"></div>
-              <div class="form_message-success-wrapper w-form-done" tabindex="-1" role="region" aria-label="Log in Form 14 success">
+              <div class="form_message-success-wrapper w-form-done">
                 <div class="form_message-success">
                   <div data-login-success="true"></div>
                 </div>
               </div>
-              <div class="form_message-error-wrapper w-form-fail" tabindex="-1" role="region" aria-label="Log in Form 14 failure">
+              <div class="form_message-error-wrapper w-form-fail">
                 <div class="form_message-error">
                   <div data-login-error="true"></div>
                 </div>
