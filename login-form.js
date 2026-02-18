@@ -56,7 +56,7 @@ class LoginForm extends HTMLElement {
           />
 
           <div class="button-group is-center">
-            <a href="#" class="button-glide-over w-inline-block" id="go-to-register">
+            <a data-wf--main-cta-button--variant="no-bg" href="#" class="button-glide-over w-inline-block" id="go-to-register">
               <span class="button-glide-over__container">
                 <span class="button-glide-over__icon is-first">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" style="--index:3;" class="button-glide-over__icon-item"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="24" d="M40 128h176M144 56l72 72-72 72"></path></svg>
@@ -73,8 +73,16 @@ class LoginForm extends HTMLElement {
                 </span>
               </span>
               <div class="button-glide-over__background"></div>
-              <div data-login-error="true"></div>
-              <div data-login-success="true"></div>
+              <div class="form_message-success-wrapper w-form-done" tabindex="-1" role="region" aria-label="Log in Form 14 success">
+                <div class="form_message-success">
+                  <div data-login-success="true"></div>
+                </div>
+              </div>
+              <div class="form_message-error-wrapper w-form-fail" tabindex="-1" role="region" aria-label="Log in Form 14 failure">
+                <div class="form_message-error">
+                  <div data-login-error="true"></div>
+                </div>
+              </div>
             </a>
           </div>
         </div>
