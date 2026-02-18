@@ -134,7 +134,7 @@ class RegisterForm extends HTMLElement {
         </div>
 
         <!-- Error message -->
-        <div class="form_message-error-wrapper w-form-fail" data-register-error-wrapper="true" style="display:none">
+        <div class="form_message-error-wrapper" data-register-error-wrapper="true" style="display:none">
           <div class="form_message-error">
             <div data-register-error="true"></div>
           </div>
@@ -235,7 +235,7 @@ class RegisterForm extends HTMLElement {
   _showSuccess() {
     // Replace the entire component with a success message
     const wrapper = document.createElement("div");
-    wrapper.className = "form_message-success-wrapper w-form-done";
+    wrapper.className = "form_message-success-wrapper";
     wrapper.innerHTML = `
       <div class="form_message-success">
         <div>Almost there! Please check your email and verify your address before logging in.</div>
