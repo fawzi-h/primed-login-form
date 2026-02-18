@@ -45,7 +45,7 @@ class LoginForm extends HTMLElement {
           />
 
           <div class="button-group is-center">
-            <a href="/client-onboarding" class="button-glide-over w-inline-block">
+            <a href="#" class="button-glide-over w-inline-block" id="go-to-register">
               <span class="button-glide-over__container">
                 <span class="button-glide-over__icon is-first">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" style="--index:3;" class="button-glide-over__icon-item"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="24" d="M40 128h176M144 56l72 72-72 72"></path></svg>
@@ -67,6 +67,18 @@ class LoginForm extends HTMLElement {
         </div>
       </form>
     `;
+
+    this._bindEvents();
+  }
+
+  _bindEvents() {
+    const registerBtn = this.querySelector('#go-to-register');
+
+    registerBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const registerForm = document.createElement('register-form');
+      this.replaceWith(registerForm);
+    });
   }
 }
 
