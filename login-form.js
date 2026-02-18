@@ -16,35 +16,67 @@ class LoginForm extends HTMLElement {
         aria-label="Log in Form 14"
         data-login-form="true"
       >
-        <!-- Email -->
-        <div class="form_field-wrapper">
-          <div class="form_field-label">Email</div>
-          <input
-            class="form_input w-input"
-            maxlength="256"
-            name="Log-In-Form-7-Email"
-            placeholder=""
-            type="email"
-            required
-            data-login-email="true"
-          />
+
+        <!-- Login method toggle -->
+        <div class="form_toggle-wrapper">
+          <button type="button" class="form_toggle-btn is-active" data-toggle="password">
+            Login with Password
+          </button>
+          <button type="button" class="form_toggle-btn" data-toggle="code">
+            Login with Code
+          </button>
         </div>
 
-        <!-- Password -->
-        <div class="form_field-wrapper">
-          <div class="field-label-wrapper">
-            <div class="form_field-label">Password</div>
-            <a href="#" class="text-style-link">Reset your password</a>
+        <!-- ── Password fields ── -->
+        <div data-login-panel="password">
+
+          <!-- Email -->
+          <div class="form_field-wrapper">
+            <div class="form_field-label">Email</div>
+            <input
+              class="form_input w-input"
+              maxlength="256"
+              name="Log-In-Form-7-Email"
+              placeholder=""
+              type="email"
+              data-login-email="true"
+            />
           </div>
-          <input
-            class="form_input w-input"
-            maxlength="256"
-            name="Log-In-Form-7-Password"
-            placeholder=""
-            type="password"
-            required
-            data-login-password="true"
-          />
+
+          <!-- Password -->
+          <div class="form_field-wrapper">
+            <div class="field-label-wrapper">
+              <div class="form_field-label">Password</div>
+              <a href="#" class="text-style-link">Reset your password</a>
+            </div>
+            <input
+              class="form_input w-input"
+              maxlength="256"
+              name="Log-In-Form-7-Password"
+              placeholder=""
+              type="password"
+              data-login-password="true"
+            />
+          </div>
+
+        </div>
+
+        <!-- ── Code fields ── -->
+        <div data-login-panel="code" style="display:none">
+
+          <div class="form_field-wrapper">
+            <div class="form_field-label">Email or Phone Number</div>
+            <input
+              class="form_input w-input"
+              maxlength="256"
+              name="Log-In-Code-Identifier"
+              placeholder=""
+              type="text"
+              data-login-identifier="true"
+            />
+            <div class="form_field-error" data-login-identifier-error="true" style="display:none"></div>
+          </div>
+
         </div>
 
         <!-- Buttons -->
@@ -52,6 +84,7 @@ class LoginForm extends HTMLElement {
           <input
             type="submit"
             class="button is-full-width w-button"
+            data-login-submit="true"
             value="Login"
           />
 
@@ -94,7 +127,40 @@ class LoginForm extends HTMLElement {
       </form>
     `;
 
+    this._activePanel = "password";
     this._bindEvents();
+  }
+
+  // ── Identifier detection ─────────────────────────────────────────────────
+  _detectIdentifierType(value) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // Matches Australian and international formats, with or without country code
+    const phoneRegex = /^\+?[\d\s\-().]{7,15}$/;
+
+    if (emailRegex.test(value))      return "email";
+    if (phoneRegex.test(value))      return "phone";
+    return null;
+  }
+
+  // ── Toggle ───────────────────────────────────────────────────────────────
+  _switchPanel(panel) {
+    this._activePanel = panel;
+
+    const passwordPanel = this.querySelector('[data-login-panel="password"]');
+    const codePanel     = this.querySelector('[data-login-panel="code"]');
+    const submitBtn     = this.querySelector('[data-login-submit="true"]');
+    const toggleBtns    = this.querySelectorAll('.form_toggle-btn');
+
+    passwordPanel.style.display = panel === "password" ? "" : "none";
+    codePanel.style.display     = panel === "code"     ? "" : "none";
+
+    submitBtn.value = panel === "password" ? "Login" : "Send Code";
+
+    toggleBtns.forEach(btn => {
+      btn.classList.toggle('is-active', btn.dataset.toggle === panel);
+    });
+
+    this._hideMessages();
   }
 
   // ── Cookie helpers ───────────────────────────────────────────────────────
@@ -103,13 +169,13 @@ class LoginForm extends HTMLElement {
     return match ? decodeURIComponent(match[2]) : null;
   }
 
-  _setCookie(name, value, maxAgeSeconds, httpOnly = false) {
+  _setCookie(name, value, maxAgeSeconds) {
     const secure = location.protocol === "https:" ? "; Secure" : "";
     document.cookie =
       `${name}=${encodeURIComponent(value)}; Path=/; Max-Age=${maxAgeSeconds}; SameSite=Lax${secure}`;
   }
 
-  // Generates a signed HS256 JWT using a per-session random key via Web Crypto
+  // ── JWT / session cookie ─────────────────────────────────────────────────
   async _generateUserToken() {
     const b64url = (buf) =>
       btoa(String.fromCharCode(...new Uint8Array(buf)))
@@ -126,7 +192,7 @@ class LoginForm extends HTMLElement {
 
     const signingKey = await crypto.subtle.generateKey(
       { name: "HMAC", hash: "SHA-256" },
-      false, // non-extractable — key exists in memory only for this session
+      false,
       ["sign"]
     );
 
@@ -136,13 +202,11 @@ class LoginForm extends HTMLElement {
       new TextEncoder().encode(`${header}.${payload}`)
     );
 
-    const signature = b64url(sigBuf);
-    return `${header}.${payload}.${signature}`;
+    return `${header}.${payload}.${b64url(sigBuf)}`;
   }
 
   async _setUserSessionCookie() {
-    const token = await this._generateUserToken();
-    // Session-length cookie (no Max-Age = expires when browser closes)
+    const token  = await this._generateUserToken();
     const secure = location.protocol === "https:" ? "; Secure" : "";
     document.cookie = `__user=${encodeURIComponent(token)}; Path=/; SameSite=Lax${secure}`;
   }
@@ -163,42 +227,31 @@ class LoginForm extends HTMLElement {
       credentials: "include"
     });
 
-    // Record when this token expires so we can skip the round-trip next time
     const expiresAt = Math.floor(Date.now() / 1000) + LoginForm.CSRF_TTL_SECONDS;
     this._setCookie(LoginForm.CSRF_EXPIRY_COOKIE, String(expiresAt), LoginForm.CSRF_TTL_SECONDS);
   }
 
   // ── UI helpers ───────────────────────────────────────────────────────────
-  _qs(selector) {
-    const el = this.querySelector(selector);
-    if (!el) throw new Error(`Missing element: ${selector}`);
-    return el;
-  }
-
   _showMessage(type, text) {
-    const isSuccess    = type === "success";
-    const wrapperAttr  = isSuccess ? "[data-login-success-wrapper]" : "[data-login-error-wrapper]";
-    const messageAttr  = isSuccess ? "[data-login-success]"         : "[data-login-error]";
-    const activeClass  = isSuccess ? "w-form-done"                  : "w-form-fail";
-    const otherAttr    = isSuccess ? "[data-login-error-wrapper]"   : "[data-login-success-wrapper]";
-    const otherClass   = isSuccess ? "w-form-fail"                  : "w-form-done";
+    const isSuccess   = type === "success";
+    const wrapperAttr = isSuccess ? "[data-login-success-wrapper]" : "[data-login-error-wrapper]";
+    const messageAttr = isSuccess ? "[data-login-success]"         : "[data-login-error]";
+    const activeClass = isSuccess ? "w-form-done"                  : "w-form-fail";
+    const otherAttr   = isSuccess ? "[data-login-error-wrapper]"   : "[data-login-success-wrapper]";
+    const otherClass  = isSuccess ? "w-form-fail"                  : "w-form-done";
 
-    const wrapper    = this.querySelector(wrapperAttr);
-    const messageEl  = this.querySelector(messageAttr);
-    const otherWrap  = this.querySelector(otherAttr);
+    const wrapper   = this.querySelector(wrapperAttr);
+    const messageEl = this.querySelector(messageAttr);
+    const otherWrap = this.querySelector(otherAttr);
 
-    // Hide the opposite wrapper
     if (otherWrap) {
       otherWrap.classList.remove(otherClass);
       otherWrap.style.display = "none";
     }
-
-    // Show this wrapper
     if (wrapper) {
       wrapper.classList.add(activeClass);
       wrapper.style.display = "block";
     }
-
     if (messageEl) messageEl.textContent = text;
   }
 
@@ -219,23 +272,15 @@ class LoginForm extends HTMLElement {
   _setSubmitState(submitBtn, loading) {
     if (!submitBtn) return;
     submitBtn.disabled = loading;
-    if (submitBtn.tagName === "INPUT") {
-      submitBtn.value = loading ? "Logging in..." : "Login";
+    if (!loading) {
+      submitBtn.value = this._activePanel === "password" ? "Login" : "Send Code";
     } else {
-      submitBtn.textContent = loading ? "Logging in..." : "Login";
+      submitBtn.value = this._activePanel === "password" ? "Logging in..." : "Sending...";
     }
   }
 
-  // ── Login handler ────────────────────────────────────────────────────────
-  async _handleSubmit(e) {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const form      = e.currentTarget;
-    const submitBtn = form.querySelector('input[type="submit"], button[type="submit"]');
-
-    this._hideMessages();
-
+  // ── Submit handlers ──────────────────────────────────────────────────────
+  async _handlePasswordSubmit(form, submitBtn) {
     const email    = (form.querySelector('[data-login-email="true"]')?.value || "").trim();
     const password = form.querySelector('[data-login-password="true"]')?.value || "";
 
@@ -250,7 +295,6 @@ class LoginForm extends HTMLElement {
       await this._ensureCsrfCookie();
 
       const xsrfToken = this._getCookie("XSRF-TOKEN");
-      console.log(`XSRF token: ${xsrfToken ?? "not set"}`);
 
       const res = await fetch(LoginForm.LOGIN_ENDPOINT, {
         method: "POST",
@@ -271,9 +315,7 @@ class LoginForm extends HTMLElement {
         return;
       }
 
-      // Set the client-side session indicator cookie
       await this._setUserSessionCookie();
-
       this._showMessage("success", "Logged in successfully.");
       window.location.href = "/";
 
@@ -285,12 +327,61 @@ class LoginForm extends HTMLElement {
     }
   }
 
+  async _handleCodeSubmit(form, submitBtn) {
+    const identifierInput = form.querySelector('[data-login-identifier="true"]');
+    const identifierError = form.querySelector('[data-login-identifier-error="true"]');
+    const raw             = (identifierInput?.value || "").trim();
+
+    // Reset inline error
+    identifierError.style.display = "none";
+    identifierError.textContent   = "";
+    identifierInput.classList.remove("is-error");
+
+    const type = this._detectIdentifierType(raw);
+
+    if (!type) {
+      identifierError.textContent   = "Please enter a valid email address or phone number.";
+      identifierError.style.display = "block";
+      identifierInput.classList.add("is-error");
+      identifierInput.focus();
+      return;
+    }
+
+    this._setSubmitState(submitBtn, true);
+
+    // TODO: wire up to the send-code API endpoint when available
+    console.log(`Sending login code to ${type}: ${raw}`);
+    this._showMessage("success", `A login code has been sent to your ${type}.`);
+
+    this._setSubmitState(submitBtn, false);
+  }
+
+  async _handleSubmit(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const form      = e.currentTarget;
+    const submitBtn = form.querySelector('[data-login-submit="true"]');
+
+    this._hideMessages();
+
+    if (this._activePanel === "password") {
+      await this._handlePasswordSubmit(form, submitBtn);
+    } else {
+      await this._handleCodeSubmit(form, submitBtn);
+    }
+  }
+
   // ── Event binding ────────────────────────────────────────────────────────
   _bindEvents() {
     const form        = this.querySelector('[data-login-form="true"]');
     const registerBtn = this.querySelector('#go-to-register');
+    const toggleBtns  = this.querySelectorAll('.form_toggle-btn');
 
-    // Avoid double-binding if the component is re-rendered
+    toggleBtns.forEach(btn => {
+      btn.addEventListener('click', () => this._switchPanel(btn.dataset.toggle));
+    });
+
     if (form && form.dataset.loginBound !== "true") {
       form.dataset.loginBound = "true";
       form.addEventListener("submit", (e) => this._handleSubmit(e));

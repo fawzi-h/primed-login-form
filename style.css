@@ -1,4 +1,3 @@
-
 /* ── Password mismatch error ── */
 .form_field-error {
     font-size: .75rem;
@@ -12,4 +11,33 @@
 
 .form_input.w-input.is-error:focus {
     border-color: #e07070;
+}
+
+/* ── Login method toggle ── */
+.form_toggle-wrapper {
+    display: flex;
+    gap: 4px;
+    background: var(--bg, #0d0d10);
+    border: 1px solid var(--border, #2a2a35);
+    border-radius: 8px;
+    padding: 4px;
+}
+
+.form_toggle-btn {
+    flex: 1;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--muted, #7a7880);
+    font-family: inherit;
+    font-size: .8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background .2s, color .2s;
+}
+
+.form_toggle-btn.is-active {
+    background: var(--surface, #16161c);
+    color: var(--text, #e8e4dd);
 }
