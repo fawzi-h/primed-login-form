@@ -73,17 +73,17 @@ class LoginForm extends HTMLElement {
                 </span>
               </span>
               <div class="button-glide-over__background"></div>
-              <div class="form_message-success-wrapper w-form-done">
-                <div class="form_message-success">
-                  <div data-login-success="true"></div>
-                </div>
-              </div>
-              <div class="form_message-error-wrapper w-form-fail">
-                <div class="form_message-error">
-                  <div data-login-error="true"></div>
-                </div>
-              </div>
             </a>
+          </div>
+          <div class="form_message-success-wrapper w-form-done">
+            <div class="form_message-success">
+              <div data-login-success="true"></div>
+            </div>
+          </div>
+          <div class="form_message-error-wrapper w-form-fail">
+            <div class="form_message-error">
+              <div data-login-error="true"></div>
+            </div>
           </div>
         </div>
       </form>
