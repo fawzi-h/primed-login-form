@@ -6,6 +6,7 @@ class LoginForm extends HTMLElement {
         method="get"
         class="sign-up-login_header_form"
         aria-label="Log in Form 14"
+        data-login-form="true"
       >
         <!-- Email -->
         <div class="form_field-wrapper">
@@ -17,6 +18,7 @@ class LoginForm extends HTMLElement {
             placeholder=""
             type="email"
             required
+            data-login-email="true"
           />
         </div>
 
@@ -33,6 +35,7 @@ class LoginForm extends HTMLElement {
             placeholder=""
             type="password"
             required
+            data-login-password="true"
           />
         </div>
 
@@ -62,6 +65,8 @@ class LoginForm extends HTMLElement {
                 </span>
               </span>
               <div class="button-glide-over__background"></div>
+              <div data-login-error="true"></div>
+              <div data-login-success="true"></div>
             </a>
           </div>
         </div>
