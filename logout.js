@@ -39,7 +39,7 @@
         const data = await res.json().catch(() => ({}));
         const msg  = data?.message || data?.error || `Logout failed (${res.status}).`;
         console.error("Logout error:", msg);
-        return;
+        //return;
       }
 
       // Server session destroyed — clear client-side cookies and redirect
