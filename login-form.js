@@ -2,6 +2,8 @@ class LoginForm extends HTMLElement {
 
   // ── Config ──────────────────────────────────────────────────────────────
   static LOGIN_ENDPOINT         = "https://api.dev.primedclinic.com.au/api/login";
+  static SEND_CODE_ENDPOINT     = "https://api.dev.primedclinic.com.au/api/send-code";
+  static VALIDATE_CODE_ENDPOINT = "https://api.dev.primedclinic.com.au/api/validate-code";
   static SANCTUM_CSRF_ENDPOINT  = "https://api.dev.primedclinic.com.au/sanctum/csrf-cookie";
   static CSRF_TTL_SECONDS       = 7200; // 2 hours
   static CSRF_EXPIRY_COOKIE     = "wf_csrf_expires_at";
@@ -64,17 +66,41 @@ class LoginForm extends HTMLElement {
         <!-- ── Code fields ── -->
         <div data-login-panel="code" style="display:none">
 
-          <div class="form_field-wrapper">
-            <div class="form_field-label">Email or Phone Number</div>
-            <input
-              class="form_input w-input"
-              maxlength="256"
-              name="Log-In-Code-Identifier"
-              placeholder=""
-              type="text"
-              data-login-identifier="true"
-            />
-            <div class="form_field-error" data-login-identifier-error="true" style="display:none"></div>
+          <!-- Step 1: identifier input -->
+          <div data-code-step="identifier">
+            <div class="form_field-wrapper">
+              <div class="form_field-label">Email or Phone Number</div>
+              <input
+                class="form_input w-input"
+                maxlength="256"
+                name="Log-In-Code-Identifier"
+                placeholder=""
+                type="text"
+                data-login-identifier="true"
+              />
+              <div class="form_field-error" data-login-identifier-error="true" style="display:none"></div>
+            </div>
+          </div>
+
+          <!-- Step 2: OTP input (hidden until code is sent) -->
+          <div data-code-step="otp" style="display:none">
+            <div class="form_field-wrapper">
+              <div class="field-label-wrapper">
+                <div class="form_field-label">Enter your code</div>
+                <a href="#" class="text-style-link" data-resend-code="true">Resend code</a>
+              </div>
+              <input
+                class="form_input w-input"
+                maxlength="6"
+                name="Log-In-OTP"
+                placeholder=""
+                type="text"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                data-login-otp="true"
+              />
+              <div class="form_field-error" data-login-otp-error="true" style="display:none"></div>
+            </div>
           </div>
 
         </div>
@@ -127,22 +153,23 @@ class LoginForm extends HTMLElement {
       </form>
     `;
 
-    this._activePanel = "password";
+    this._activePanel    = "password";
+    this._codeStep       = "identifier"; // "identifier" | "otp"
+    this._codeIdentifier = null;         // stores the validated email or phone between steps
+    this._codeType       = null;         // "email" | "phone"
     this._bindEvents();
   }
 
   // ── Identifier detection ─────────────────────────────────────────────────
   _detectIdentifierType(value) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    // Matches Australian and international formats, with or without country code
     const phoneRegex = /^\+?[\d\s\-().]{7,15}$/;
-
-    if (emailRegex.test(value))      return "email";
-    if (phoneRegex.test(value))      return "phone";
+    if (emailRegex.test(value)) return "email";
+    if (phoneRegex.test(value)) return "phone";
     return null;
   }
 
-  // ── Toggle ───────────────────────────────────────────────────────────────
+  // ── Panel / step switching ────────────────────────────────────────────────
   _switchPanel(panel) {
     this._activePanel = panel;
 
@@ -154,13 +181,54 @@ class LoginForm extends HTMLElement {
     passwordPanel.style.display = panel === "password" ? "" : "none";
     codePanel.style.display     = panel === "code"     ? "" : "none";
 
-    submitBtn.value = panel === "password" ? "Login" : "Send Code";
+    // Reset code flow back to step 1 when switching away and back
+    if (panel === "code") {
+      this._switchCodeStep("identifier");
+    }
 
     toggleBtns.forEach(btn => {
       btn.classList.toggle('is-active', btn.dataset.toggle === panel);
     });
 
     this._hideMessages();
+    this._updateSubmitLabel();
+  }
+
+  _switchCodeStep(step) {
+    this._codeStep = step;
+
+    const identifierStep = this.querySelector('[data-code-step="identifier"]');
+    const otpStep        = this.querySelector('[data-code-step="otp"]');
+
+    identifierStep.style.display = step === "identifier" ? "" : "none";
+    otpStep.style.display        = step === "otp"        ? "" : "none";
+
+    if (step === "otp") {
+      this.querySelector('[data-login-otp="true"]')?.focus();
+    }
+
+    this._updateSubmitLabel();
+  }
+
+  _updateSubmitLabel(loading = false) {
+    const submitBtn = this.querySelector('[data-login-submit="true"]');
+    if (!submitBtn) return;
+
+    if (loading) {
+      submitBtn.value = this._activePanel === "password"
+        ? "Logging in..."
+        : this._codeStep === "identifier" ? "Sending..." : "Verifying...";
+    } else {
+      submitBtn.value = this._activePanel === "password"
+        ? "Login"
+        : this._codeStep === "identifier" ? "Send Code" : "Verify Code";
+    }
+  }
+
+  _setSubmitState(submitBtn, loading) {
+    if (!submitBtn) return;
+    submitBtn.disabled = loading;
+    this._updateSubmitLabel(loading);
   }
 
   // ── Cookie helpers ───────────────────────────────────────────────────────
@@ -196,7 +264,7 @@ class LoginForm extends HTMLElement {
       ["sign"]
     );
 
-    const sigBuf    = await crypto.subtle.sign(
+    const sigBuf = await crypto.subtle.sign(
       "HMAC",
       signingKey,
       new TextEncoder().encode(`${header}.${payload}`)
@@ -229,6 +297,14 @@ class LoginForm extends HTMLElement {
 
     const expiresAt = Math.floor(Date.now() / 1000) + LoginForm.CSRF_TTL_SECONDS;
     this._setCookie(LoginForm.CSRF_EXPIRY_COOKIE, String(expiresAt), LoginForm.CSRF_TTL_SECONDS);
+  }
+
+  _buildHeaders(xsrfToken) {
+    return {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      ...(xsrfToken ? { "X-XSRF-TOKEN": xsrfToken } : {})
+    };
   }
 
   // ── UI helpers ───────────────────────────────────────────────────────────
@@ -269,16 +345,6 @@ class LoginForm extends HTMLElement {
     }
   }
 
-  _setSubmitState(submitBtn, loading) {
-    if (!submitBtn) return;
-    submitBtn.disabled = loading;
-    if (!loading) {
-      submitBtn.value = this._activePanel === "password" ? "Login" : "Send Code";
-    } else {
-      submitBtn.value = this._activePanel === "password" ? "Logging in..." : "Sending...";
-    }
-  }
-
   // ── Submit handlers ──────────────────────────────────────────────────────
   async _handlePasswordSubmit(form, submitBtn) {
     const email    = (form.querySelector('[data-login-email="true"]')?.value || "").trim();
@@ -293,17 +359,12 @@ class LoginForm extends HTMLElement {
 
     try {
       await this._ensureCsrfCookie();
-
       const xsrfToken = this._getCookie("XSRF-TOKEN");
 
       const res = await fetch(LoginForm.LOGIN_ENDPOINT, {
         method: "POST",
         credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-          ...(xsrfToken ? { "X-XSRF-TOKEN": xsrfToken } : {})
-        },
+        headers: this._buildHeaders(xsrfToken),
         body: JSON.stringify({ email, password })
       });
 
@@ -327,7 +388,7 @@ class LoginForm extends HTMLElement {
     }
   }
 
-  async _handleCodeSubmit(form, submitBtn) {
+  async _handleSendCode(form, submitBtn) {
     const identifierInput = form.querySelector('[data-login-identifier="true"]');
     const identifierError = form.querySelector('[data-login-identifier-error="true"]');
     const raw             = (identifierInput?.value || "").trim();
@@ -349,11 +410,104 @@ class LoginForm extends HTMLElement {
 
     this._setSubmitState(submitBtn, true);
 
-    // TODO: wire up to the send-code API endpoint when available
-    console.log(`Sending login code to ${type}: ${raw}`);
-    this._showMessage("success", `A login code has been sent to your ${type}.`);
+    try {
+      await this._ensureCsrfCookie();
+      const xsrfToken = this._getCookie("XSRF-TOKEN");
 
-    this._setSubmitState(submitBtn, false);
+      const payload = {
+        email: type === "email" ? raw : "",
+        phone: type === "phone" ? raw : ""
+      };
+
+      const res = await fetch(LoginForm.SEND_CODE_ENDPOINT, {
+        method: "POST",
+        credentials: "include",
+        headers: this._buildHeaders(xsrfToken),
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        const msg = data?.message || data?.error || "Failed to send code. Please try again.";
+        this._showMessage("error", msg);
+        return;
+      }
+
+      // Store identifier for use in the validate step
+      this._codeIdentifier = raw;
+      this._codeType       = type;
+
+      // Advance to OTP step
+      this._hideMessages();
+      this._switchCodeStep("otp");
+
+    } catch (err) {
+      this._showMessage("error", err.message || "Failed to send code due to a network error.");
+      console.error("Send code error:", err);
+    } finally {
+      this._setSubmitState(submitBtn, false);
+    }
+  }
+
+  async _handleValidateCode(form, submitBtn) {
+    const otpInput = form.querySelector('[data-login-otp="true"]');
+    const otpError = form.querySelector('[data-login-otp-error="true"]');
+    const code     = (otpInput?.value || "").trim();
+
+    // Reset inline error
+    otpError.style.display = "none";
+    otpError.textContent   = "";
+    otpInput.classList.remove("is-error");
+
+    if (!code) {
+      otpError.textContent   = "Please enter the code sent to you.";
+      otpError.style.display = "block";
+      otpInput.classList.add("is-error");
+      otpInput.focus();
+      return;
+    }
+
+    this._setSubmitState(submitBtn, true);
+
+    try {
+      await this._ensureCsrfCookie();
+      const xsrfToken = this._getCookie("XSRF-TOKEN");
+
+      const payload = {
+        email: this._codeType === "email" ? this._codeIdentifier : "",
+        phone: this._codeType === "phone" ? this._codeIdentifier : "",
+        code
+      };
+
+      const res = await fetch(LoginForm.VALIDATE_CODE_ENDPOINT, {
+        method: "POST",
+        credentials: "include",
+        headers: this._buildHeaders(xsrfToken),
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        const msg = data?.message || data?.error || "Invalid code. Please try again.";
+        otpError.textContent   = msg;
+        otpError.style.display = "block";
+        otpInput.classList.add("is-error");
+        return;
+      }
+
+      // Successful OTP login — same session setup as password login
+      await this._setUserSessionCookie();
+      this._showMessage("success", "Logged in successfully.");
+      window.location.href = "/";
+
+    } catch (err) {
+      this._showMessage("error", err.message || "Verification failed due to a network error.");
+      console.error("Validate code error:", err);
+    } finally {
+      this._setSubmitState(submitBtn, false);
+    }
   }
 
   async _handleSubmit(e) {
@@ -367,8 +521,10 @@ class LoginForm extends HTMLElement {
 
     if (this._activePanel === "password") {
       await this._handlePasswordSubmit(form, submitBtn);
+    } else if (this._codeStep === "identifier") {
+      await this._handleSendCode(form, submitBtn);
     } else {
-      await this._handleCodeSubmit(form, submitBtn);
+      await this._handleValidateCode(form, submitBtn);
     }
   }
 
@@ -377,9 +533,21 @@ class LoginForm extends HTMLElement {
     const form        = this.querySelector('[data-login-form="true"]');
     const registerBtn = this.querySelector('#go-to-register');
     const toggleBtns  = this.querySelectorAll('.form_toggle-btn');
+    const resendBtn   = this.querySelector('[data-resend-code="true"]');
 
     toggleBtns.forEach(btn => {
       btn.addEventListener('click', () => this._switchPanel(btn.dataset.toggle));
+    });
+
+    resendBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      if (this._codeStep !== "otp" || !this._codeIdentifier) return;
+
+      // Re-use _handleSendCode by temporarily faking the form state
+      const submitBtn = form.querySelector('[data-login-submit="true"]');
+      this._switchCodeStep("identifier");
+      form.querySelector('[data-login-identifier="true"]').value = this._codeIdentifier;
+      await this._handleSendCode(form, submitBtn);
     });
 
     if (form && form.dataset.loginBound !== "true") {
