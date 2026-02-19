@@ -38,6 +38,8 @@
 }
 
 .form_toggle-btn.is-active {
-    background: var(--surface, #16161c);
-    color: var(--text, #e8e4dd);
+    /*background: var(--surface, #16161c);
+    color: var(--text, #e8e4dd);*/
+    background: #16161c;
+    color: #e8e4dd;
 }
