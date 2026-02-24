@@ -134,7 +134,7 @@ class RegisterForm extends HTMLElement {
         </div>
 
         <!-- Error message -->
-        <div class="form_message-error-wrapper" data-register-error-wrapper="true" style="display:none">
+        <div class="form_message-error-wrapper w-form-fail" data-register-error-wrapper="true" style="display:none">
           <div class="form_message-error">
             <div data-register-error="true"></div>
           </div>
@@ -232,16 +232,12 @@ class RegisterForm extends HTMLElement {
     submitBtn.value = loading ? "Please wait..." : "Create account & Continue";
   }
 
-  _showSuccess() {
-    // Replace the entire component with a success message
-    const wrapper = document.createElement("div");
-    wrapper.className = "form_message-success-wrapper";
-    wrapper.innerHTML = `
-      <div class="form_message-success">
-        <div>Almost there! Please check your email and verify your address before logging in.</div>
-      </div>
-    `;
-    this.replaceWith(wrapper);
+  static ONBOARDING_URL = "https://dev-frontend.primedclinic.com.au/client-onboarding";
+
+  _showSuccess(userId) {
+    const url = new URL(RegisterForm.ONBOARDING_URL);
+    if (userId) url.searchParams.set("user_id", userId);
+    window.location.href = url.toString();
   }
 
   // ── Register handler ─────────────────────────────────────────────────────
@@ -306,8 +302,8 @@ class RegisterForm extends HTMLElement {
         return;
       }
 
-      // Success — swap the form for a verification prompt
-      this._showSuccess();
+      // Success — redirect to onboarding with user_id as a URL parameter
+      this._showSuccess(data.user_id);
 
     } catch (err) {
       this._showError(err.message || "Registration failed due to a network error.");
