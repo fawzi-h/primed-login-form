@@ -8,6 +8,10 @@ class LoginForm extends HTMLElement {
   static SANCTUM_CSRF_ENDPOINT    = "https://api.dev.primedclinic.com.au/sanctum/csrf-cookie";
   static CSRF_TTL_SECONDS         = 7200; // 2 hours
   static CSRF_EXPIRY_COOKIE       = "wf_csrf_expires_at";
+  // URL param that triggers the register form on load.
+  // Matches ?view=register  OR  #register
+  static REGISTER_PARAM_NAME      = "view";
+  static REGISTER_PARAM_VALUE     = "register";
 
   // ── Lifecycle ────────────────────────────────────────────────────────────
   connectedCallback() {
@@ -180,6 +184,26 @@ class LoginForm extends HTMLElement {
     this._codeIdentifier = null;
     this._codeType       = null;
     this._bindEvents();
+
+    // If the URL contains the register param or hash, swap to the register form immediately
+    if (this._shouldShowRegister()) {
+      const registerForm = document.createElement('register-form');
+      this.replaceWith(registerForm);
+    }
+  }
+
+  // ── Register redirect detection ──────────────────────────────────────────
+  _shouldShowRegister() {
+    // Check query param: e.g. ?view=register
+    const params = new URLSearchParams(window.location.search);
+    if (params.get(LoginForm.REGISTER_PARAM_NAME) === LoginForm.REGISTER_PARAM_VALUE) {
+      return true;
+    }
+    // Check hash: e.g. #register
+    if (window.location.hash === `#${LoginForm.REGISTER_PARAM_VALUE}`) {
+      return true;
+    }
+    return false;
   }
 
   // ── Identifier detection ─────────────────────────────────────────────────
@@ -195,31 +219,26 @@ class LoginForm extends HTMLElement {
   _switchPanel(panel) {
     this._activePanel = panel;
 
-    const allPanels     = this.querySelectorAll('[data-login-panel]');
-    const toggleWrapper = this.querySelector('[data-login-toggle-wrapper]');
+    const allPanels          = this.querySelectorAll('[data-login-panel]');
+    const toggleWrapper      = this.querySelector('[data-login-toggle-wrapper]');
     const registerBtnWrapper = this.querySelector('[data-login-register-btn-wrapper]');
 
-    // Show only the target panel
     allPanels.forEach(el => {
       el.style.display = el.dataset.loginPanel === panel ? "" : "none";
     });
 
-    // Hide toggle and register button on the reset panel
     const isReset = panel === "reset";
     if (toggleWrapper)      toggleWrapper.style.display      = isReset ? "none" : "";
     if (registerBtnWrapper) registerBtnWrapper.style.display = isReset ? "none" : "";
 
-    // Reset code flow when switching back to code panel
     if (panel === "code") {
       this._switchCodeStep("identifier");
     }
 
-    // Focus the reset email input when switching to reset panel
     if (panel === "reset") {
       this.querySelector('[data-reset-email="true"]')?.focus();
     }
 
-    // Update toggle button active states (only relevant for password/code)
     this.querySelectorAll('.form_toggle-btn').forEach(btn => {
       btn.classList.toggle('is-active', btn.dataset.toggle === panel);
     });
@@ -250,13 +269,13 @@ class LoginForm extends HTMLElement {
 
     if (loading) {
       submitBtn.value = this._activePanel === "password" ? "Logging in..."
-        : this._activePanel === "reset"    ? "Sending..."
-        : this._codeStep === "identifier"  ? "Sending..."
+        : this._activePanel === "reset"   ? "Sending..."
+        : this._codeStep === "identifier" ? "Sending..."
         : "Verifying...";
     } else {
       submitBtn.value = this._activePanel === "password" ? "Login"
-        : this._activePanel === "reset"    ? "Send Reset Link"
-        : this._codeStep === "identifier"  ? "Send Code"
+        : this._activePanel === "reset"   ? "Send Reset Link"
+        : this._codeStep === "identifier" ? "Send Code"
         : "Verify Code";
     }
   }
@@ -545,7 +564,6 @@ class LoginForm extends HTMLElement {
     const emailError = form.querySelector('[data-reset-email-error="true"]');
     const email      = (emailInput?.value || "").trim();
 
-    // Reset inline error
     emailError.style.display = "none";
     emailError.textContent   = "";
     emailInput.classList.remove("is-error");
