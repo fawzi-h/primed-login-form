@@ -13,6 +13,22 @@ class LoginForm extends HTMLElement {
   static REGISTER_PARAM_NAME      = "view";
   static REGISTER_PARAM_VALUE     = "register";
 
+  // Domain → post-login redirect map.
+  // The first hostname that ends with the key is used.
+  static LOGIN_REDIRECT_MAP = {
+    "dev-frontend.primedclinic.com.au": "https://api.dev.primedclinic.com.au/patient",
+    "primedclinic.com.au":              "https://api.primedclinic.com.au/patient",
+  };
+
+  // ── Redirect helper ─────────────────────────────────────────────────────
+  _getLoginRedirectUrl() {
+    const hostname = window.location.hostname;
+    for (const [key, url] of Object.entries(LoginForm.LOGIN_REDIRECT_MAP)) {
+      if (hostname === key || hostname.endsWith("." + key)) return url;
+    }
+    return "/"; // fallback
+  }
+
   // ── Lifecycle ────────────────────────────────────────────────────────────
   connectedCallback() {
     this.innerHTML = `
@@ -43,7 +59,7 @@ class LoginForm extends HTMLElement {
             <input
               class="form_input w-input"
               maxlength="256"
-              name="Email"
+              name="Log-In-Form-7-Email"
               placeholder=""
               type="email"
               data-login-email="true"
@@ -59,7 +75,7 @@ class LoginForm extends HTMLElement {
             <input
               class="form_input w-input"
               maxlength="256"
-              name="Password"
+              name="Log-In-Form-7-Password"
               placeholder=""
               type="password"
               data-login-password="true"
@@ -433,7 +449,7 @@ class LoginForm extends HTMLElement {
 
       await this._setUserSessionCookie();
       this._showMessage("success", "Logged in successfully.");
-      window.location.href = "https://api.primedclinic.com.au/patient";
+      window.location.href = this._getLoginRedirectUrl();
 
     } catch (err) {
       this._showMessage("error", err.message || "Login failed due to a network error.");
@@ -549,7 +565,7 @@ class LoginForm extends HTMLElement {
 
       await this._setUserSessionCookie();
       this._showMessage("success", "Logged in successfully.");
-      window.location.href = "/";
+      window.location.href = this._getLoginRedirectUrl();
 
     } catch (err) {
       this._showMessage("error", err.message || "Verification failed due to a network error.");
