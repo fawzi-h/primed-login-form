@@ -433,7 +433,7 @@ class LoginForm extends HTMLElement {
 
       await this._setUserSessionCookie();
       this._showMessage("success", "Logged in successfully.");
-      window.location.href = "/";
+      window.location.href = "https://api.primedclinic.com.au/patient";
 
     } catch (err) {
       this._showMessage("error", err.message || "Login failed due to a network error.");
