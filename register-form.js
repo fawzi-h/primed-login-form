@@ -6,6 +6,24 @@ class RegisterForm extends HTMLElement {
   static CSRF_TTL_SECONDS      = 7200;
   static CSRF_EXPIRY_COOKIE    = "wf_csrf_expires_at";
 
+  // Domain → login endpoint map (mirrors login-form.js)
+  static REGISTER_ENDPOINT_MAP = {
+    "dev-frontend.primedclinic.com.au": "https://api.dev.primedclinic.com.au/api/register/guest",
+    "primedclinic.com.au":              "https://api.primedclinic.com.au/api/register/guest",
+  };
+
+  // Domain → login endpoint map (mirrors login-form.js)
+  static LOGIN_ENDPOINT_MAP = {
+    "dev-frontend.primedclinic.com.au": "https://api.dev.primedclinic.com.au/api/login",
+    "primedclinic.com.au":              "https://api.primedclinic.com.au/api/login",
+  };
+
+  // Domain → onboarding redirect map
+  static ONBOARDING_URL_MAP = {
+    "dev-frontend.primedclinic.com.au": "https://dev-frontend.primedclinic.com.au/client-onboarding",
+    "primedclinic.com.au":              "https://primedclinic.com.au/client-onboarding",
+  };
+
   // ── Lifecycle ────────────────────────────────────────────────────────────
   connectedCallback() {
     this.innerHTML = `
@@ -232,7 +250,29 @@ class RegisterForm extends HTMLElement {
     submitBtn.value = loading ? "Please wait..." : "Create account & Continue";
   }
 
-  static ONBOARDING_URL = "https://dev-frontend.primedclinic.com.au/client-onboarding";
+  _getOnboardingUrl() {
+    const hostname = window.location.hostname;
+    for (const [key, url] of Object.entries(RegisterForm.ONBOARDING_URL_MAP)) {
+      if (hostname === key || hostname.endsWith("." + key)) return url;
+    }
+    return "/client-onboarding"; // fallback
+  }
+
+  _getLoginEndpoint() {
+    const hostname = window.location.hostname;
+    for (const [key, url] of Object.entries(RegisterForm.LOGIN_ENDPOINT_MAP)) {
+      if (hostname === key || hostname.endsWith("." + key)) return url;
+    }
+    return RegisterForm.REGISTER_ENDPOINT.replace("/register/guest", "/login"); // fallback
+  }
+
+  _getRegisterEndpoint() {
+    const hostname = window.location.hostname;
+    for (const [key, url] of Object.entries(RegisterForm.REGISTER_ENDPOINT_MAP)) {
+      if (hostname === key || hostname.endsWith("." + key)) return url;
+    }
+    return RegisterForm.REGISTER_ENDPOINT; // fallback
+  }
 
   // ── JWT / session cookie (mirrors login-form.js) ─────────────────────────
   async _generateUserToken() {
@@ -271,9 +311,41 @@ class RegisterForm extends HTMLElement {
   }
 
   _showSuccess(userId) {
-    const url = new URL(RegisterForm.ONBOARDING_URL);
+    const url = new URL(this._getOnboardingUrl());
     if (userId) url.searchParams.set("user_id", userId);
     window.location.href = url.toString();
+  }
+
+  // ── Auto-login after registration ───────────────────────────────────────────
+  async _autoLogin(email, password, userId) {
+    try {
+      await this._ensureCsrfCookie();
+      const xsrfToken = this._getCookie("XSRF-TOKEN");
+
+      const res = await fetch(this._getLoginEndpoint(), {
+        method:      "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept":        "application/json",
+          ...(xsrfToken ? { "X-XSRF-TOKEN": xsrfToken } : {})
+        },
+        body: JSON.stringify({ email, password })
+      });
+
+      if (res.ok) {
+        await this._setUserSessionCookie();
+        console.log("register-form: auto-login successful.");
+      } else {
+        // Login failed — still redirect, but without the session cookie.
+        // The user can log in manually on the next page.
+        console.warn("register-form: auto-login failed, continuing without session.");
+      }
+    } catch (err) {
+      console.warn("register-form: auto-login error, continuing without session.", err);
+    }
+
+    this._showSuccess(userId);
   }
 
   // ── Register handler ─────────────────────────────────────────────────────
@@ -304,10 +376,12 @@ class RegisterForm extends HTMLElement {
 
       const xsrfToken = this._getCookie("XSRF-TOKEN");
 
+      const email   = (this.querySelector("#register-email")?.value || "").trim();
+
       const payload = {
         first_name:   (this.querySelector("#register-first-name")?.value   || "").trim(),
         last_name:    (this.querySelector("#register-last-name")?.value    || "").trim(),
-        email:        (this.querySelector("#register-email")?.value        || "").trim(),
+        email,
         phone:        (this.querySelector("#register-phone")?.value        || "").trim(),
         address:      (this.querySelector("#register-address")?.value      || "").trim(),
         streetNumber: "",
@@ -319,7 +393,7 @@ class RegisterForm extends HTMLElement {
         referral_code: (this.querySelector("#register-referral-code")?.value || "").trim()
       };
 
-      const res = await fetch(RegisterForm.REGISTER_ENDPOINT, {
+      const res = await fetch(this._getRegisterEndpoint(), {
         method: "POST",
         credentials: "include",
         headers: {
@@ -338,9 +412,8 @@ class RegisterForm extends HTMLElement {
         return;
       }
 
-      // Success — set the frontend session cookie then redirect to onboarding
-      await this._setUserSessionCookie();
-      this._showSuccess(data.user_id);
+      // Success — auto-login with the credentials just used, then redirect
+      await this._autoLogin(email, password.value, data.user_id);
 
     } catch (err) {
       this._showError(err.message || "Registration failed due to a network error.");
