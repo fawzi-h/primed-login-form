@@ -234,6 +234,42 @@ class RegisterForm extends HTMLElement {
 
   static ONBOARDING_URL = "https://dev-frontend.primedclinic.com.au/client-onboarding";
 
+  // ── JWT / session cookie (mirrors login-form.js) ─────────────────────────
+  async _generateUserToken() {
+    const b64url = (buf) =>
+      btoa(String.fromCharCode(...new Uint8Array(buf)))
+        .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+
+    const encode = (obj) => b64url(new TextEncoder().encode(JSON.stringify(obj)));
+
+    const header  = encode({ alg: "HS256", typ: "JWT" });
+    const payload = encode({
+      iat: Math.floor(Date.now() / 1000),
+      jti: crypto.randomUUID(),
+      session: true
+    });
+
+    const signingKey = await crypto.subtle.generateKey(
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["sign"]
+    );
+
+    const sigBuf = await crypto.subtle.sign(
+      "HMAC",
+      signingKey,
+      new TextEncoder().encode(`${header}.${payload}`)
+    );
+
+    return `${header}.${payload}.${b64url(sigBuf)}`;
+  }
+
+  async _setUserSessionCookie() {
+    const token  = await this._generateUserToken();
+    const secure = location.protocol === "https:" ? "; Secure" : "";
+    document.cookie = `__user=${encodeURIComponent(token)}; Path=/; SameSite=Lax${secure}`;
+  }
+
   _showSuccess(userId) {
     const url = new URL(RegisterForm.ONBOARDING_URL);
     if (userId) url.searchParams.set("user_id", userId);
@@ -302,7 +338,8 @@ class RegisterForm extends HTMLElement {
         return;
       }
 
-      // Success — redirect to onboarding with user_id as a URL parameter
+      // Success — set the frontend session cookie then redirect to onboarding
+      await this._setUserSessionCookie();
       this._showSuccess(data.user_id);
 
     } catch (err) {
