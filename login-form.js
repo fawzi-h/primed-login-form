@@ -17,7 +17,7 @@ class LoginForm extends HTMLElement {
   // The first hostname that ends with the key is used.
   static LOGIN_REDIRECT_MAP = {
     "dev-frontend.primedclinic.com.au": "https://api.dev.primedclinic.com.au/patient",
-    "primedclinic.com.au":              "https://api.primedclinic.com.au/patient",
+    "primedclinic.com.au":              "https://app.primedclinic.com.au/patient",
   };
 
   // ── Redirect helper ─────────────────────────────────────────────────────
