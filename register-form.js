@@ -9,21 +9,24 @@ class RegisterForm extends HTMLElement {
   // Domain → login endpoint map (mirrors login-form.js)
   static REGISTER_ENDPOINT_MAP = {
     "dev-frontend.primedclinic.com.au": "https://api.dev.primedclinic.com.au/api/register/guest",
-    "primedclinic.com.au":              "https://api.primedclinic.com.au/api/register/guest",
+    "www.primedclinic.com.au":              "https://app.primedclinic.com.au/api/register/guest",
   };
 
   // Domain → login endpoint map (mirrors login-form.js)
   static LOGIN_ENDPOINT_MAP = {
     "dev-frontend.primedclinic.com.au": "https://api.dev.primedclinic.com.au/api/login",
-    "primedclinic.com.au":              "https://api.primedclinic.com.au/api/login",
+    "www.primedclinic.com.au":              "https://app.primedclinic.com.au/api/login",
   };
 
   // Domain → onboarding redirect map
   static ONBOARDING_URL_MAP = {
     "dev-frontend.primedclinic.com.au": "https://dev-frontend.primedclinic.com.au/client-onboarding",
-    "primedclinic.com.au":              "https://primedclinic.com.au/client-onboarding",
+    "www.primedclinic.com.au":              "https://primedclinic.com.au/client-onboarding",
   };
-
+  static SANCTUM_CSRF_ENDPOINT_MAP = {
+    "dev-frontend.primedclinic.com.au": "https://api.dev.primedclinic.com.au/sanctum/csrf-cookie",
+    "www.primedclinic.com.au":          "https://app.primedclinic.com.au/sanctum/csrf-cookie",
+  };
   // ── Lifecycle ────────────────────────────────────────────────────────────
   connectedCallback() {
     this.innerHTML = `
@@ -216,7 +219,7 @@ class RegisterForm extends HTMLElement {
   async _ensureCsrfCookie() {
     if (this._csrfIsValid()) return;
 
-    await fetch(RegisterForm.SANCTUM_CSRF_ENDPOINT, {
+    await fetch(this._getCsrfEndpoint(), {
       method: "GET",
       credentials: "include"
     });
@@ -273,7 +276,14 @@ class RegisterForm extends HTMLElement {
     }
     return RegisterForm.REGISTER_ENDPOINT; // fallback
   }
-
+  // helper to resolve CSRF endpoint
+  _getCsrfEndpoint() {
+    const hostname = window.location.hostname;
+    for (const [key, url] of Object.entries(RegisterForm.SANCTUM_CSRF_ENDPOINT_MAP)) {
+      if (hostname === key || hostname.endsWith("." + key)) return url;
+    }
+    return RegisterForm.SANCTUM_CSRF_ENDPOINT; // fallback
+  }
   // ── JWT / session cookie (mirrors login-form.js) ─────────────────────────
   async _generateUserToken() {
     const b64url = (buf) =>
