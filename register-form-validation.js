@@ -242,8 +242,8 @@
     attachLiveValidation(lastName, function () { requireValue(lastName, "Last name is required."); });
     attachLiveValidation(email, function () { validateEmail(email); });
     attachLiveValidation(phone, function () { validatePhone(phone); });
-
-    attachLiveValidation(address, function () { validateAddressLine(address); });
+    //skip address field validation
+    // attachLiveValidation(address, function () { validateAddressLine(address); });
     attachLiveValidation(streetNumber, function () { validateStreetNumber(streetNumber); });
     attachLiveValidation(streetName, function () { validateStreetName(streetName); });
     attachLiveValidation(suburb, function () { validateSuburb(suburb); });
