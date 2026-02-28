@@ -7833,9 +7833,17 @@
         l = String(n.getDate()).padStart(2, "0");
         return t.replace("yyyy", r).replace("MM", a).replace("dd", l)
     }
-    const c = "/api";
+    function c() {
+        const e = document.getElementById("survey-root");
+        if (e) {
+            const t = e.getAttribute("data-api-base");
+            if (t)
+                return t.replace(/\/$/, "")
+        }
+        return "/api"
+    }
     async function d(e, t = {}) {
-        const n = t.rawPath ? e : `${c}${e}`,
+        const n = t.rawPath ? e : `${c()}${e}`,
         r = await fetch(n, {
             method: "GET",
             credentials: "include",
@@ -7854,7 +7862,7 @@
         return r.json()
     }
     async function f(e, t) {
-        const n = `${c}${e}`,
+        const n = `${c()}${e}`,
         r = await fetch(n, {
             method: "POST",
             credentials: "include",
