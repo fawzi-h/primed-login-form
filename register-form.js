@@ -1,9 +1,7 @@
+// handle hide/unhide address fields
 (function () {
   "use strict";
 
-  // =========================
-  // CONFIG
-  // =========================
   const LOOKUP_ID = "register-address";
   const DETAILS_WRAPPER_ID = "address-details-wrapper";
 
@@ -15,50 +13,36 @@
     postcode: "postcode",
   };
 
-  // =========================
-  // CSS injection (animation + errors)
-  // =========================
   function injectStyles() {
-    if (document.getElementById("primed-address-anim-styles")) return;
+    if (document.getElementById("primed-address-inlinehide-styles")) return;
 
     const style = document.createElement("style");
-    style.id = "primed-address-anim-styles";
+    style.id = "primed-address-inlinehide-styles";
     style.textContent = `
-      /* Reveal animation */
-      .addr-hidden {
-        display: none !important;
-      }
-
-      .addr-collapsed {
-        display: block !important;
-        max-height: 0;
-        opacity: 0;
+      /* Reveal animation using max-height + opacity */
+      .addr-anim {
         overflow: hidden;
-        pointer-events: none;
         transition: max-height 260ms ease, opacity 220ms ease;
+        will-change: max-height, opacity;
       }
 
-      .addr-expanded {
-        display: block !important;
-        max-height: 900px; /* large enough for the group */
-        opacity: 1;
-        overflow: visible;
-        pointer-events: auto;
+      /* Ensure spacing matches other fields */
+      #${DETAILS_WRAPPER_ID} {
+        margin-top: 16px;
+        margin-bottom: 16px;
+      }
+      /* Add spacing between rows inside the wrapper */
+      #${DETAILS_WRAPPER_ID} > .form_field-2col + .form_field-2col,
+      #${DETAILS_WRAPPER_ID} > .form_field-wrapper + .form_field-wrapper,
+      #${DETAILS_WRAPPER_ID} > .form_field-wrapper + .form_field-2col,
+      #${DETAILS_WRAPPER_ID} > .form_field-2col + .form_field-wrapper {
+        margin-top: 16px;
       }
 
-      /* Validation styling */
-      .is-invalid {
-        border-color: #d93025 !important;
-      }
-      .field-error {
-        color: #d93025;
-        font-size: 0.875rem;
-        margin-top: 6px;
-        display: none;
-      }
-      .field-error.is-visible {
-        display: block;
-      }
+      /* Validation styling (optional) */
+      .is-invalid { border-color: #d93025 !important; }
+      .field-error { color: #d93025; font-size: 0.875rem; margin-top: 6px; display: none; }
+      .field-error.is-visible { display: block; }
     `;
     document.head.appendChild(style);
   }
@@ -67,39 +51,46 @@
     return document.getElementById(id);
   }
 
-  // =========================
-  // Animated show/hide
-  // =========================
-  function hideAnimated(el) {
+  function setCollapsedInline(el) {
     if (!el) return;
-
-    // Start from expanded -> collapsed
-    el.classList.remove("addr-expanded");
-    el.classList.add("addr-collapsed");
-
-    // After transition, set display none
-    window.setTimeout(function () {
-      el.classList.add("addr-hidden");
-    }, 280);
+    el.classList.add("addr-anim");
+    el.style.display = "block";
+    el.style.maxHeight = "0px";
+    el.style.opacity = "0";
+    el.style.pointerEvents = "none";
   }
 
-  function showAnimated(el) {
+  function setExpandedInline(el) {
     if (!el) return;
+    el.classList.add("addr-anim");
+    el.style.display = "block";
+    el.style.pointerEvents = "auto";
 
-    // Ensure it can animate from collapsed state
-    el.classList.remove("addr-hidden");
-    el.classList.add("addr-collapsed");
+    const targetHeight = el.scrollHeight;
+    el.style.maxHeight = targetHeight + "px";
+    el.style.opacity = "1";
 
-    // Trigger reflow so transition applies
+    window.setTimeout(function () {
+      el.style.maxHeight = "none";
+    }, 300);
+  }
+
+  function hideExpandedInline(el) {
+    if (!el) return;
+    el.classList.add("addr-anim");
+
+    const currentHeight = el.scrollHeight;
+    el.style.maxHeight = currentHeight + "px";
+    el.style.opacity = "1";
+    el.style.pointerEvents = "auto";
+
     void el.offsetHeight;
 
-    el.classList.add("addr-expanded");
-    el.classList.remove("addr-collapsed");
+    el.style.maxHeight = "0px";
+    el.style.opacity = "0";
+    el.style.pointerEvents = "none";
   }
 
-  // =========================
-  // Address parsing helpers
-  // =========================
   function getComponent(place, type) {
     if (!place || !place.address_components) return null;
     for (const c of place.address_components) {
@@ -135,16 +126,12 @@
   }
 
   function clearAddressFields() {
-    const ids = Object.values(FIELD_IDS);
-    ids.forEach(function (id) {
+    Object.values(FIELD_IDS).forEach(function (id) {
       const el = $(id);
       if (el) el.value = "";
     });
   }
 
-  // =========================
-  // Wait for Google Places
-  // =========================
   function waitForPlaces(onReady, onFail) {
     const start = Date.now();
     const maxWaitMs = 15000;
@@ -167,9 +154,6 @@
     })();
   }
 
-  // =========================
-  // Init
-  // =========================
   function init() {
     injectStyles();
 
@@ -178,9 +162,7 @@
 
     if (!lookupInput || !detailsWrapper) return;
 
-    // Ensure initial hidden state (even if designer accidentally shows it)
-    detailsWrapper.classList.add("addr-hidden");
-    detailsWrapper.classList.remove("addr-expanded", "addr-collapsed");
+    setCollapsedInline(detailsWrapper);
 
     waitForPlaces(
       function () {
@@ -197,20 +179,18 @@
           if (place.formatted_address) lookupInput.value = place.formatted_address;
 
           populateAddress(place);
-          showAnimated(detailsWrapper);
+          setExpandedInline(detailsWrapper);
         });
 
-        // Hide and clear if user deletes the lookup field value
         lookupInput.addEventListener("input", function () {
           if (!lookupInput.value.trim()) {
             clearAddressFields();
-            hideAnimated(detailsWrapper);
+            hideExpandedInline(detailsWrapper);
           }
         });
       },
       function () {
-        // If Places never loads, do not block the user: show fields for manual entry
-        showAnimated(detailsWrapper);
+        setExpandedInline(detailsWrapper);
       }
     );
   }
@@ -222,8 +202,7 @@
   }
 })();
 
-
-
+// display the registration form 
 class RegisterForm extends HTMLElement {
 
   // ── Config ──────────────────────────────────────────────────────────────
@@ -294,7 +273,7 @@ class RegisterForm extends HTMLElement {
     <input class="form_input w-input" maxlength="256" name="Address"
       placeholder="Address" type="text" id="register-address" required />
   </div>
-<div id="address-details-wrapper" style="display: none;">
+<div id="address-details-wrapper" style="max-height:0; overflow:hidden; opacity:0;">
   <!-- Street Number + Street Name -->
   <div class="form_field-2col">
     <div class="form_field-wrapper">
