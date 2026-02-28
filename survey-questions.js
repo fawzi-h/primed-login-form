@@ -7983,15 +7983,16 @@
         [q, K] = (0, a.useState)(!1),
         [Y, X] = (0, a.useState)(!1),
         [G, J] = (0, a.useState)(!1),
-        [Z, ee] = (0, a.useState)(""),
-        [te, ne] = (0, a.useState)(!1),
+        [Z, ee] = (0, a.useState)(!1),
+        [te, ne] = (0, a.useState)(""),
         [re, ae] = (0, a.useState)(!1),
-        [le, oe] = (0, a.useState)(n || ""),
-        [ie, ue] = (0, a.useState)({
+        [le, oe] = (0, a.useState)(!1),
+        [ie, ue] = (0, a.useState)(n || ""),
+        [se, ce] = (0, a.useState)({
             firstName: v,
             lastName: y,
             email: b,
-            phone: be(w || "+61 "),
+            phone: xe(w || "+61 "),
             address: "",
             streetNumber: "",
             streetName: "",
@@ -8002,7 +8003,7 @@
             password: "",
             confirmPassword: ""
         }),
-        [se, ce] = (0, a.useState)({});
+        [de, fe] = (0, a.useState)({});
         (0, a.useEffect)(() => {
             try {
                 const e = sessionStorage.getItem("sessionData");
@@ -8016,7 +8017,7 @@
                 I(!1)
             }
         }, []);
-        const de = function ({
+        const pe = function ({
             requestOptions: e,
             debounce: t
         }) {
@@ -8074,38 +8075,39 @@
             },
             debounce: 300
         }), {
-            value: fe,
-            setValue: pe,
-            clearSuggestions: me,
-            suggestions: he
-        } = de, {
-            status: ge,
-            data: ve
-        } = he,
-        ye = (0, a.useMemo)(() => {
+            value: me,
+            setValue: he,
+            clearSuggestions: ge,
+            suggestions: ve
+        } = pe, {
+            status: ye,
+            data: be
+        } = ve,
+        we = (0, a.useMemo)(() => {
             try {
                 return e ? decodeURIComponent(e).split("-").map(e => e.charAt(0).toUpperCase() + e.slice(1)).join(" ") : ""
             } catch {
                 return e
             }
         }, [e]);
-        function be(e) {
+        function xe(e) {
             const t = (e || "").replace(/\D/g, "");
             return t ? !t.startsWith("614") || t.length < 11 ? e || "+61 " : `+61 ${t.slice(2, 5)} ${t.slice(5, 8)} ${t.slice(8, 11)}` : "+61 "
         }
-        function we(e) {
+        function ke(e) {
             return !!S[e] && (16 !== e && 17 !== e && ((1 !== e || "Male" !== N.sex_at_birth) && ((6 !== e || "Yes" === N.has_medical_conditions) && ((8 !== e || "Yes" === N.has_family_history) && ((10 !== e || "Yes" === N.taking_medications) && ((12 !== e || "Yes" === N.has_allergies) && (14 !== e || "Yes" === N.has_additional_info)))))))
         }
-        function xe(e) {
+        function Se(e) {
             const { name: t, value: n } = e.target;
-            ue(e => ({
+            ce(e => ({
                     ...e,
                     [t]: "phone" === t ? n.replace(/\D/g, "") : n
                 }))
         }
-        async function ke(e) {
-            pe(""),
-            me();
+        async function _e(e) {
+            he(e),
+            K(!0),
+            ge();
             try {
                 const t = await async function ({
                     address: e
@@ -8123,7 +8125,7 @@
                 ({
                     address: e
                 });
-                Se("address", e);
+                Ne("address", e);
                 const n = t[0]?.address_components || [],
                 r = e => n.find(t => t.types.includes(e))?.long_name || "";
                 [{
@@ -8142,57 +8144,57 @@
                         name: "postcode",
                         component: "postal_code"
                     }
-                ].forEach(e => Se(e.name, r(e.component))),
+                ].forEach(e => Ne(e.name, r(e.component))),
                 Q(!1)
             } catch {
                 r.push("/page/error")
             }
         }
-        function Se(e, t) {
-            ue(n => ({
+        function Ne(e, t) {
+            ce(n => ({
                     ...n,
                     [e]: t
                 }))
         }
-        async function _e(e) {
+        async function Ee(e) {
             if (e.preventDefault(), function () {
                 const e = {};
                 var t;
-                return ie.firstName || (e.firstName = "First name is required"),
-                ie.lastName || (e.lastName = "Last name is required"),
-                ie.email ? (t = ie.email, /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t) || (e.email = "Invalid email address")) : e.email = "Email is required",
-                ie.phone && "+61 " !== ie.phone ? ie.phone.startsWith("+61 4") ? ie.phone.length < 12 && (e.phone = "Invalid Phone number") : e.phone = "Phone number must start with 4 or 04." : e.phone = "Phone number is required",
-                ie.address || (e.address = "Address is required"),
-                ie.streetNumber || (e.streetNumber = "Street number is required"),
-                ie.streetName || (e.streetName = "Street name is required"),
-                ie.suburb || (e.suburb = "Suburb is required"),
-                ie.state || (e.state = "State is required"),
-                ie.postcode || (e.postcode = "Postcode is required"),
-                ie.password ? ie.password.length < 8 && (e.password = "Password must be at least 8 characters long") : e.password = "Password is required",
-                ie.confirmPassword || (e.confirmPassword = "Password is required"),
-                ie.password !== ie.confirmPassword && (e.confirmPassword = "Passwords do not match"),
-                ce(e),
+                return se.firstName || (e.firstName = "First name is required"),
+                se.lastName || (e.lastName = "Last name is required"),
+                se.email ? (t = se.email, /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t) || (e.email = "Invalid email address")) : e.email = "Email is required",
+                se.phone && "+61 " !== se.phone ? se.phone.startsWith("+61 4") ? se.phone.length < 12 && (e.phone = "Invalid Phone number") : e.phone = "Phone number must start with 4 or 04." : e.phone = "Phone number is required",
+                se.address || (e.address = "Address is required"),
+                se.streetNumber || (e.streetNumber = "Street number is required"),
+                se.streetName || (e.streetName = "Street name is required"),
+                se.suburb || (e.suburb = "Suburb is required"),
+                se.state || (e.state = "State is required"),
+                se.postcode || (e.postcode = "Postcode is required"),
+                se.password ? se.password.length < 8 && (e.password = "Password must be at least 8 characters long") : e.password = "Password is required",
+                se.confirmPassword || (e.confirmPassword = "Password is required"),
+                se.password !== se.confirmPassword && (e.confirmPassword = "Passwords do not match"),
+                fe(e),
                 0 === Object.keys(e).length
             }
                 ()) {
-                X(!0);
+                J(!0);
                 try {
                     await d("/sanctum/csrf-cookie", {
                         rawPath: !0
                     });
                     const e = await f("/register/guest", {
-                        first_name: ie.firstName,
-                        last_name: ie.lastName,
-                        email: ie.email,
-                        password: ie.password,
-                        phone: ie.phone,
-                        address: ie.address,
-                        streetNumber: ie.streetNumber,
-                        streetName: ie.streetName,
-                        suburb: ie.suburb,
-                        state: ie.state,
-                        postcode: ie.postcode,
-                        referral_code: ie.referral_code
+                        first_name: se.firstName,
+                        last_name: se.lastName,
+                        email: se.email,
+                        password: se.password,
+                        phone: se.phone,
+                        address: se.address,
+                        streetNumber: se.streetNumber,
+                        streetName: se.streetName,
+                        suburb: se.suburb,
+                        state: se.state,
+                        postcode: se.postcode,
+                        referral_code: se.referral_code
                     }),
                     t = e?.data?.user_id || e?.user_id;
                     t && R(String(t)),
@@ -8206,11 +8208,11 @@
                         a = t.phone?.[0],
                         l = t.referral_code?.[0];
                         r && a ? n = "Email and phone are already used." : r ? n = r + " Login to your account instead." : a ? n = a : l && (n = l),
-                        ee(n)
+                        ne(n)
                     } else
-                        ee("Server error. Please try again."), r.push("/page/error")
+                        ne("Server error. Please try again."), r.push("/page/error")
                 } finally {
-                    X(!1)
+                    J(!1)
                 }
             }
         }
@@ -8235,17 +8237,17 @@
                     e = !0
                 }
             }, []), (0, a.useEffect)(() => {
-                if (!le)
+                if (!ie)
                     return;
                 if (document.getElementById("gmaps"))
                     return;
                 const e = document.createElement("script");
                 e.id = "gmaps",
-                e.src = `https://maps.googleapis.com/maps/api/js?key=${le}&libraries=places&loading=async`,
+                e.src = `https://maps.googleapis.com/maps/api/js?key=${ie}&libraries=places&loading=async`,
                 e.async = !0,
                 e.defer = !0,
                 document.body.appendChild(e)
-            }, [le]), (0, a.useEffect)(() => {
+            }, [ie]), (0, a.useEffect)(() => {
                 g && W(!0)
             }, [g]), (0, a.useEffect)(() => {
                 let e = h,
@@ -8261,7 +8263,7 @@
                 a("first_name", v),
                 a("last_name", y),
                 a("email", b),
-                a("phone", w ? be(w) : void 0),
+                a("phone", w ? xe(w) : void 0),
                 t && r.replace(`${l}?${n.toString()}`)
             }, []), (0, a.useEffect)(() => {
                 if (!x || 0 === S.length)
@@ -8356,7 +8358,7 @@
                                 children: "That's it! You're all done."
                             }), (0, o.jsxs)("p", {
                                 className: "text-lg text-slate-300 mb-6 leading-relaxed",
-                                children: ["Thank you for completing the questionnaire. We look forward to discussing your", " ", ye, " health journey in your upcoming consultation."]
+                                children: ["Thank you for completing the questionnaire. We look forward to discussing your", " ", we, " health journey in your upcoming consultation."]
                             }), (0, o.jsx)("div", {
                                 className: "bg-teal-500/10 border border-teal-100 rounded-xl p-6 mb-8",
                                 children: (0, o.jsx)("p", {
@@ -8400,7 +8402,7 @@
                                 children: "Your Progress Is Saved!"
                             }), (0, o.jsxs)("p", {
                                 className: "text-lg text-slate-300 mb-6 leading-relaxed",
-                                children: ["Login anytime to your account to continue your questionnaire for the ", ye, " ", "telehealth assessment from where you stopped!"]
+                                children: ["Login anytime to your account to continue your questionnaire for the ", we, " ", "telehealth assessment from where you stopped!"]
                             }), (0, o.jsx)("div", {
                                 className: "bg-teal-500/10 border border-teal-100 rounded-xl p-6 mb-8",
                                 children: (0, o.jsx)("p", {
@@ -8467,9 +8469,9 @@
                 })
             })
         }
-        const Ne = e => "w-full rounded-xl border px-4 py-3.5 focus:outline-none focus:ring-2 transition-all " + (se[e] ? "border-red-500 focus:ring-red-400" : "border-[#faf08c] bg-white/5 text-white placeholder:text-white/40 focus:ring-[#003739] focus:border-transparent hover:border-[#faf08c]");
+        const Ce = e => "w-full rounded-xl border px-4 py-3.5 focus:outline-none focus:ring-2 transition-all " + (de[e] ? "border-red-500 focus:ring-red-400" : "border-[#faf08c] bg-white/5 text-white placeholder:text-white/40 focus:ring-[#003739] focus:border-transparent hover:border-[#faf08c]");
         return (0, o.jsxs)(o.Fragment, {
-            children: [!q && L && (0, o.jsx)("div", {
+            children: [!Y && L && (0, o.jsx)("div", {
                     className: "min-h-screen w-full flex flex-col items-center justify-center py-12 px-4 bg-primed-midnight-teal text-white",
                     children: (0, o.jsx)("div", {
                         className: "max-w-lg w-full",
@@ -8496,24 +8498,24 @@
                                             children: "Ready to Begin?"
                                         }), (0, o.jsxs)("p", {
                                             className: "text-slate-300 leading-relaxed",
-                                            children: ["Complete your ", ye, " questionnaire so we can provide you with the best personalized care."]
+                                            children: ["Complete your ", we, " questionnaire so we can provide you with the best personalized care."]
                                         })]
                                 }), (0, o.jsx)("button", {
                                     className: "w-full font-semibold rounded-xl px-8 py-4 hover:opacity-90 transition-opacity shadow-lg hover:shadow-xl bg-[#003739] text-white",
-                                    onClick: () => K(!0),
+                                    onClick: () => X(!0),
                                     children: "Start Questionnaire"
                                 })]
                         })
                     })
-                }), !(!q && L) && (0, o.jsx)("div", {
-                    className: !L || q ? "flex min-h-screen w-full justify-center bg-primed-midnight-teal text-white" : "container mx-auto py-8 lg:py-12 grid grid-cols-1 gap-8 bg-primed-midnight-teal text-white",
+                }), !(!Y && L) && (0, o.jsx)("div", {
+                    className: !L || Y ? "flex min-h-screen w-full justify-center bg-primed-midnight-teal text-white" : "container mx-auto py-8 lg:py-12 grid grid-cols-1 gap-8 bg-primed-midnight-teal text-white",
                     children: (0, o.jsxs)("div", {
-                        className: !L || q ? "w-full max-w-4xl flex flex-col justify-center px-6 md:px-12 py-12 relative" : "flex flex-col items-center",
-                        children: [q && (0, o.jsxs)("div", {
+                        className: !L || Y ? "w-full max-w-4xl flex flex-col justify-center px-6 md:px-12 py-12 relative" : "flex flex-col items-center",
+                        children: [Y && (0, o.jsxs)("div", {
                                 className: "w-full mb-8 flex items-center justify-between",
                                 children: [(0, o.jsx)("div", {}), (0, o.jsxs)("button", {
                                         onClick: async function () {
-                                            J(!0);
+                                            ee(!0);
                                             try {
                                                 await f("/register/complete", {
                                                     user_id: M || sessionStorage.getItem("userId"),
@@ -8550,7 +8552,7 @@
                                                 console.error("Save progress error:", e),
                                                 alert("An error occurred while saving progress. Please check the console.")
                                             } finally {
-                                                J(!1)
+                                                ee(!1)
                                             }
                                         },
                                         className: "group flex items-center text-[#faf08c] gap-2.5 bg-white/5 border hover:bg-white/10 px-5 py-2.5 rounded-full font-medium transition-all duration-300 shadow-sm hover:shadow border-[#faf08c]",
@@ -8571,7 +8573,7 @@
                                                 children: "Save Progress"
                                             })]
                                     })]
-                            }), L ? q && (0, o.jsxs)("div", {
+                            }), L ? Y && (0, o.jsxs)("div", {
                                 className: "w-full max-w-xl mx-auto",
                                 children: [(0, o.jsxs)("div", {
                                         className: "mb-8",
@@ -8606,18 +8608,18 @@
                                                             [e]: t
                                                         }))
                                                 },
-                                                errors: se,
-                                                setErrors: ce,
-                                                medicareCheckbox: te,
-                                                setMedicareCheckbox: ne,
-                                                medicineCheckbox: re,
-                                                setMedicineCheckbox: ae
+                                                errors: de,
+                                                setErrors: fe,
+                                                medicareCheckbox: re,
+                                                setMedicareCheckbox: ae,
+                                                medicineCheckbox: le,
+                                                setMedicineCheckbox: oe
                                             }), (0, o.jsxs)("div", {
                                                 className: "flex items-center justify-between pt-10 mt-10 border-t border-slate-100",
                                                 children: [(0, o.jsxs)("button", {
                                                         onClick: function () {
                                                             let e = C - 1;
-                                                            for (; e >= 0 && !we(e); )
+                                                            for (; e >= 0 && !ke(e); )
                                                                 e--;
                                                             e >= 0 && (P(e), z((e + 1) / S.length * 100))
                                                         },
@@ -8639,17 +8641,17 @@
                                                         onClick: function () {
                                                             const e = S[C]?.key,
                                                             t = "medicare_number" === e || "individual_reference_number" === e;
-                                                            if (S[C] && t && !te) {
+                                                            if (S[C] && t && !re) {
                                                                 const e = String(N.medicare_number ?? "").trim(),
                                                                 t = String(N.individual_reference_number ?? "").trim();
                                                                 let n = !1;
-                                                                if (e ? /^\d{10}$/.test(e) || (ce(e => ({
+                                                                if (e ? /^\d{10}$/.test(e) || (fe(e => ({
                                                                                 ...e,
                                                                                 question_15: "Medicare number must be 10 digits"
-                                                                            })), n = !0) : (ce(e => ({
+                                                                            })), n = !0) : (fe(e => ({
                                                                                 ...e,
                                                                                 question_15: "Medicare number is required"
-                                                                            })), n = !0), t || (ce(e => ({
+                                                                            })), n = !0), t || (fe(e => ({
                                                                                 ...e,
                                                                                 question_17: "Individual Reference Number is required"
                                                                             })), n = !0), n)
@@ -8662,7 +8664,7 @@
                                                                 V(!0),
                                                                 void r.replace(`${l}?${e.toString()}`)
                                                             }
-                                                            for (; n < S.length && !we(n); )
+                                                            for (; n < S.length && !ke(n); )
                                                                 n++;
                                                             n < S.length && (P(n), z((n + 1) / S.length * 100))
                                                         },
@@ -8681,7 +8683,7 @@
                                                             })]
                                                     }) : (0, o.jsx)("button", {
                                                         onClick: async function () {
-                                                            J(!0);
+                                                            ee(!0);
                                                             try {
                                                                 await f("/register/complete", {
                                                                     user_id: M || sessionStorage.getItem("userId"),
@@ -8709,7 +8711,7 @@
                                                                 });
                                                                 const e = {
                                                                     isAuthenticated: !0,
-                                                                    userName: ie.firstName || "Patient",
+                                                                    userName: se.firstName || "Patient",
                                                                     panelLink: `${u()}/patient`
                                                                 };
                                                                 localStorage.setItem("user_auth", JSON.stringify(e)),
@@ -8726,12 +8728,12 @@
                                                                 r.push("/page/error")
                                                             }
                                                             finally {
-                                                                J(!1)
+                                                                ee(!1)
                                                             }
                                                         },
-                                                        disabled: G,
-                                                        className: "group font-semibold rounded-full px-10 py-4 hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center gap-3 bg-[#003739] text-white " + (G ? "opacity-60 cursor-not-allowed" : ""),
-                                                        children: G ? (0, o.jsxs)(o.Fragment, {
+                                                        disabled: Z,
+                                                        className: "group font-semibold rounded-full px-10 py-4 hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center gap-3 bg-[#003739] text-white " + (Z ? "opacity-60 cursor-not-allowed" : ""),
+                                                        children: Z ? (0, o.jsxs)(o.Fragment, {
                                                             children: [(0, o.jsxs)("svg", {
                                                                     className: "animate-spin -ml-1 mr-2 h-5 w-5 text-white",
                                                                     xmlns: "http://www.w3.org/2000/svg",
@@ -8780,7 +8782,7 @@
                                             })]
                                     }), (0, o.jsxs)("form", {
                                         className: "w-full space-y-4",
-                                        onSubmit: _e,
+                                        onSubmit: Ee,
                                         children: [(0, o.jsxs)("div", {
                                                 className: "grid grid-cols-1 md:grid-cols-2 gap-4",
                                                 children: [(0, o.jsxs)("div", {
@@ -8788,26 +8790,26 @@
                                                                 type: "text",
                                                                 id: "firstName",
                                                                 name: "firstName",
-                                                                className: Ne("firstName"),
+                                                                className: Ce("firstName"),
                                                                 placeholder: "First Name",
-                                                                value: ie.firstName,
-                                                                onChange: xe
-                                                            }), se.firstName && (0, o.jsx)("small", {
+                                                                value: se.firstName,
+                                                                onChange: Se
+                                                            }), de.firstName && (0, o.jsx)("small", {
                                                                 className: "text-sm text-red-600 mt-1 block",
-                                                                children: se.firstName
+                                                                children: de.firstName
                                                             })]
                                                     }), (0, o.jsxs)("div", {
                                                         children: [(0, o.jsx)("input", {
                                                                 type: "text",
                                                                 id: "lastName",
                                                                 name: "lastName",
-                                                                className: Ne("lastName"),
+                                                                className: Ce("lastName"),
                                                                 placeholder: "Last Name",
-                                                                value: ie.lastName,
-                                                                onChange: xe
-                                                            }), se.lastName && (0, o.jsx)("small", {
+                                                                value: se.lastName,
+                                                                onChange: Se
+                                                            }), de.lastName && (0, o.jsx)("small", {
                                                                 className: "text-sm text-red-600 mt-1 block",
-                                                                children: se.lastName
+                                                                children: de.lastName
                                                             })]
                                                     })]
                                             }), (0, o.jsxs)("div", {
@@ -8815,21 +8817,21 @@
                                                         type: "text",
                                                         id: "email",
                                                         name: "email",
-                                                        className: Ne("email"),
+                                                        className: Ce("email"),
                                                         placeholder: "Email",
-                                                        value: ie.email,
-                                                        onChange: xe
-                                                    }), se.email && (0, o.jsx)("small", {
+                                                        value: se.email,
+                                                        onChange: Se
+                                                    }), de.email && (0, o.jsx)("small", {
                                                         className: "text-sm text-red-600 mt-1 block",
-                                                        children: se.email
+                                                        children: de.email
                                                     })]
                                             }), (0, o.jsxs)("div", {
                                                 children: [(0, o.jsx)("input", {
                                                         id: "phone",
                                                         name: "phone",
                                                         type: "text",
-                                                        className: Ne("phone"),
-                                                        value: ie.phone,
+                                                        className: Ce("phone"),
+                                                        value: se.phone,
                                                         onChange: function (e) {
                                                             let t = e.target.value;
                                                             t.startsWith("+61 ") || (t = "+61 ");
@@ -8837,33 +8839,34 @@
                                                             n.startsWith("0") && n.length > 1 && (n = n[1] + n.slice(2)),
                                                             n.length > 9 && (n = n.slice(0, 9));
                                                             const r = "+61 " + n.replace(/(\d{3})(\d{3})(\d{3})?/, "$1 $2 $3").trim();
-                                                            ue(e => ({
+                                                            ce(e => ({
                                                                     ...e,
                                                                     phone: r
                                                                 }))
                                                         },
                                                         placeholder: "+61 4XX XXX XXX"
-                                                    }), se.phone && (0, o.jsx)("small", {
+                                                    }), de.phone && (0, o.jsx)("small", {
                                                         className: "text-sm text-red-600 mt-1 block",
-                                                        children: se.phone
+                                                        children: de.phone
                                                     })]
                                             }), (0, o.jsxs)("div", {
                                                 className: "relative",
                                                 children: [(0, o.jsx)("input", {
-                                                        value: fe,
+                                                        value: me,
                                                         onChange: e => {
-                                                            pe(e.target.value),
-                                                            Se("address", e.target.value),
-                                                            "" === e.target.value && (Q(!1), ["streetNumber", "streetName", "suburb", "state", "postcode"].forEach(e => Se(e, "")))
+                                                            he(e.target.value),
+                                                            K(!1),
+                                                            Ne("address", e.target.value),
+                                                            "" === e.target.value && (Q(!1), ["streetNumber", "streetName", "suburb", "state", "postcode"].forEach(e => Ne(e, "")))
                                                         },
                                                         placeholder: "Residential Address",
-                                                        className: Ne("address")
-                                                    }), "OK" === ge && fe && (0, o.jsx)("div", {
+                                                        className: Ce("address")
+                                                    }), "OK" === ye && me && !q && (0, o.jsx)("div", {
                                                         className: "absolute z-20 w-full border border-[#faf08c] bg-[#112726] rounded-xl mt-2 shadow-xl overflow-hidden",
                                                         children: (0, o.jsx)("ul", {
                                                             className: "max-h-60 overflow-y-auto",
                                                             role: "listbox",
-                                                            children: ve.map(({
+                                                            children: be.map(({
                                                                     place_id: e,
                                                                     description: t
                                                                 }) => (0, o.jsx)("li", {
@@ -8873,13 +8876,13 @@
                                                                     style: {
                                                                         cursor: "pointer"
                                                                     },
-                                                                    onMouseDown: () => ke(t),
+                                                                    onMouseDown: () => _e(t),
                                                                     children: t
                                                                 }, e))
                                                         })
-                                                    }), se.address && (0, o.jsx)("small", {
+                                                    }), de.address && (0, o.jsx)("small", {
                                                         className: "text-sm text-red-600 mt-1 block",
-                                                        children: se.address
+                                                        children: de.address
                                                     })]
                                             }), (0, o.jsxs)("div", {
                                                 className: i("transition-all duration-400", H ? "max-h-[500px] p-1 space-y-4" : "max-h-0 overflow-hidden"),
@@ -8889,25 +8892,25 @@
                                                                 children: [(0, o.jsx)("input", {
                                                                         type: "text",
                                                                         name: "streetNumber",
-                                                                        value: ie.streetNumber,
+                                                                        value: se.streetNumber,
                                                                         placeholder: "Street Number",
-                                                                        onChange: xe,
-                                                                        className: Ne("streetNumber")
-                                                                    }), se.streetNumber && (0, o.jsx)("small", {
+                                                                        onChange: Se,
+                                                                        className: Ce("streetNumber")
+                                                                    }), de.streetNumber && (0, o.jsx)("small", {
                                                                         className: "text-sm text-red-600 mt-1 block",
-                                                                        children: se.streetNumber
+                                                                        children: de.streetNumber
                                                                     })]
                                                             }), (0, o.jsxs)("div", {
                                                                 children: [(0, o.jsx)("input", {
                                                                         type: "text",
                                                                         name: "streetName",
-                                                                        value: ie.streetName,
+                                                                        value: se.streetName,
                                                                         placeholder: "Street Name",
-                                                                        onChange: xe,
-                                                                        className: Ne("streetName")
-                                                                    }), se.streetName && (0, o.jsx)("small", {
+                                                                        onChange: Se,
+                                                                        className: Ce("streetName")
+                                                                    }), de.streetName && (0, o.jsx)("small", {
                                                                         className: "text-sm text-red-600 mt-1 block",
-                                                                        children: se.streetName
+                                                                        children: de.streetName
                                                                     })]
                                                             })]
                                                     }), (0, o.jsxs)("div", {
@@ -8916,38 +8919,38 @@
                                                                 children: [(0, o.jsx)("input", {
                                                                         type: "text",
                                                                         name: "suburb",
-                                                                        value: ie.suburb,
+                                                                        value: se.suburb,
                                                                         placeholder: "Suburb",
-                                                                        onChange: xe,
-                                                                        className: Ne("suburb")
-                                                                    }), se.suburb && (0, o.jsx)("small", {
+                                                                        onChange: Se,
+                                                                        className: Ce("suburb")
+                                                                    }), de.suburb && (0, o.jsx)("small", {
                                                                         className: "text-sm text-red-600 mt-1 block",
-                                                                        children: se.suburb
+                                                                        children: de.suburb
                                                                     })]
                                                             }), (0, o.jsxs)("div", {
                                                                 children: [(0, o.jsx)("input", {
                                                                         type: "text",
                                                                         name: "state",
-                                                                        value: ie.state,
+                                                                        value: se.state,
                                                                         placeholder: "State",
-                                                                        onChange: xe,
-                                                                        className: Ne("state")
-                                                                    }), se.state && (0, o.jsx)("small", {
+                                                                        onChange: Se,
+                                                                        className: Ce("state")
+                                                                    }), de.state && (0, o.jsx)("small", {
                                                                         className: "text-sm text-red-600 mt-1 block",
-                                                                        children: se.state
+                                                                        children: de.state
                                                                     })]
                                                             })]
                                                     }), (0, o.jsxs)("div", {
                                                         children: [(0, o.jsx)("input", {
                                                                 type: "text",
                                                                 name: "postcode",
-                                                                value: ie.postcode,
+                                                                value: se.postcode,
                                                                 placeholder: "Post Code",
-                                                                onChange: xe,
-                                                                className: Ne("postcode")
-                                                            }), se.postcode && (0, o.jsx)("small", {
+                                                                onChange: Se,
+                                                                className: Ce("postcode")
+                                                            }), de.postcode && (0, o.jsx)("small", {
                                                                 className: "text-sm text-red-600 mt-1 block",
-                                                                children: se.postcode
+                                                                children: de.postcode
                                                             })]
                                                     })]
                                             }), (0, o.jsxs)("div", {
@@ -8957,26 +8960,26 @@
                                                                 type: "password",
                                                                 id: "password",
                                                                 name: "password",
-                                                                className: Ne("password"),
+                                                                className: Ce("password"),
                                                                 placeholder: "Password",
-                                                                value: ie.password,
-                                                                onChange: xe
-                                                            }), se.password && (0, o.jsx)("small", {
+                                                                value: se.password,
+                                                                onChange: Se
+                                                            }), de.password && (0, o.jsx)("small", {
                                                                 className: "text-sm text-red-600 mt-1 block",
-                                                                children: se.password
+                                                                children: de.password
                                                             })]
                                                     }), (0, o.jsxs)("div", {
                                                         children: [(0, o.jsx)("input", {
                                                                 type: "password",
                                                                 id: "confirmPassword",
                                                                 name: "confirmPassword",
-                                                                className: Ne("confirmPassword"),
+                                                                className: Ce("confirmPassword"),
                                                                 placeholder: "Confirm Password",
-                                                                value: ie.confirmPassword,
-                                                                onChange: xe
-                                                            }), se.confirmPassword && (0, o.jsx)("small", {
+                                                                value: se.confirmPassword,
+                                                                onChange: Se
+                                                            }), de.confirmPassword && (0, o.jsx)("small", {
                                                                 className: "text-sm text-red-600 mt-1 block",
-                                                                children: se.confirmPassword
+                                                                children: de.confirmPassword
                                                             })]
                                                     })]
                                             }), (0, o.jsxs)("div", {
@@ -8984,24 +8987,24 @@
                                                         type: "text",
                                                         id: "referral_code",
                                                         name: "referral_code",
-                                                        className: i(Ne("referral_code"), B ? "opacity-50 cursor-not-allowed" : ""),
+                                                        className: i(Ce("referral_code"), B ? "opacity-50 cursor-not-allowed" : ""),
                                                         placeholder: "Referral code",
-                                                        value: ie.referral_code,
-                                                        onChange: xe,
+                                                        value: se.referral_code,
+                                                        onChange: Se,
                                                         disabled: B
-                                                    }), se.referral_code && (0, o.jsx)("small", {
+                                                    }), de.referral_code && (0, o.jsx)("small", {
                                                         className: "text-sm text-red-600 mt-1 block",
-                                                        children: String(se.referral_code)
+                                                        children: String(de.referral_code)
                                                     })]
-                                            }), Z && (0, o.jsx)("div", {
+                                            }), te && (0, o.jsx)("div", {
                                                 className: "rounded-xl border border-red-200 bg-red-50 text-red-700 px-4 py-3 text-sm",
-                                                children: Z
+                                                children: te
                                             }), (0, o.jsx)("button", {
                                                 type: "submit",
-                                                className: "w-full font-bold text-lg rounded-xl px-6 py-4 mt-6 hover:opacity-90 transition-all shadow-lg hover:shadow-xl bg-[#003739] text-white " + (Y ? "opacity-60 cursor-not-allowed" : ""),
-                                                onClick: _e,
-                                                disabled: Y,
-                                                children: Y ? "Creating your account..." : "Create Account & Continue"
+                                                className: "w-full font-bold text-lg rounded-xl px-6 py-4 mt-6 hover:opacity-90 transition-all shadow-lg hover:shadow-xl bg-[#003739] text-white " + (G ? "opacity-60 cursor-not-allowed" : ""),
+                                                onClick: Ee,
+                                                disabled: G,
+                                                children: G ? "Creating your account..." : "Create Account & Continue"
                                             }), (0, o.jsx)("div", {
                                                 className: "text-center mt-8",
                                                 children: (0, o.jsxs)("p", {
