@@ -30,7 +30,6 @@ class RegisterForm extends HTMLElement {
   // ── Lifecycle ────────────────────────────────────────────────────────────
   connectedCallback() {
     this.innerHTML = `
-<script src="https://fawzi-h.github.io/primed-login-form/register-form-validation.js" type="text/javascript" defer></script>
 <form
   name="wf-form-Register-Form"
   method="get"
