@@ -30,115 +30,288 @@ class RegisterForm extends HTMLElement {
   // ── Lifecycle ────────────────────────────────────────────────────────────
   connectedCallback() {
     this.innerHTML = `
-      <form
-        name="wf-form-Register-Form"
-        method="get"
-        class="sign-up-login_header_form"
-        aria-label="Register Form"
-        id="register-form-el"
-        novalidate
+<form
+  id="register-form-el"
+  name="wf-form-Register-Form"
+  method="post"
+  class="sign-up-login_header_form"
+  aria-label="Register Form"
+  novalidate
+>
+
+  <p id="form-help" class="sr-only">
+    All fields are required unless marked optional.
+  </p>
+
+  <!-- Name -->
+  <fieldset class="form_field-2col" aria-describedby="form-help">
+    <legend class="sr-only">Your name</legend>
+
+    <div class="form_field-wrapper">
+      <label class="sr-only" for="First-Name">First name</label>
+      <input
+        class="form_input w-input"
+        maxlength="256"
+        name="First-Name"
+        placeholder="First Name"
+        type="text"
+        id="First-Name"
+        autocomplete="given-name"
+        required
+        aria-required="true"
       >
-        <!-- First Name + Last Name -->
-        <div class="form_field-2col">
-          <div class="form_field-wrapper">
-            <div class="form_field-label">First Name</div>
-            <input
-              class="form_input w-input"
-              maxlength="256"
-              name="First-Name"
-              placeholder="First Name"
-              type="text"
-              id="register-first-name"
-              required
-            />
-          </div>
-          <div class="form_field-wrapper">
-            <div class="field-label-wrapper">
-              <div class="form_field-label">Last Name</div>
-            </div>
-            <input
-              class="form_input w-input"
-              maxlength="256"
-              name="Last-Name"
-              placeholder="Last Name"
-              type="text"
-              id="register-last-name"
-              required
-            />
-          </div>
-        </div>
+    </div>
 
-        <!-- Email -->
-        <div class="form_field-wrapper">
-          <div class="form_field-label">Email</div>
-          <input
-            class="form_input w-input"
-            maxlength="256"
-            name="Register-Email"
-            placeholder="Email"
-            type="email"
-            id="register-email"
-            required
-          />
-        </div>
+    <div class="form_field-wrapper">
+      <label class="sr-only" for="Last-Name">Last name</label>
+      <input
+        class="form_input w-input"
+        maxlength="256"
+        name="Last-Name"
+        placeholder="Last Name"
+        type="text"
+        id="Last-Name"
+        autocomplete="family-name"
+        required
+        aria-required="true"
+      >
+    </div>
+  </fieldset>
 
-        <!-- Phone -->
-        <div class="form_field-wrapper">
-          <div class="form_field-label">Phone</div>
-          <input
-            class="form_input w-input"
-            maxlength="256"
-            name="Phone"
-            placeholder="Phone Number"
-            type="tel"
-            id="register-phone"
-            required
-          />
-        </div>
+  <!-- Contact -->
+  <div class="form_field-wrapper">
+    <label class="sr-only" for="Email">Email</label>
+    <input
+      class="form_input w-input"
+      maxlength="256"
+      name="Email"
+      placeholder="Email"
+      type="email"
+      id="Email"
+      autocomplete="email"
+      required
+      aria-required="true"
+    >
+  </div>
 
-        <!-- Residential Address -->
-        <div class="form_field-wrapper">
-          <div class="form_field-label">Residential Address</div>
-          <input
-            class="form_input w-input"
-            maxlength="256"
-            name="Address"
-            placeholder="Address"
-            type="text"
-            id="register-address"
-            required
-          />
-        </div>
+  <div class="form_field-wrapper">
+    <label class="sr-only" for="Phone">Phone number</label>
+    <input
+      class="form_input w-input"
+      maxlength="256"
+      name="Phone"
+      placeholder="Phone Number"
+      type="tel"
+      id="Phone"
+      autocomplete="tel"
+      inputmode="tel"
+      required
+      aria-required="true"
+    >
+  </div>
 
-        <!-- Password + Confirm Password -->
-        <div class="form_field-2col">
-          <div class="form_field-wrapper">
-            <div class="form_field-label">Password</div>
-            <input
-              class="form_input w-input"
-              maxlength="256"
-              name="Register-Password"
-              placeholder="Password"
-              type="password"
-              id="register-password"
-              required
-            />
-          </div>
-          <div class="form_field-wrapper">
-            <div class="field-label-wrapper">
-              <div class="form_field-label">Confirm Password</div>
-            </div>
-            <input
-              class="form_input w-input"
-              maxlength="256"
-              name="Register-Confirm-Password"
-              placeholder="Confirm Password"
-              type="password"
-              id="register-confirm-password"
-              required
-            />
-          </div>
+  <!-- Address -->
+  <fieldset aria-describedby="address-help">
+    <legend class="sr-only">Address</legend>
+    <p id="address-help" class="sr-only">
+      Enter your street number and street name, then suburb, state, and postcode.
+    </p>
+
+    <div class="form_field-wrapper">
+      <label class="sr-only" for="Address">Address line</label>
+      <input
+        class="form_input w-input"
+        maxlength="256"
+        name="Address"
+        placeholder="Address"
+        type="text"
+        id="Address"
+        autocomplete="street-address"
+        required
+        aria-required="true"
+      >
+    </div>
+
+    <div class="form_field-2col">
+      <div class="form_field-wrapper">
+        <label class="sr-only" for="streetNumber">Street number</label>
+        <input
+          class="form_input w-input"
+          maxlength="256"
+          name="streetNumber"
+          placeholder="Street Number"
+          type="text"
+          id="streetNumber"
+          autocomplete="address-line1"
+          required
+          aria-required="true"
+        >
+      </div>
+
+      <div class="form_field-wrapper">
+        <label class="sr-only" for="streetName">Street name</label>
+        <input
+          class="form_input w-input"
+          maxlength="256"
+          name="streetName"
+          placeholder="Street Name"
+          type="text"
+          id="streetName"
+          required
+          aria-required="true"
+        >
+      </div>
+    </div>
+
+    <div class="form_field-2col">
+      <div class="form_field-wrapper">
+        <label class="sr-only" for="suburb">Suburb</label>
+        <input
+          class="form_input w-input"
+          maxlength="256"
+          name="suburb"
+          placeholder="Suburb"
+          type="text"
+          id="suburb"
+          autocomplete="address-level2"
+          required
+          aria-required="true"
+        >
+      </div>
+
+      <div class="form_field-wrapper">
+        <label class="sr-only" for="state">State</label>
+        <input
+          class="form_input w-input"
+          maxlength="256"
+          name="state"
+          placeholder="State"
+          type="text"
+          id="state"
+          autocomplete="address-level1"
+          required
+          aria-required="true"
+        >
+      </div>
+
+      <div class="form_field-wrapper">
+        <label class="sr-only" for="postcode">Postcode</label>
+        <input
+          class="form_input w-input"
+          maxlength="256"
+          name="postcode"
+          placeholder="Postcode"
+          type="text"
+          id="postcode"
+          autocomplete="postal-code"
+          inputmode="numeric"
+          required
+          aria-required="true"
+        >
+      </div>
+    </div>
+  </fieldset>
+
+  <!-- Password -->
+  <fieldset aria-describedby="password-help">
+    <legend class="sr-only">Create a password</legend>
+    <p id="password-help" class="sr-only">
+      Password should be at least 8 characters. Use a mix of letters and numbers if possible.
+    </p>
+
+    <div class="form_field-2col">
+      <div class="form_field-wrapper">
+        <label class="sr-only" for="Password">Password</label>
+        <input
+          class="form_input w-input"
+          maxlength="256"
+          name="Password"
+          placeholder="Password"
+          type="password"
+          id="Password"
+          autocomplete="new-password"
+          required
+          aria-required="true"
+        >
+      </div>
+
+      <div class="form_field-wrapper">
+        <label class="sr-only" for="Confirm-Password">Confirm password</label>
+        <input
+          class="form_input w-input"
+          maxlength="256"
+          name="Confirm-Password"
+          placeholder="Confirm Password"
+          type="password"
+          id="Confirm-Password"
+          autocomplete="new-password"
+          required
+          aria-required="true"
+        >
+      </div>
+    </div>
+  </fieldset>
+
+  <!-- Referral (make optional if it is optional) -->
+  <div class="form_field-wrapper">
+    <label class="sr-only" for="Referral-Code">Referral code</label>
+    <input
+      class="form_input w-input"
+      maxlength="256"
+      name="Referral-Code"
+      placeholder="Referral Code"
+      type="text"
+      id="Referral-Code"
+      autocomplete="off"
+    >
+  </div>
+
+  <!-- Submit -->
+  <div class="w-layout-grid form-button-wrapper">
+    <input
+      type="submit"
+      data-wait="Please wait..."
+      class="button is-full-width w-button"
+      value="Create account & Continue"
+      aria-describedby="form-help"
+    >
+  </div>
+
+  <!-- Turnstile -->
+  <input
+    type="hidden"
+    name="cf-turnstile-response"
+    id="cf-chl-widget-a8hv1_response"
+    value="..."
+  >
+
+  <!-- Optional: place for inline errors -->
+  <div class="sr-only" aria-live="polite" id="form-status"></div>
+
+</form>
+
+    <!-- Success -->
+    <div class="form_message-success-wrapper w-form-done" tabindex="-1" role="region">
+      <div class="form_message-success">
+        <div class="success-text">
+          Welcome back. You'll be redirected back to the home page.
         </div>
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div class="form_message-error-wrapper w-form-fail" tabindex="-1" role="region">
+      <div class="form_message-error">
+        <div class="error-text">
+          Login failed. Check your details and try again.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+      
+
         <div class="form_field-error" id="password-error" style="display:none">Passwords do not match.</div>
 
         <!-- Referral Code -->
