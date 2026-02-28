@@ -2,10 +2,10 @@
   "use strict";
 
   // =========================
-  // CONFIG (edit if needed)
+  // CONFIG
   // =========================
-  const LOOKUP_ID = "register-address";          // <-- your autocomplete input id
-  const DETAILS_WRAPPER_ID = "address-details-wrapper"; // optional wrapper to unhide (set to null if not used)
+  const LOOKUP_ID = "register-address";
+  const DETAILS_WRAPPER_ID = "address-details-wrapper";
 
   const FIELD_IDS = {
     streetNumber: "streetNumber",
@@ -15,16 +15,41 @@
     postcode: "postcode",
   };
 
+  // Adjust to match your form spacing rhythm
+  const VERTICAL_SPACING_PX = 16;
+
   // =========================
-  // Inject CSS (red error + message)
+  // CSS injection (animation + spacing + optional errors)
   // =========================
   function injectStyles() {
-    if (document.getElementById("primed-places-styles")) return;
+    if (document.getElementById("primed-address-styles")) return;
+
     const style = document.createElement("style");
-    style.id = "primed-places-styles";
+    style.id = "primed-address-styles";
     style.textContent = `
+      .addr-anim {
+        overflow: hidden;
+        transition: max-height 260ms ease, opacity 220ms ease;
+        will-change: max-height, opacity;
+      }
+
+      /* Keep consistent spacing for the whole address block */
+      #${DETAILS_WRAPPER_ID} {
+        margin-top: ${VERTICAL_SPACING_PX}px;
+        margin-bottom: ${VERTICAL_SPACING_PX}px;
+      }
+
+      /* Add spacing between rows inside wrapper */
+      #${DETAILS_WRAPPER_ID} > .form_field-2col + .form_field-2col,
+      #${DETAILS_WRAPPER_ID} > .form_field-wrapper + .form_field-wrapper,
+      #${DETAILS_WRAPPER_ID} > .form_field-wrapper + .form_field-2col,
+      #${DETAILS_WRAPPER_ID} > .form_field-2col + .form_field-wrapper {
+        margin-top: ${VERTICAL_SPACING_PX}px;
+      }
+
+      /* Optional error styling */
       .is-invalid { border-color: #d93025 !important; }
-      .field-error { color: #d93025; font-size: .875rem; margin-top: 6px; display: none; }
+      .field-error { color: #d93025; font-size: 0.875rem; margin-top: 6px; display: none; }
       .field-error.is-visible { display: block; }
     `;
     document.head.appendChild(style);
@@ -34,43 +59,52 @@
     return document.getElementById(id);
   }
 
-  function show(el) {
+  // =========================
+  // Inline style show/hide with animation
+  // =========================
+  function setCollapsedInline(el) {
     if (!el) return;
-    el.style.display = "";
+    el.classList.add("addr-anim");
+    el.style.display = "block";
+    el.style.maxHeight = "0px";
+    el.style.opacity = "0";
+    el.style.pointerEvents = "none";
   }
 
-  function setError(input, message) {
-    if (!input) return;
-    input.classList.add("is-invalid");
-    input.setAttribute("aria-invalid", "true");
+  function setExpandedInline(el) {
+    if (!el) return;
+    el.classList.add("addr-anim");
+    el.style.display = "block";
+    el.style.pointerEvents = "auto";
 
-    const wrapper = input.closest(".form_field-wrapper") || input.parentElement;
-    if (!wrapper) return;
+    const targetHeight = el.scrollHeight;
+    el.style.maxHeight = targetHeight + "px";
+    el.style.opacity = "1";
 
-    let err = wrapper.querySelector(".field-error");
-    if (!err) {
-      err = document.createElement("div");
-      err.className = "field-error";
-      wrapper.appendChild(err);
-    }
-    err.textContent = message;
-    err.classList.add("is-visible");
+    window.setTimeout(function () {
+      el.style.maxHeight = "none";
+    }, 320);
   }
 
-  function clearError(input) {
-    if (!input) return;
-    input.classList.remove("is-invalid");
-    input.removeAttribute("aria-invalid");
+  function hideExpandedInline(el) {
+    if (!el) return;
 
-    const wrapper = input.closest(".form_field-wrapper") || input.parentElement;
-    if (!wrapper) return;
+    el.classList.add("addr-anim");
 
-    const err = wrapper.querySelector(".field-error");
-    if (err) err.classList.remove("is-visible");
+    const currentHeight = el.scrollHeight;
+    el.style.maxHeight = currentHeight + "px";
+    el.style.opacity = "1";
+    el.style.pointerEvents = "auto";
+
+    void el.offsetHeight;
+
+    el.style.maxHeight = "0px";
+    el.style.opacity = "0";
+    el.style.pointerEvents = "none";
   }
 
   // =========================
-  // Parse Google address_components
+  // Google address parsing helpers
   // =========================
   function getComponent(place, type) {
     if (!place || !place.address_components) return null;
@@ -99,28 +133,24 @@
     const stateEl = $(FIELD_IDS.state);
     const postcodeEl = $(FIELD_IDS.postcode);
 
-    // Fill values
     if (streetNumberEl) streetNumberEl.value = streetNumberC ? streetNumberC.long_name : "";
     if (streetNameEl) streetNameEl.value = routeC ? routeC.long_name : "";
     if (suburbEl) suburbEl.value = suburbC ? suburbC.long_name : "";
     if (stateEl) stateEl.value = stateC ? (stateC.short_name || stateC.long_name) : "";
     if (postcodeEl) postcodeEl.value = postcodeC ? postcodeC.long_name : "";
+  }
 
-    // Unhide details if you are hiding them initially
-    if (DETAILS_WRAPPER_ID) show($(DETAILS_WRAPPER_ID));
-
-    // Flag missing bits so user can complete manually
-    if (streetNumberEl) streetNumberC ? clearError(streetNumberEl) : setError(streetNumberEl, "Street number missing. Please enter it.");
-    if (streetNameEl) routeC ? clearError(streetNameEl) : setError(streetNameEl, "Street name missing. Please enter it.");
-    if (suburbEl) suburbC ? clearError(suburbEl) : setError(suburbEl, "Suburb missing. Please enter it.");
-    if (stateEl) stateC ? clearError(stateEl) : setError(stateEl, "State missing. Please enter it.");
-    if (postcodeEl) postcodeC ? clearError(postcodeEl) : setError(postcodeEl, "Postcode missing. Please enter it.");
+  function clearAddressFields() {
+    Object.values(FIELD_IDS).forEach(function (id) {
+      const el = $(id);
+      if (el) el.value = "";
+    });
   }
 
   // =========================
-  // Wait for Google Places to load
+  // Wait for Google Places
   // =========================
-  function waitForPlaces(lookupInput, onReady) {
+  function waitForPlaces(onReady, onFail) {
     const start = Date.now();
     const maxWaitMs = 15000;
 
@@ -134,7 +164,7 @@
       if (ready) return onReady();
 
       if (Date.now() - start > maxWaitMs) {
-        setError(lookupInput, "Address lookup is unavailable. Please enter your address manually.");
+        if (typeof onFail === "function") onFail();
         return;
       }
 
@@ -142,41 +172,83 @@
     })();
   }
 
-  function init() {
-    injectStyles();
-
+  // =========================
+  // Bind once when elements exist
+  // =========================
+  function bindIfReady() {
     const lookupInput = $(LOOKUP_ID);
-    if (!lookupInput) return;
+    const detailsWrapper = $(DETAILS_WRAPPER_ID);
 
-    waitForPlaces(lookupInput, function () {
-      const autocomplete = new google.maps.places.Autocomplete(lookupInput, {
-        types: ["address"],
-        componentRestrictions: { country: "au" },
-        fields: ["address_components", "formatted_address"],
-      });
+    if (!lookupInput || !detailsWrapper) return false;
+    if (lookupInput.__primedAutocompleteBound) return true;
 
-      autocomplete.addListener("place_changed", function () {
-        const place = autocomplete.getPlace();
+    lookupInput.__primedAutocompleteBound = true;
 
-        if (!place || !place.address_components) {
-          setError(lookupInput, "Please select an address from the suggestions.");
-          return;
-        }
+    // Always start hidden using inline CSS
+    setCollapsedInline(detailsWrapper);
 
-        clearError(lookupInput);
+    waitForPlaces(
+      function () {
+        const autocomplete = new google.maps.places.Autocomplete(lookupInput, {
+          types: ["address"],
+          componentRestrictions: { country: "au" },
+          fields: ["address_components", "formatted_address"],
+        });
 
-        if (place.formatted_address) {
-          lookupInput.value = place.formatted_address;
-        }
+        autocomplete.addListener("place_changed", function () {
+          const place = autocomplete.getPlace();
+          if (!place || !place.address_components) return;
 
-        populateAddress(place);
-      });
-    });
+          if (place.formatted_address) lookupInput.value = place.formatted_address;
+
+          populateAddress(place);
+          setExpandedInline(detailsWrapper);
+        });
+
+        // Hide again if user deletes the lookup value
+        lookupInput.addEventListener("input", function () {
+          if (!lookupInput.value.trim()) {
+            clearAddressFields();
+            hideExpandedInline(detailsWrapper);
+          }
+        });
+      },
+      function () {
+        // If Places does not load, show fields for manual entry
+        setExpandedInline(detailsWrapper);
+      }
+    );
+
+    return true;
   }
 
+  // =========================
+  // Observe DOM because Webflow can inject the register form later
+  // =========================
+  function startObserver() {
+    // First attempt
+    if (bindIfReady()) return;
+
+    const obs = new MutationObserver(function () {
+      if (bindIfReady()) obs.disconnect();
+    });
+
+    obs.observe(document.documentElement, { childList: true, subtree: true });
+
+    // Stop observing after 20s to avoid running forever
+    setTimeout(function () {
+      obs.disconnect();
+    }, 20000);
+  }
+
+  // =========================
+  // Boot
+  // =========================
+  injectStyles();
+
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
+    document.addEventListener("DOMContentLoaded", startObserver);
   } else {
-    init();
+    startObserver();
   }
 })();
