@@ -68,7 +68,7 @@ class RegisterForm extends HTMLElement {
     <input class="form_input w-input" maxlength="256" name="Address"
       placeholder="Address" type="text" id="register-address" required />
   </div>
-<div id="address-details-wrapper" style="display:none;">
+<div id="address-details-wrapper"  style="display:none;">
   <!-- Street Number + Street Name -->
   <div class="form_field-2col">
     <div class="form_field-wrapper">
