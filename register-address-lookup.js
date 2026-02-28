@@ -1,9 +1,6 @@
 (function () {
   "use strict";
 
-  // =========================
-  // CONFIG
-  // =========================
   const LOOKUP_ID = "register-address";
   const DETAILS_WRAPPER_ID = "address-details-wrapper";
 
@@ -15,42 +12,17 @@
     postcode: "postcode",
   };
 
-  // Adjust to match your form spacing rhythm
-  const VERTICAL_SPACING_PX = 16;
-
-  // =========================
-  // CSS injection (animation + spacing + optional errors)
-  // =========================
   function injectStyles() {
-    if (document.getElementById("primed-address-styles")) return;
+    if (document.getElementById("primed-address-anim-styles")) return;
 
     const style = document.createElement("style");
-    style.id = "primed-address-styles";
+    style.id = "primed-address-anim-styles";
     style.textContent = `
       .addr-anim {
         overflow: hidden;
         transition: max-height 260ms ease, opacity 220ms ease;
         will-change: max-height, opacity;
       }
-
-      /* Keep consistent spacing for the whole address block */
-      #${DETAILS_WRAPPER_ID} {
-        margin-top: ${VERTICAL_SPACING_PX}px;
-        margin-bottom: ${VERTICAL_SPACING_PX}px;
-      }
-
-      /* Add spacing between rows inside wrapper */
-      #${DETAILS_WRAPPER_ID} > .form_field-2col + .form_field-2col,
-      #${DETAILS_WRAPPER_ID} > .form_field-wrapper + .form_field-wrapper,
-      #${DETAILS_WRAPPER_ID} > .form_field-wrapper + .form_field-2col,
-      #${DETAILS_WRAPPER_ID} > .form_field-2col + .form_field-wrapper {
-        margin-top: ${VERTICAL_SPACING_PX}px;
-      }
-
-      /* Optional error styling */
-      .is-invalid { border-color: #d93025 !important; }
-      .field-error { color: #d93025; font-size: 0.875rem; margin-top: 6px; display: none; }
-      .field-error.is-visible { display: block; }
     `;
     document.head.appendChild(style);
   }
@@ -59,53 +31,13 @@
     return document.getElementById(id);
   }
 
-  // =========================
-  // Inline style show/hide with animation
-  // =========================
-  function setCollapsedInline(el) {
-    if (!el) return;
-    el.classList.add("addr-anim");
-    el.style.display = "block";
-    el.style.maxHeight = "0px";
-    el.style.opacity = "0";
-    el.style.pointerEvents = "none";
+  function clearAddressFields() {
+    Object.values(FIELD_IDS).forEach(function (id) {
+      const el = $(id);
+      if (el) el.value = "";
+    });
   }
 
-  function setExpandedInline(el) {
-    if (!el) return;
-    el.classList.add("addr-anim");
-    el.style.display = "block";
-    el.style.pointerEvents = "auto";
-
-    const targetHeight = el.scrollHeight;
-    el.style.maxHeight = targetHeight + "px";
-    el.style.opacity = "1";
-
-    window.setTimeout(function () {
-      el.style.maxHeight = "none";
-    }, 320);
-  }
-
-  function hideExpandedInline(el) {
-    if (!el) return;
-
-    el.classList.add("addr-anim");
-
-    const currentHeight = el.scrollHeight;
-    el.style.maxHeight = currentHeight + "px";
-    el.style.opacity = "1";
-    el.style.pointerEvents = "auto";
-
-    void el.offsetHeight;
-
-    el.style.maxHeight = "0px";
-    el.style.opacity = "0";
-    el.style.pointerEvents = "none";
-  }
-
-  // =========================
-  // Google address parsing helpers
-  // =========================
   function getComponent(place, type) {
     if (!place || !place.address_components) return null;
     for (const c of place.address_components) {
@@ -140,16 +72,54 @@
     if (postcodeEl) postcodeEl.value = postcodeC ? postcodeC.long_name : "";
   }
 
-  function clearAddressFields() {
-    Object.values(FIELD_IDS).forEach(function (id) {
-      const el = $(id);
-      if (el) el.value = "";
-    });
+  function showAnimated(el) {
+    if (!el) return;
+
+    el.classList.add("addr-anim");
+
+    // Make it render (no gap before this because it was display:none)
+    el.style.display = "block";
+    el.style.opacity = "0";
+    el.style.maxHeight = "0px";
+    el.style.pointerEvents = "none";
+
+    // Force reflow then animate open
+    void el.offsetHeight;
+
+    const target = el.scrollHeight;
+    el.style.opacity = "1";
+    el.style.maxHeight = target + "px";
+    el.style.pointerEvents = "auto";
+
+    // Remove height cap after animation so it adapts
+    setTimeout(function () {
+      el.style.maxHeight = "none";
+    }, 320);
   }
 
-  // =========================
-  // Wait for Google Places
-  // =========================
+  function hideAnimatedToNone(el) {
+    if (!el) return;
+
+    el.classList.add("addr-anim");
+
+    // If maxHeight is none, set it to current height so we can animate down
+    const h = el.scrollHeight;
+    el.style.maxHeight = h + "px";
+    el.style.opacity = "1";
+    el.style.pointerEvents = "auto";
+
+    void el.offsetHeight;
+
+    el.style.maxHeight = "0px";
+    el.style.opacity = "0";
+    el.style.pointerEvents = "none";
+
+    // After transition ends, remove from layout completely (no gap)
+    setTimeout(function () {
+      el.style.display = "none";
+    }, 300);
+  }
+
   function waitForPlaces(onReady, onFail) {
     const start = Date.now();
     const maxWaitMs = 15000;
@@ -172,61 +142,60 @@
     })();
   }
 
-  // =========================
-  // Bind once when elements exist
-  // =========================
   function bindIfReady() {
     const lookupInput = $(LOOKUP_ID);
-    const detailsWrapper = $(DETAILS_WRAPPER_ID);
+    const wrapper = $(DETAILS_WRAPPER_ID);
 
-    if (!lookupInput || !detailsWrapper) return false;
-    if (lookupInput.__primedAutocompleteBound) return true;
+    if (!lookupInput || !wrapper) return false;
+    if (lookupInput.__primedBound) return true;
 
-    lookupInput.__primedAutocompleteBound = true;
+    lookupInput.__primedBound = true;
 
-    // Always start hidden using inline CSS
-    setCollapsedInline(detailsWrapper);
+    // Ensure initial no-gap hidden state
+    wrapper.style.display = "none";
+    wrapper.style.opacity = "0";
+    wrapper.style.maxHeight = "0px";
+    wrapper.style.pointerEvents = "none";
+    wrapper.classList.add("addr-anim");
 
     waitForPlaces(
       function () {
-        const autocomplete = new google.maps.places.Autocomplete(lookupInput, {
+        const ac = new google.maps.places.Autocomplete(lookupInput, {
           types: ["address"],
           componentRestrictions: { country: "au" },
           fields: ["address_components", "formatted_address"],
         });
 
-        autocomplete.addListener("place_changed", function () {
-          const place = autocomplete.getPlace();
+        ac.addListener("place_changed", function () {
+          const place = ac.getPlace();
           if (!place || !place.address_components) return;
 
           if (place.formatted_address) lookupInput.value = place.formatted_address;
 
           populateAddress(place);
-          setExpandedInline(detailsWrapper);
+          showAnimated(wrapper);
         });
 
-        // Hide again if user deletes the lookup value
         lookupInput.addEventListener("input", function () {
           if (!lookupInput.value.trim()) {
             clearAddressFields();
-            hideExpandedInline(detailsWrapper);
+            hideAnimatedToNone(wrapper);
           }
         });
       },
       function () {
-        // If Places does not load, show fields for manual entry
-        setExpandedInline(detailsWrapper);
+        // If Google fails, just show fields (no animation needed)
+        wrapper.style.display = "block";
+        wrapper.style.opacity = "1";
+        wrapper.style.maxHeight = "none";
+        wrapper.style.pointerEvents = "auto";
       }
     );
 
     return true;
   }
 
-  // =========================
-  // Observe DOM because Webflow can inject the register form later
-  // =========================
   function startObserver() {
-    // First attempt
     if (bindIfReady()) return;
 
     const obs = new MutationObserver(function () {
@@ -234,21 +203,17 @@
     });
 
     obs.observe(document.documentElement, { childList: true, subtree: true });
-
-    // Stop observing after 20s to avoid running forever
-    setTimeout(function () {
-      obs.disconnect();
-    }, 20000);
+    setTimeout(function () { obs.disconnect(); }, 20000);
   }
 
-  // =========================
-  // Boot
-  // =========================
-  injectStyles();
+  function init() {
+    injectStyles();
+    startObserver();
+  }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", startObserver);
+    document.addEventListener("DOMContentLoaded", init);
   } else {
-    startObserver();
+    init();
   }
 })();
