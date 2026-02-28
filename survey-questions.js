@@ -7853,7 +7853,15 @@
             }
         });
         if (console.log("[Survey] GET", n, "->", r.status, r.headers.get("content-type")), !r.ok) {
-            const e = await r.json().catch(() => ({}));
+            const e = await r.text().then(e => {
+                try {
+                    return JSON.parse(e)
+                } catch {
+                    return {
+                        raw: e
+                    }
+                }
+            });
             console.error("[Survey] GET failed:", n, r.status, e);
             const t = new Error(`GET ${n} failed: ${r.status}`);
             throw t.response = {
@@ -7862,7 +7870,14 @@
             },
             t
         }
-        return r.json()
+        const a = await r.text();
+        if (console.log("[Survey] GET response body:", a || "(empty)"), !a)
+            return {};
+        try {
+            return JSON.parse(a)
+        } catch (e) {
+            return console.error("[Survey] GET JSON parse error:", e.message, "body:", a), {}
+        }
     }
     async function f(e, t) {
         const n = `${c()}${e}`;
@@ -7876,17 +7891,28 @@
             },
             body: JSON.stringify(t)
         });
-        if (console.log("[Survey] POST", n, "->", r.status, r.headers.get("content-type")), !r.ok) {
-            const e = await r.json().catch(() => ({}));
-            console.error("[Survey] POST failed:", n, r.status, e);
-            const t = new Error(`POST ${n} failed: ${r.status}`);
-            throw t.response = {
+        console.log("[Survey] POST", n, "->", r.status, r.headers.get("content-type"));
+        const a = await r.text();
+        console.log("[Survey] POST response body:", a || "(empty)");
+        const l = a ? (() => {
+            try {
+                return JSON.parse(a)
+            } catch (e) {
+                return console.error("[Survey] POST JSON parse error:", e.message, "body:", a), {
+                    raw: a
+                }
+            }
+        })() : {};
+        if (!r.ok) {
+            console.error("[Survey] POST failed:", n, r.status, l);
+            const e = new Error(`POST ${n} failed: ${r.status}`);
+            throw e.response = {
                 status: r.status,
-                data: e
+                data: l
             },
-            t
+            e
         }
-        return r.json()
+        return l
     }
     function p({
         question: e,
