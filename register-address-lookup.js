@@ -1,10 +1,11 @@
 (function () {
   "use strict";
 
-  // --------------------
-  // CONFIG: update these IDs if needed
-  // --------------------
+  // =========================
+  // CONFIG (edit if needed)
+  // =========================
   const LOOKUP_ID = "address-lookup";
+  const DETAILS_WRAPPER_ID = "address-details-wrapper"; // wrapper to unhide after selection
 
   const FIELD_IDS = {
     streetNumber: "streetNumber",
@@ -14,18 +15,13 @@
     postcode: "postcode",
   };
 
-  // Optional: wrappers you want to unhide after selection (set to null if not using)
-  // Put these IDs on wrapper divs in Webflow.
-  const ADDRESS_DETAILS_WRAPPER_ID = "address-details-wrapper"; // wrapper around street/suburb/state/postcode fields
-  const CONTINUE_BUTTON_ID = null; // example: "register-submit" or a separate button id
-
-  // --------------------
-  // Inject minimal CSS (red highlight)
-  // --------------------
+  // =========================
+  // Inject CSS (red error + message)
+  // =========================
   function injectStyles() {
-    if (document.getElementById("primed-addr-styles")) return;
+    if (document.getElementById("primed-places-styles")) return;
     const style = document.createElement("style");
-    style.id = "primed-addr-styles";
+    style.id = "primed-places-styles";
     style.textContent = `
       .is-invalid { border-color: #d93025 !important; }
       .field-error { color: #d93025; font-size: .875rem; margin-top: 6px; display: none; }
@@ -38,7 +34,7 @@
     return document.getElementById(id);
   }
 
-  function showEl(el) {
+  function show(el) {
     if (!el) return;
     el.style.display = "";
   }
@@ -73,9 +69,9 @@
     if (err) err.classList.remove("is-visible");
   }
 
-  // --------------------
-  // Parse Google address_components
-  // --------------------
+  // =========================
+  // Google address parsing
+  // =========================
   function getComponent(place, type) {
     if (!place || !place.address_components) return null;
     for (const c of place.address_components) {
@@ -84,22 +80,18 @@
     return null;
   }
 
-  function fillAddressFromPlace(place) {
-    // street number + route
-    const streetNumber = getComponent(place, "street_number");
-    const route = getComponent(place, "route");
+  function populateAddress(place) {
+    const streetNumberC = getComponent(place, "street_number");
+    const routeC = getComponent(place, "route");
 
-    // suburb: Google can return "locality" OR "postal_town" OR "sublocality" depending on area
-    const locality = getComponent(place, "locality") ||
+    const suburbC =
+      getComponent(place, "locality") ||
       getComponent(place, "postal_town") ||
       getComponent(place, "sublocality") ||
       getComponent(place, "sublocality_level_1");
 
-    // state
-    const state = getComponent(place, "administrative_area_level_1");
-
-    // postcode
-    const postcode = getComponent(place, "postal_code");
+    const stateC = getComponent(place, "administrative_area_level_1");
+    const postcodeC = getComponent(place, "postal_code");
 
     const streetNumberEl = $(FIELD_IDS.streetNumber);
     const streetNameEl = $(FIELD_IDS.streetName);
@@ -107,80 +99,79 @@
     const stateEl = $(FIELD_IDS.state);
     const postcodeEl = $(FIELD_IDS.postcode);
 
-    // Clear previous errors
-    [streetNumberEl, streetNameEl, suburbEl, stateEl, postcodeEl].forEach(clearError);
+    // Fill
+    if (streetNumberEl) streetNumberEl.value = streetNumberC ? streetNumberC.long_name : "";
+    if (streetNameEl) streetNameEl.value = routeC ? routeC.long_name : "";
+    if (suburbEl) suburbEl.value = suburbC ? suburbC.long_name : "";
+    if (stateEl) stateEl.value = stateC ? (stateC.short_name || stateC.long_name) : "";
+    if (postcodeEl) postcodeEl.value = postcodeC ? postcodeC.long_name : "";
 
-    // Fill values if present
-    if (streetNumberEl) streetNumberEl.value = streetNumber ? streetNumber.long_name : "";
-    if (streetNameEl) streetNameEl.value = route ? route.long_name : "";
-    if (suburbEl) suburbEl.value = locality ? locality.long_name : "";
-    if (stateEl) stateEl.value = state ? (state.short_name || state.long_name) : "";
-    if (postcodeEl) postcodeEl.value = postcode ? postcode.long_name : "";
+    // Show detailed fields
+    show($(DETAILS_WRAPPER_ID));
 
-    // Lightweight completeness check
-    let ok = true;
-    if (!streetNumber) { ok = false; if (streetNumberEl) setError(streetNumberEl, "Street number missing. Please enter it."); }
-    if (!route) { ok = false; if (streetNameEl) setError(streetNameEl, "Street name missing. Please enter it."); }
-    if (!locality) { ok = false; if (suburbEl) setError(suburbEl, "Suburb missing. Please enter it."); }
-    if (!state) { ok = false; if (stateEl) setError(stateEl, "State missing. Please enter it."); }
-    if (!postcode) { ok = false; if (postcodeEl) setError(postcodeEl, "Postcode missing. Please enter it."); }
-
-    // Unhide details + button after selection
-    showEl($(ADDRESS_DETAILS_WRAPPER_ID));
-    if (CONTINUE_BUTTON_ID) showEl($(CONTINUE_BUTTON_ID));
-
-    return ok;
+    // If some components are missing, flag those fields (user can complete manually)
+    if (streetNumberEl) streetNumberC ? clearError(streetNumberEl) : setError(streetNumberEl, "Street number missing. Please enter it.");
+    if (streetNameEl) routeC ? clearError(streetNameEl) : setError(streetNameEl, "Street name missing. Please enter it.");
+    if (suburbEl) suburbC ? clearError(suburbEl) : setError(suburbEl, "Suburb missing. Please enter it.");
+    if (stateEl) stateC ? clearError(stateEl) : setError(stateEl, "State missing. Please enter it.");
+    if (postcodeEl) postcodeC ? clearError(postcodeEl) : setError(postcodeEl, "Postcode missing. Please enter it.");
   }
 
-  // --------------------
-  // Init Places Autocomplete
-  // --------------------
-  function initAutocomplete() {
-    const lookupInput = $(LOOKUP_ID);
-    if (!lookupInput) return;
+  // =========================
+  // Wait for Google Places to load
+  // =========================
+  function waitForPlaces(lookupInput, onReady) {
+    const start = Date.now();
+    const maxWaitMs = 15000;
 
-    if (!(window.google && google.maps && google.maps.places)) {
-      // Google script not loaded or key blocked
-      setError(lookupInput, "Address lookup is unavailable. Please enter address manually.");
-      return;
-    }
+    (function tick() {
+      const ready = window.google && google.maps && google.maps.places && google.maps.places.Autocomplete;
+      if (ready) return onReady();
 
-    const autocomplete = new google.maps.places.Autocomplete(lookupInput, {
-      types: ["address"],
-      componentRestrictions: { country: "au" }, // restrict to Australia :contentReference[oaicite:1]{index=1}
-      fields: ["address_components", "formatted_address"],
-    });
-
-    autocomplete.addListener("place_changed", function () {
-      const place = autocomplete.getPlace();
-
-      if (!place || !place.address_components) {
-        setError(lookupInput, "Please select an address from the list.");
+      if (Date.now() - start > maxWaitMs) {
+        setError(lookupInput, "Address lookup is unavailable right now. Please enter your address manually.");
         return;
       }
 
-      clearError(lookupInput);
+      setTimeout(tick, 200);
+    })();
+  }
 
-      // Optionally set the lookup input to the formatted address
-      if (place.formatted_address) lookupInput.value = place.formatted_address;
+  function init() {
+    injectStyles();
 
-      fillAddressFromPlace(place);
-    });
+    const lookupInput = $(LOOKUP_ID);
+    if (!lookupInput) return;
 
-    // If user types but does not pick from dropdown
-    lookupInput.addEventListener("blur", function () {
-      // If they blurred without selection, do nothing. Submit validation should catch missing fields.
+    waitForPlaces(lookupInput, function () {
+      const autocomplete = new google.maps.places.Autocomplete(lookupInput, {
+        types: ["address"],
+        componentRestrictions: { country: "au" },
+        fields: ["address_components", "formatted_address"],
+      });
+
+      autocomplete.addListener("place_changed", function () {
+        const place = autocomplete.getPlace();
+
+        if (!place || !place.address_components) {
+          setError(lookupInput, "Please select an address from the suggestions.");
+          return;
+        }
+
+        clearError(lookupInput);
+
+        if (place.formatted_address) {
+          lookupInput.value = place.formatted_address;
+        }
+
+        populateAddress(place);
+      });
     });
   }
 
-  // --------------------
-  // Boot
-  // --------------------
-  injectStyles();
-
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initAutocomplete);
+    document.addEventListener("DOMContentLoaded", init);
   } else {
-    initAutocomplete();
+    init();
   }
 })();
