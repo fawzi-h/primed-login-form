@@ -8017,60 +8017,55 @@
             }
         }, []);
         const de = function ({
-            callbackName: e,
-            requestOptions: t,
-            debounce: n
+            requestOptions: e,
+            debounce: t
         }) {
-            const [r, l] = (0, a.useState)(""),
-            [o, i] = (0, a.useState)({
+            const [n, r] = (0, a.useState)(""),
+            [l, o] = (0, a.useState)({
                 status: "",
                 data: []
             }),
+            i = (0, a.useRef)(null),
             u = (0, a.useRef)(null),
             s = (0, a.useRef)(null),
             c = (0, a.useCallback)(() => {
-                i({
+                o({
                     status: "",
                     data: []
                 })
             }, []);
             return (0, a.useEffect)(() => {
-                const t = () => {
-                    window.google && window.google.maps && window.google.maps.places && (u.current = new window.google.maps.places.AutocompleteService)
+                const e = () => {
+                    window.google && window.google.maps && window.google.maps.places ? (i.current = new window.google.maps.places.AutocompleteService, clearTimeout(s.current)) : s.current = setTimeout(e, 200)
                 };
-                t();
-                const n = window[e];
-                window[e] = () => {
-                    t(),
-                    "function" == typeof n && n()
-                }
-            }, [e]),
+                return e(),
+                () => clearTimeout(s.current)
+            }, []),
             (0, a.useEffect)(() => {
-                if (r)
-                    return clearTimeout(s.current), s.current = setTimeout(() => {
-                        u.current && u.current.getPlacePredictions({
-                            input: r,
-                            ...t
+                if (n)
+                    return clearTimeout(u.current), u.current = setTimeout(() => {
+                        i.current && i.current.getPlacePredictions({
+                            input: n,
+                            ...e
                         }, (e, t) => {
-                            t === window.google.maps.places.PlacesServiceStatus.OK ? i({
+                            t === window.google.maps.places.PlacesServiceStatus.OK ? o({
                                 status: "OK",
                                 data: e
-                            }) : i({
+                            }) : o({
                                 status: t,
                                 data: []
                             })
                         })
-                    }, n || 300), () => clearTimeout(s.current);
+                    }, t || 300), () => clearTimeout(u.current);
                 c()
-            }, [r]), {
-                value: r,
-                setValue: l,
+            }, [n]), {
+                value: n,
+                setValue: r,
                 clearSuggestions: c,
-                suggestions: o
+                suggestions: l
             }
         }
         ({
-            callbackName: "initMap",
             requestOptions: {
                 types: ["address"],
                 componentRestrictions: {
@@ -8078,11 +8073,12 @@
                 }
             },
             debounce: 300
-        });
-        (0, a.useEffect)(() => {
-            "undefined" == typeof window || window.initMap || (window.initMap = () => {})
-        }, []);
-        const { value: fe, setValue: pe, clearSuggestions: me, suggestions: he } = de, {
+        }), {
+            value: fe,
+            setValue: pe,
+            clearSuggestions: me,
+            suggestions: he
+        } = de, {
             status: ge,
             data: ve
         } = he,
@@ -8239,16 +8235,16 @@
                     e = !0
                 }
             }, []), (0, a.useEffect)(() => {
-                le && function (e, t) {
-                    if (document.getElementById(t))
-                        return;
-                    const n = document.createElement("script");
-                    n.id = t,
-                    n.src = e,
-                    n.async = !0,
-                    document.body.appendChild(n)
-                }
-                (`https://maps.googleapis.com/maps/api/js?key=${le}&libraries=places&callback=initMap`, "gmaps")
+                if (!le)
+                    return;
+                if (document.getElementById("gmaps"))
+                    return;
+                const e = document.createElement("script");
+                e.id = "gmaps",
+                e.src = `https://maps.googleapis.com/maps/api/js?key=${le}&libraries=places&loading=async`,
+                e.async = !0,
+                e.defer = !0,
+                document.body.appendChild(e)
             }, [le]), (0, a.useEffect)(() => {
                 g && W(!0)
             }, [g]), (0, a.useEffect)(() => {
