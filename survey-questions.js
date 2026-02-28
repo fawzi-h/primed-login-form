@@ -242,7 +242,7 @@
                     return ""
                 }
             }
-            function W(e) {
+            function B(e) {
                 if (null == e)
                     return null;
                 if ("function" == typeof e)
@@ -274,17 +274,17 @@
                         return (e = e.displayName) || (e = "" !== (e = t.displayName || t.name || "") ? "ForwardRef(" + e + ")" : "ForwardRef"),
                         e;
                     case T:
-                        return null !== (t = e.displayName || null) ? t : W(e.type) || "Memo";
+                        return null !== (t = e.displayName || null) ? t : B(e.type) || "Memo";
                     case L:
                         t = e._payload,
                         e = e._init;
                         try {
-                            return W(e(t))
+                            return B(e(t))
                         } catch (e) {}
                     }
                 return null
             }
-            function B(e) {
+            function W(e) {
                 var t = e.type;
                 switch (e.tag) {
                 case 24:
@@ -309,7 +309,7 @@
                 case 6:
                     return "Text";
                 case 16:
-                    return W(t);
+                    return B(t);
                 case 8:
                     return t === _ ? "StrictMode" : "Mode";
                 case 22:
@@ -779,7 +779,7 @@
                 Fe = null,
                 Me.apply(Ue, arguments)
             }
-            function We(e) {
+            function Be(e) {
                 var t = e,
                 n = e;
                 if (e.alternate)
@@ -794,7 +794,7 @@
                 }
                 return 3 === t.tag ? n : null
             }
-            function Be(e) {
+            function We(e) {
                 if (13 === e.tag) {
                     var t = e.memoizedState;
                     if (null === t && (null !== (e = e.alternate) && (t = e.memoizedState)), null !== t)
@@ -803,14 +803,14 @@
                 return null
             }
             function Ve(e) {
-                if (We(e) !== e)
+                if (Be(e) !== e)
                     throw Error(l(188))
             }
             function Qe(e) {
                 return null !== (e = function (e) {
                     var t = e.alternate;
                     if (!t) {
-                        if (null === (t = We(e)))
+                        if (null === (t = Be(e)))
                             throw Error(l(188));
                         return t !== e ? null : e
                     }
@@ -1096,10 +1096,10 @@
             function Ft(e) {
                 var t = va(e.target);
                 if (null !== t) {
-                    var n = We(t);
+                    var n = Be(t);
                     if (null !== n)
                         if (13 === (t = n.tag)) {
-                            if (null !== (t = Be(n)))
+                            if (null !== (t = We(n)))
                                 return e.blockedOn = t, void Nt(e.priority, function () {
                                     St(n)
                                 })
@@ -1137,7 +1137,7 @@
             function At(e, t) {
                 e.blockedOn === t && (e.blockedOn = null, Et || (Et = !0, a.unstable_scheduleCallback(a.unstable_NormalPriority, Ut)))
             }
-            function Wt(e) {
+            function Bt(e) {
                 function t(t) {
                     return At(t, e)
                 }
@@ -1153,30 +1153,30 @@
                 for (; 0 < Rt.length && null === (n = Rt[0]).blockedOn; )
                     Ft(n), null === n.blockedOn && Rt.shift()
             }
-            var Bt = w.ReactCurrentBatchConfig,
+            var Wt = w.ReactCurrentBatchConfig,
             Vt = !0;
             function Qt(e, t, n, r) {
                 var a = bt,
-                l = Bt.transition;
-                Bt.transition = null;
+                l = Wt.transition;
+                Wt.transition = null;
                 try {
                     bt = 1,
                     Ht(e, t, n, r)
                 } finally {
                     bt = a,
-                    Bt.transition = l
+                    Wt.transition = l
                 }
             }
             function qt(e, t, n, r) {
                 var a = bt,
-                l = Bt.transition;
-                Bt.transition = null;
+                l = Wt.transition;
+                Wt.transition = null;
                 try {
                     bt = 4,
                     Ht(e, t, n, r)
                 } finally {
                     bt = a,
-                    Bt.transition = l
+                    Wt.transition = l
                 }
             }
             function Ht(e, t, n, r) {
@@ -1223,10 +1223,10 @@
             var Kt = null;
             function Yt(e, t, n, r) {
                 if (Kt = null, null !== (e = va(e = xe(r))))
-                    if (null === (t = We(e)))
+                    if (null === (t = Be(e)))
                         e = null;
                     else if (13 === (n = t.tag)) {
-                        if (null !== (e = Be(t)))
+                        if (null !== (e = We(t)))
                             return e;
                         e = null
                     } else if (3 === n) {
@@ -1603,8 +1603,8 @@
             function An(e) {
                 return "object" == typeof(e = e.detail) && "data" in e ? e.data : null
             }
-            var Wn = !1;
-            var Bn = {
+            var Bn = !1;
+            var Wn = {
                 color: !0,
                 date: !0,
                 datetime: !0,
@@ -1623,7 +1623,7 @@
             };
             function Vn(e) {
                 var t = e && e.nodeName && e.nodeName.toLowerCase();
-                return "input" === t ? !!Bn[e.type] : "textarea" === t
+                return "input" === t ? !!Wn[e.type] : "textarea" === t
             }
             function Qn(e, t, n, r) {
                 Ee(r),
@@ -1914,15 +1914,15 @@
                 var n = t[ha];
                 void 0 === n && (n = t[ha] = new Set);
                 var r = e + "__bubble";
-                n.has(r) || (Br(t, e, 2, !1), n.add(r))
+                n.has(r) || (Wr(t, e, 2, !1), n.add(r))
             }
             function Ur(e, t, n) {
                 var r = 0;
                 t && (r |= 4),
-                Br(n, e, r, t)
+                Wr(n, e, r, t)
             }
             var Ar = "_reactListening" + Math.random().toString(36).slice(2);
-            function Wr(e) {
+            function Br(e) {
                 if (!e[Ar]) {
                     e[Ar] = !0,
                     o.forEach(function (t) {
@@ -1932,7 +1932,7 @@
                     null === t || t[Ar] || (t[Ar] = !0, Ur("selectionchange", !1, t))
                 }
             }
-            function Br(e, t, n, r) {
+            function Wr(e, t, n, r) {
                 switch (Xt(t)) {
                 case 1:
                     var a = Qt;
@@ -2087,7 +2087,7 @@
                         }
                     }
                     if (!(7 & t)) {
-                        if (u = "mouseout" === e || "pointerout" === e, (!(i = "mouseover" === e || "pointerover" === e) || n === we || !(s = n.relatedTarget || n.fromElement) || !va(s) && !s[ma]) && (u || i) && (i = a.window === a ? a : (i = a.ownerDocument) ? i.defaultView || i.parentWindow : window, u ? (u = r, null !== (s = (s = n.relatedTarget || n.toElement) ? va(s) : null) && (s !== (d = We(s)) || 5 !== s.tag && 6 !== s.tag) && (s = null)) : (u = null, s = r), u !== s)) {
+                        if (u = "mouseout" === e || "pointerout" === e, (!(i = "mouseover" === e || "pointerover" === e) || n === we || !(s = n.relatedTarget || n.fromElement) || !va(s) && !s[ma]) && (u || i) && (i = a.window === a ? a : (i = a.ownerDocument) ? i.defaultView || i.parentWindow : window, u ? (u = r, null !== (s = (s = n.relatedTarget || n.toElement) ? va(s) : null) && (s !== (d = Be(s)) || 5 !== s.tag && 6 !== s.tag) && (s = null)) : (u = null, s = r), u !== s)) {
                             if (c = mn, h = "onMouseLeave", f = "onMouseEnter", m = "mouse", "pointerout" !== e && "pointerover" !== e || (c = Pn, h = "onPointerLeave", f = "onPointerEnter", m = "pointer"), d = null == u ? i : wa(u), p = null == s ? i : wa(s), (i = new c(h, m + "leave", u, n, a)).target = d, i.relatedTarget = p, h = null, va(a) === r && ((c = new c(f, m + "enter", s, n, a)).target = p, c.relatedTarget = d, h = c), d = h, u && s)
                                 e: {
                                     for (f = s, m = 0, p = c = u; p; p = Hr(p))
@@ -2161,8 +2161,8 @@
                                 b = void 0
                             }
                         else
-                            Wn ? Un(e, n) && (b = "onCompositionEnd") : "keydown" === e && 229 === n.keyCode && (b = "onCompositionStart");
-                        b && (Fn && "ko" !== n.locale && (Wn || "onCompositionStart" !== b ? "onCompositionEnd" === b && Wn && (v = en()) : (Jt = "value" in(Gt = a) ? Gt.value : Gt.textContent, Wn = !0)), 0 < (y = qr(r, b)).length && (b = new wn(b, e, null, n, a), o.push({
+                            Bn ? Un(e, n) && (b = "onCompositionEnd") : "keydown" === e && 229 === n.keyCode && (b = "onCompositionStart");
+                        b && (Fn && "ko" !== n.locale && (Bn || "onCompositionStart" !== b ? "onCompositionEnd" === b && Bn && (v = en()) : (Jt = "value" in(Gt = a) ? Gt.value : Gt.textContent, Bn = !0)), 0 < (y = qr(r, b)).length && (b = new wn(b, e, null, n, a), o.push({
                                     event: b,
                                     listeners: y
                                 }), v ? b.data = v : null !== (v = An(n)) && (b.data = v))),
@@ -2179,8 +2179,8 @@
                             }
                         }
                             (e, n) : function (e, t) {
-                            if (Wn)
-                                return "compositionend" === e || !On && Un(e, t) ? (e = en(), Zt = Jt = Gt = null, Wn = !1, e) : null;
+                            if (Bn)
+                                return "compositionend" === e || !On && Un(e, t) ? (e = en(), Zt = Jt = Gt = null, Bn = !1, e) : null;
                             switch (e) {
                             case "paste":
                             default:
@@ -2279,13 +2279,13 @@
                     if (e.removeChild(n), a && 8 === a.nodeType)
                         if ("/$" === (n = a.data)) {
                             if (0 === r)
-                                return e.removeChild(a), void Wt(t);
+                                return e.removeChild(a), void Bt(t);
                             r--
                         } else
                             "$" !== n && "$?" !== n && "$!" !== n || r++;
                     n = a
                 } while (n);
-                Wt(t)
+                Bt(t)
             }
             function sa(e) {
                 for (; null != e; e = e.nextSibling) {
@@ -2405,7 +2405,7 @@
                     return n;
                 for (var a in r = r.getChildContext())
                     if (!(a in t))
-                        throw Error(l(108, B(e) || "Unknown", a));
+                        throw Error(l(108, W(e) || "Unknown", a));
                 return F({}, n, r)
             }
             function Ia(e) {
@@ -2428,7 +2428,7 @@
             function Aa(e) {
                 null === Da ? Da = [e] : Da.push(e)
             }
-            function Wa() {
+            function Ba() {
                 if (!Ua && null !== Da) {
                     Ua = !0;
                     var e = 0,
@@ -2445,7 +2445,7 @@
                         $a = !1
                     } catch (t) {
                         throw null !== Da && (Da = Da.slice(e + 1)),
-                        He(Ze, Wa),
+                        He(Ze, Ba),
                         t
                     } finally {
                         bt = t,
@@ -2454,7 +2454,7 @@
                 }
                 return null
             }
-            var Ba = [],
+            var Wa = [],
             Va = 0,
             Qa = null,
             qa = 0,
@@ -2464,8 +2464,8 @@
             Xa = 1,
             Ga = "";
             function Ja(e, t) {
-                Ba[Va++] = qa,
-                Ba[Va++] = Qa,
+                Wa[Va++] = qa,
+                Wa[Va++] = Qa,
                 Qa = e,
                 qa = t
             }
@@ -2495,7 +2495,7 @@
             }
             function tl(e) {
                 for (; e === Qa; )
-                    Qa = Ba[--Va], Ba[Va] = null, qa = Ba[--Va], Ba[Va] = null;
+                    Qa = Wa[--Va], Wa[Va] = null, qa = Wa[--Va], Wa[Va] = null;
                 for (; e === Ya; )
                     Ya = Ha[--Ka], Ha[Ka] = null, Ga = Ha[--Ka], Ha[Ka] = null, Xa = Ha[--Ka], Ha[Ka] = null
             }
@@ -3022,7 +3022,7 @@
                 null === (e = n.lastBaseUpdate) ? n.firstBaseUpdate = t : e.next = t,
                 n.lastBaseUpdate = t
             }
-            function Wl(e, t, n, r) {
+            function Bl(e, t, n, r) {
                 var a = e.updateQueue;
                 Ml = !1;
                 var l = a.firstBaseUpdate,
@@ -3108,7 +3108,7 @@
                     e.memoizedState = d
                 }
             }
-            function Bl(e, t, n) {
+            function Wl(e, t, n) {
                 if (e = t.effects, t.effects = null, null !== e)
                     for (t = 0; t < e.length; t++) {
                         var r = e[t],
@@ -3480,13 +3480,13 @@
                 Oo(4, 4, $o.bind(null, t, e), n)
             }
             function Ao() {}
-            function Wo(e, t) {
+            function Bo(e, t) {
                 var n = bo();
                 t = void 0 === t ? null : t;
                 var r = n.memoizedState;
                 return null !== r && null !== t && ho(t, r[1]) ? r[0] : (n.memoizedState = [e, t], e)
             }
-            function Bo(e, t) {
+            function Wo(e, t) {
                 var n = bo();
                 t = void 0 === t ? null : t;
                 var r = n.memoizedState;
@@ -3690,13 +3690,13 @@
             },
             ei = {
                 readContext: zl,
-                useCallback: Wo,
+                useCallback: Bo,
                 useContext: zl,
                 useEffect: Io,
                 useImperativeHandle: Uo,
                 useInsertionEffect: Fo,
                 useLayoutEffect: Do,
-                useMemo: Bo,
+                useMemo: Wo,
                 useReducer: xo,
                 useRef: Lo,
                 useState: function () {
@@ -3716,13 +3716,13 @@
             },
             ti = {
                 readContext: zl,
-                useCallback: Wo,
+                useCallback: Bo,
                 useContext: zl,
                 useEffect: Io,
                 useImperativeHandle: Uo,
                 useInsertionEffect: Fo,
                 useLayoutEffect: Do,
-                useMemo: Bo,
+                useMemo: Wo,
                 useReducer: ko,
                 useRef: Lo,
                 useState: function () {
@@ -3756,7 +3756,7 @@
             }
             var ai = {
                 isMounted: function (e) {
-                    return !!(e = e._reactInternals) && We(e) === e
+                    return !!(e = e._reactInternals) && Be(e) === e
                 },
                 enqueueSetState: function (e, t, n) {
                     e = e._reactInternals;
@@ -3819,7 +3819,7 @@
                 "object" == typeof l && null !== l ? a.context = zl(l) : (l = La(t) ? za : Pa.current, a.context = Ta(e, l)),
                 a.state = e.memoizedState,
                 "function" == typeof(l = t.getDerivedStateFromProps) && (ri(e, t, l, n), a.state = e.memoizedState),
-                "function" == typeof t.getDerivedStateFromProps || "function" == typeof a.getSnapshotBeforeUpdate || "function" != typeof a.UNSAFE_componentWillMount && "function" != typeof a.componentWillMount || (t = a.state, "function" == typeof a.componentWillMount && a.componentWillMount(), "function" == typeof a.UNSAFE_componentWillMount && a.UNSAFE_componentWillMount(), t !== a.state && ai.enqueueReplaceState(a, a.state, null), Wl(e, n, a, r), a.state = e.memoizedState),
+                "function" == typeof t.getDerivedStateFromProps || "function" == typeof a.getSnapshotBeforeUpdate || "function" != typeof a.UNSAFE_componentWillMount && "function" != typeof a.componentWillMount || (t = a.state, "function" == typeof a.componentWillMount && a.componentWillMount(), "function" == typeof a.UNSAFE_componentWillMount && a.UNSAFE_componentWillMount(), t !== a.state && ai.enqueueReplaceState(a, a.state, null), Bl(e, n, a, r), a.state = e.memoizedState),
                 "function" == typeof a.componentDidMount && (e.flags |= 4194308)
             }
             function si(e, t) {
@@ -3866,7 +3866,7 @@
                 };
                 var r = t.value;
                 return n.callback = function () {
-                    Bu || (Bu = !0, Vu = r),
+                    Wu || (Wu = !0, Vu = r),
                     di(0, t)
                 },
                 n
@@ -3927,7 +3927,7 @@
                 return jl(t, a),
                 r = go(e, t, n, r, l, a),
                 n = yo(),
-                null === e || bi ? (al && n && el(t), t.flags |= 1, wi(e, t, r, a), t.child) : (t.updateQueue = e.updateQueue, t.flags &= -2053, e.lanes &= ~a, Bi(e, t, a))
+                null === e || bi ? (al && n && el(t), t.flags |= 1, wi(e, t, r, a), t.child) : (t.updateQueue = e.updateQueue, t.flags &= -2053, e.lanes &= ~a, Wi(e, t, a))
             }
             function ki(e, t, n, r, a) {
                 if (null === e) {
@@ -3937,7 +3937,7 @@
                 if (l = e.child, 0 === (e.lanes & a)) {
                     var o = l.memoizedProps;
                     if ((n = null !== (n = n.compare) ? n : ur)(o, r) && e.ref === t.ref)
-                        return Bi(e, t, a)
+                        return Wi(e, t, a)
                 }
                 return t.flags |= 1,
                 (e = Ls(l, r)).ref = t.ref,
@@ -3949,7 +3949,7 @@
                     var l = e.memoizedProps;
                     if (ur(l, r) && e.ref === t.ref) {
                         if (bi = !1, t.pendingProps = r = l, 0 === (e.lanes & a))
-                            return t.lanes = e.lanes, Bi(e, t, a);
+                            return t.lanes = e.lanes, Wi(e, t, a);
                         131072 & e.flags && (bi = !0)
                     }
                 }
@@ -4002,7 +4002,7 @@
                 jl(t, a),
                 n = go(e, t, n, r, l, a),
                 r = yo(),
-                null === e || bi ? (al && r && el(t), t.flags |= 1, wi(e, t, n, a), t.child) : (t.updateQueue = e.updateQueue, t.flags &= -2053, e.lanes &= ~a, Bi(e, t, a))
+                null === e || bi ? (al && r && el(t), t.flags |= 1, wi(e, t, n, a), t.child) : (t.updateQueue = e.updateQueue, t.flags &= -2053, e.lanes &= ~a, Wi(e, t, a))
             }
             function Ci(e, t, n, r, a) {
                 if (La(n)) {
@@ -4011,7 +4011,7 @@
                 } else
                     l = !1;
                 if (jl(t, a), null === t.stateNode)
-                    Wi(e, t), oi(t, n, r), ui(t, n, r, a), r = !0;
+                    Bi(e, t), oi(t, n, r), ui(t, n, r, a), r = !0;
                 else if (null === e) {
                     var o = t.stateNode,
                     i = t.memoizedProps;
@@ -4025,7 +4025,7 @@
                     Ml = !1;
                     var f = t.memoizedState;
                     o.state = f,
-                    Wl(t, r, o, a),
+                    Bl(t, r, o, a),
                     u = t.memoizedState,
                     i !== r || f !== u || ja.current || Ml ? ("function" == typeof c && (ri(t, n, c, r), u = t.memoizedState), (i = Ml || li(t, n, i, r, f, u, s)) ? (d || "function" != typeof o.UNSAFE_componentWillMount && "function" != typeof o.componentWillMount || ("function" == typeof o.componentWillMount && o.componentWillMount(), "function" == typeof o.UNSAFE_componentWillMount && o.UNSAFE_componentWillMount()), "function" == typeof o.componentDidMount && (t.flags |= 4194308)) : ("function" == typeof o.componentDidMount && (t.flags |= 4194308), t.memoizedProps = r, t.memoizedState = u), o.props = r, o.state = u, o.context = s, r = i) : ("function" == typeof o.componentDidMount && (t.flags |= 4194308), r = !1)
                 } else {
@@ -4042,7 +4042,7 @@
                     Ml = !1,
                     f = t.memoizedState,
                     o.state = f,
-                    Wl(t, r, o, a);
+                    Bl(t, r, o, a);
                     var m = t.memoizedState;
                     i !== d || f !== m || ja.current || Ml ? ("function" == typeof p && (ri(t, n, p, r), m = t.memoizedState), (s = Ml || li(t, n, s, r, f, m, u) || !1) ? (c || "function" != typeof o.UNSAFE_componentWillUpdate && "function" != typeof o.componentWillUpdate || ("function" == typeof o.componentWillUpdate && o.componentWillUpdate(r, m, u), "function" == typeof o.UNSAFE_componentWillUpdate && o.UNSAFE_componentWillUpdate(r, m, u)), "function" == typeof o.componentDidUpdate && (t.flags |= 4), "function" == typeof o.getSnapshotBeforeUpdate && (t.flags |= 1024)) : ("function" != typeof o.componentDidUpdate || i === e.memoizedProps && f === e.memoizedState || (t.flags |= 4), "function" != typeof o.getSnapshotBeforeUpdate || i === e.memoizedProps && f === e.memoizedState || (t.flags |= 1024), t.memoizedProps = r, t.memoizedState = m), o.props = r, o.state = m, o.context = u, r = s) : ("function" != typeof o.componentDidUpdate || i === e.memoizedProps && f === e.memoizedState || (t.flags |= 4), "function" != typeof o.getSnapshotBeforeUpdate || i === e.memoizedProps && f === e.memoizedState || (t.flags |= 1024), r = !1)
                 }
@@ -4052,7 +4052,7 @@
                 Ni(e, t);
                 var o = !!(128 & t.flags);
                 if (!r && !o)
-                    return a && Fa(t, n, !1), Bi(e, t, l);
+                    return a && Fa(t, n, !1), Wi(e, t, l);
                 r = t.stateNode,
                 vi.current = t;
                 var i = o && "function" != typeof n.getDerivedStateFromError ? null : r.render();
@@ -4293,10 +4293,10 @@
                     t.memoizedState = null;
                 return t.child
             }
-            function Wi(e, t) {
+            function Bi(e, t) {
                 !(1 & t.mode) && null !== e && (e.alternate = null, t.alternate = null, t.flags |= 2)
             }
-            function Bi(e, t, n) {
+            function Wi(e, t, n) {
                 if (null !== e && (t.dependencies = e.dependencies), Mu |= t.lanes, 0 === (n & t.childLanes))
                     return null;
                 if (null !== e && t.child !== e.child)
@@ -4602,7 +4602,7 @@
                     return 128 & t.flags ? (t.lanes = n, t) : ((r = null !== r) !== (null !== e && null !== e.memoizedState) && r && (t.child.flags |= 8192, 1 & t.mode && (null === e || 1 & Zl.current ? 0 === Ru && (Ru = 3) : ms())), null !== t.updateQueue && (t.flags |= 4), Qi(t), null);
                 case 4:
                     return Xl(),
-                    null === e && Wr(t.stateNode.containerInfo),
+                    null === e && Br(t.stateNode.containerInfo),
                     Qi(t),
                     null;
                 case 10:
@@ -4908,7 +4908,7 @@
                     null !== (su = r) && (cu ? (e = su, n = n.stateNode, 8 === e.nodeType ? e.parentNode.removeChild(n) : e.removeChild(n)) : su.removeChild(n.stateNode));
                     break;
                 case 18:
-                    null !== su && (cu ? (e = su, n = n.stateNode, 8 === e.nodeType ? ua(e.parentNode, n) : 1 === e.nodeType && ua(e, n), Wt(e)) : ua(su, n.stateNode));
+                    null !== su && (cu ? (e = su, n = n.stateNode, 8 === e.nodeType ? ua(e.parentNode, n) : 1 === e.nodeType && ua(e, n), Bt(e)) : ua(su, n.stateNode));
                     break;
                 case 4:
                     r = su,
@@ -5093,7 +5093,7 @@
                 case 3:
                     if (mu(t, e), gu(e), 4 & r && null !== n && n.memoizedState.isDehydrated)
                         try {
-                            Wt(t.containerInfo)
+                            Bt(t.containerInfo)
                         } catch (t) {
                             Ss(e, e.return, t)
                         }
@@ -5281,7 +5281,7 @@
                                             r.componentDidUpdate(a, n.memoizedState, r.__reactInternalSnapshotBeforeUpdate)
                                         }
                                     var o = t.updateQueue;
-                                    null !== o && Bl(t, o, r);
+                                    null !== o && Wl(t, o, r);
                                     break;
                                 case 3:
                                     var i = t.updateQueue;
@@ -5292,7 +5292,7 @@
                                             case 1:
                                                 n = t.child.stateNode
                                             }
-                                        Bl(t, i, n)
+                                        Wl(t, i, n)
                                     }
                                     break;
                                 case 5:
@@ -5329,7 +5329,7 @@
                                             var d = c.memoizedState;
                                             if (null !== d) {
                                                 var f = d.dehydrated;
-                                                null !== f && Wt(f)
+                                                null !== f && Bt(f)
                                             }
                                         }
                                     }
@@ -5446,8 +5446,8 @@
             $u = null,
             Uu = 0,
             Au = 1 / 0,
-            Wu = null,
-            Bu = !1,
+            Bu = null,
+            Wu = !1,
             Vu = null,
             Qu = null,
             qu = !1,
@@ -5467,7 +5467,7 @@
                 if (50 < Yu)
                     throw Yu = 0, Xu = null, Error(l(185));
                 yt(e, n, r),
-                2 & Cu && e === Pu || (e === Pu && (!(2 & Cu) && (Iu |= n), 4 === Ru && os(e, zu)), ns(e, r), 1 === n && 0 === Cu && !(1 & t.mode) && (Au = Ge() + 500, $a && Wa()))
+                2 & Cu && e === Pu || (e === Pu && (!(2 & Cu) && (Iu |= n), 4 === Ru && os(e, zu)), ns(e, r), 1 === n && 0 === Cu && !(1 & t.mode) && (Au = Ge() + 500, $a && Ba()))
             }
             function ns(e, t) {
                 var n = e.callbackNode;
@@ -5492,7 +5492,7 @@
                         }
                     (is.bind(null, e)) : Aa(is.bind(null, e)),
                     oa(function () {
-                        !(6 & Cu) && Wa()
+                        !(6 & Cu) && Ba()
                     }),
                     n = null;
                     else {
@@ -5532,7 +5532,7 @@
                     var a = Cu;
                     Cu |= 2;
                     var o = ps();
-                    for (Pu === e && zu === t || (Wu = null, Au = Ge() + 500, ds(e, t)); ; )
+                    for (Pu === e && zu === t || (Bu = null, Au = Ge() + 500, ds(e, t)); ; )
                         try {
                             ys();
                             break
@@ -5591,7 +5591,7 @@
                             throw Error(l(345));
                         case 2:
                         case 5:
-                            ws(e, $u, Wu);
+                            ws(e, $u, Bu);
                             break;
                         case 3:
                             if (os(e, r), (130023424 & r) === r && 10 < (t = Uu + 500 - Ge())) {
@@ -5602,10 +5602,10 @@
                                     e.pingedLanes |= e.suspendedLanes & a;
                                     break
                                 }
-                                e.timeoutHandle = ra(ws.bind(null, e, $u, Wu), t);
+                                e.timeoutHandle = ra(ws.bind(null, e, $u, Bu), t);
                                 break
                             }
-                            ws(e, $u, Wu);
+                            ws(e, $u, Bu);
                             break;
                         case 4:
                             if (os(e, r), (4194240 & r) === r)
@@ -5617,10 +5617,10 @@
                                 r &= ~o
                             }
                             if (r = a, 10 < (r = (120 > (r = Ge() - r) ? 120 : 480 > r ? 480 : 1080 > r ? 1080 : 1920 > r ? 1920 : 3e3 > r ? 3e3 : 4320 > r ? 4320 : 1960 * Su(r / 1960)) - r)) {
-                                e.timeoutHandle = ra(ws.bind(null, e, $u, Wu), r);
+                                e.timeoutHandle = ra(ws.bind(null, e, $u, Bu), r);
                                 break
                             }
-                            ws(e, $u, Wu);
+                            ws(e, $u, Bu);
                             break;
                         default:
                             throw Error(l(329))
@@ -5665,7 +5665,7 @@
                     throw Error(l(345));
                 return e.finishedWork = e.current.alternate,
                 e.finishedLanes = t,
-                ws(e, $u, Wu),
+                ws(e, $u, Bu),
                 ns(e, Ge()),
                 null
             }
@@ -5675,7 +5675,7 @@
                 try {
                     return e(t)
                 } finally {
-                    0 === (Cu = n) && (Au = Ge() + 500, $a && Wa())
+                    0 === (Cu = n) && (Au = Ge() + 500, $a && Ba())
                 }
             }
             function ss(e) {
@@ -5690,7 +5690,7 @@
                 } finally {
                     bt = r,
                     Eu.transition = n,
-                    !(6 & (Cu = t)) && Wa()
+                    !(6 & (Cu = t)) && Ba()
                 }
             }
             function cs() {
@@ -5860,7 +5860,7 @@
                 var n = Cu;
                 Cu |= 2;
                 var r = ps();
-                for (Pu === e && zu === t || (Wu = null, ds(e, t)); ; )
+                for (Pu === e && zu === t || (Bu = null, ds(e, t)); ; )
                     try {
                         gs();
                         break
@@ -6087,12 +6087,12 @@
                                     componentStack: a.stack,
                                     digest: a.digest
                                 });
-                        if (Bu)
-                            throw Bu = !1, e = Vu, Vu = null, e;
+                        if (Wu)
+                            throw Wu = !1, e = Vu, Vu = null, e;
                         !!(1 & Ku) && 0 !== e.tag && xs(),
                         o = e.pendingLanes,
                         1 & o ? e === Xu ? Yu++ : (Yu = 0, Xu = e) : Yu = 0,
-                        Wa()
+                        Ba()
                     }
                     (e, t, n, r)
                 } finally {
@@ -6215,7 +6215,7 @@
                                         Gi = u.return
                                     }
                             }
-                            if (Cu = a, Wa(), lt && "function" == typeof lt.onPostCommitFiberRoot)
+                            if (Cu = a, Ba(), lt && "function" == typeof lt.onPostCommitFiberRoot)
                                 try {
                                     lt.onPostCommitFiberRoot(at, e)
                                 } catch (e) {}
@@ -6449,7 +6449,7 @@
                 if (!e)
                     return Ca;
                 e: {
-                    if (We(e = e._reactInternals) !== e || 1 !== e.tag)
+                    if (Be(e = e._reactInternals) !== e || 1 !== e.tag)
                         throw Error(l(170));
                     var t = e;
                     do {
@@ -6484,7 +6484,7 @@
                 ns(e, r),
                 e
             }
-            function Ws(e, t, n, r) {
+            function Bs(e, t, n, r) {
                 var a = t.current,
                 l = Zu(),
                 o = es(a);
@@ -6497,7 +6497,7 @@
                 null !== (e = $l(a, t, o)) && (ts(e, a, o, l), Ul(e, a, o)),
                 o
             }
-            function Bs(e) {
+            function Ws(e) {
                 return (e = e.current).child ? (e.child.tag, e.child.stateNode) : null
             }
             function Vs(e, t) {
@@ -6539,7 +6539,7 @@
                                     break;
                                 case 13:
                                     if (null !== (r = t.memoizedState))
-                                        return null !== r.dehydrated ? (Ea(Zl, 1 & Zl.current), t.flags |= 128, null) : 0 !== (n & t.child.childLanes) ? Ii(e, t, n) : (Ea(Zl, 1 & Zl.current), null !== (e = Bi(e, t, n)) ? e.sibling : null);
+                                        return null !== r.dehydrated ? (Ea(Zl, 1 & Zl.current), t.flags |= 128, null) : 0 !== (n & t.child.childLanes) ? Ii(e, t, n) : (Ea(Zl, 1 & Zl.current), null !== (e = Wi(e, t, n)) ? e.sibling : null);
                                     Ea(Zl, 1 & Zl.current);
                                     break;
                                 case 19:
@@ -6556,7 +6556,7 @@
                                     return t.lanes = 0,
                                     _i(e, t, n)
                                 }
-                                return Bi(e, t, n)
+                                return Wi(e, t, n)
                             }
                         (e, t, n);
                         bi = !!(131072 & e.flags)
@@ -6566,7 +6566,7 @@
                 switch (t.lanes = 0, t.tag) {
                 case 2:
                     var r = t.type;
-                    Wi(e, t),
+                    Bi(e, t),
                     e = t.pendingProps;
                     var a = Ta(t, Pa.current);
                     jl(t, n),
@@ -6578,7 +6578,7 @@
                 case 16:
                     r = t.elementType;
                     e: {
-                        switch (Wi(e, t), e = t.pendingProps, r = (a = r._init)(r._payload), t.type = r, a = t.tag = function (e) {
+                        switch (Bi(e, t), e = t.pendingProps, r = (a = r._init)(r._payload), t.type = r, a = t.tag = function (e) {
                             if ("function" == typeof e)
                                 return Ts(e)
                                      ? 1 : 0;
@@ -6622,7 +6622,7 @@
                         r = t.pendingProps,
                         a = (o = t.memoizedState).element,
                         Fl(e, t),
-                        Wl(t, r, null, n);
+                        Bl(t, r, null, n);
                         var i = t.memoizedState;
                         if (r = i.element, o.isDehydrated) {
                             if (o = {
@@ -6643,7 +6643,7 @@
                                 n.flags = -3 & n.flags | 4096, n = n.sibling
                         } else {
                             if (pl(), r === a) {
-                                t = Bi(e, t, n);
+                                t = Wi(e, t, n);
                                 break e
                             }
                             wi(e, t, r, n)
@@ -6688,7 +6688,7 @@
                         if (r = t.type._context, a = t.pendingProps, o = t.memoizedProps, i = a.value, Ea(kl, r._currentValue), r._currentValue = i, null !== o)
                             if (ir(o.value, i)) {
                                 if (o.children === a.children && !ja.current) {
-                                    t = Bi(e, t, n);
+                                    t = Wi(e, t, n);
                                     break e
                                 }
                             } else
@@ -6764,7 +6764,7 @@
                     return r = t.type,
                     a = t.pendingProps,
                     a = t.elementType === r ? a : ni(r, a),
-                    Wi(e, t),
+                    Bi(e, t),
                     t.tag = 1,
                     La(r) ? (e = !0, Ia(t)) : e = !1,
                     jl(t, n),
@@ -6801,25 +6801,25 @@
                     if ("function" == typeof a) {
                         var i = a;
                         a = function () {
-                            var e = Bs(o);
+                            var e = Ws(o);
                             i.call(e)
                         }
                     }
-                    Ws(t, o, e, a)
+                    Bs(t, o, e, a)
                 } else
                     o = function (e, t, n, r, a) {
                         if (a) {
                             if ("function" == typeof r) {
                                 var l = r;
                                 r = function () {
-                                    var e = Bs(o);
+                                    var e = Ws(o);
                                     l.call(e)
                                 }
                             }
                             var o = As(t, r, e, 0, null, !1, 0, "", Gs);
                             return e._reactRootContainer = o,
                             e[ma] = o.current,
-                            Wr(8 === e.nodeType ? e.parentNode : e),
+                            Br(8 === e.nodeType ? e.parentNode : e),
                             ss(),
                             o
                         }
@@ -6828,27 +6828,27 @@
                         if ("function" == typeof r) {
                             var i = r;
                             r = function () {
-                                var e = Bs(u);
+                                var e = Ws(u);
                                 i.call(e)
                             }
                         }
                         var u = $s(e, 0, !1, null, 0, !1, 0, "", Gs);
                         return e._reactRootContainer = u,
                         e[ma] = u.current,
-                        Wr(8 === e.nodeType ? e.parentNode : e),
+                        Br(8 === e.nodeType ? e.parentNode : e),
                         ss(function () {
-                            Ws(t, u, n, r)
+                            Bs(t, u, n, r)
                         }),
                         u
                     }
                 (n, t, e, a, r);
-                return Bs(o)
+                return Ws(o)
             }
             Ks.prototype.render = Hs.prototype.render = function (e) {
                 var t = this._internalRoot;
                 if (null === t)
                     throw Error(l(409));
-                Ws(e, t, null, null)
+                Bs(e, t, null, null)
             },
             Ks.prototype.unmount = Hs.prototype.unmount = function () {
                 var e = this._internalRoot;
@@ -6856,7 +6856,7 @@
                     this._internalRoot = null;
                     var t = e.containerInfo;
                     ss(function () {
-                        Ws(null, e, null, null)
+                        Bs(null, e, null, null)
                     }),
                     t[ma] = null
                 }
@@ -6880,7 +6880,7 @@
                     var t = e.stateNode;
                     if (t.current.memoizedState.isDehydrated) {
                         var n = dt(t.pendingLanes);
-                        0 !== n && (vt(t, 1 | n), ns(t, Ge()), !(6 & Cu) && (Au = Ge() + 500, Wa()))
+                        0 !== n && (vt(t, 1 | n), ns(t, Ge()), !(6 & Cu) && (Au = Ge() + 500, Ba()))
                     }
                     break;
                 case 13:
@@ -7022,7 +7022,7 @@
                 return null != t && (!0 === t.unstable_strictMode && (n = !0), void 0 !== t.identifierPrefix && (r = t.identifierPrefix), void 0 !== t.onRecoverableError && (a = t.onRecoverableError)),
                 t = $s(e, 1, !1, null, 0, n, 0, r, a),
                 e[ma] = t.current,
-                Wr(8 === e.nodeType ? e.parentNode : e),
+                Br(8 === e.nodeType ? e.parentNode : e),
                 new Hs(t)
             },
             t.findDOMNode = function (e) {
@@ -7054,7 +7054,7 @@
                 a = !1,
                 o = "",
                 i = qs;
-                if (null != n && (!0 === n.unstable_strictMode && (a = !0), void 0 !== n.identifierPrefix && (o = n.identifierPrefix), void 0 !== n.onRecoverableError && (i = n.onRecoverableError)), t = As(t, null, e, 1, null != n ? n : null, a, 0, o, i), e[ma] = t.current, Wr(e), r)
+                if (null != n && (!0 === n.unstable_strictMode && (a = !0), void 0 !== n.identifierPrefix && (o = n.identifierPrefix), void 0 !== n.onRecoverableError && (i = n.onRecoverableError)), t = As(t, null, e, 1, null != n ? n : null, a, 0, o, i), e[ma] = t.current, Br(e), r)
                     for (e = 0; e < r.length; e++)
                         a = (a = (n = r[e])._getVersion)(n._source), null == t.mutableSourceEagerHydrationData ? t.mutableSourceEagerHydrationData = [n, a] : t.mutableSourceEagerHydrationData.push(n, a);
                 return new Ks(t)
@@ -7919,18 +7919,19 @@
         index: t,
         answers: n,
         handleAnswer: r,
-        errors: a,
-        setErrors: l,
-        medicareCheckbox: i,
-        setMedicareCheckbox: u,
-        medicineCheckbox: s,
-        setMedicineCheckbox: c,
-        customInputClass: d
+        onSelect: a,
+        errors: l,
+        setErrors: i,
+        medicareCheckbox: u,
+        setMedicareCheckbox: s,
+        medicineCheckbox: c,
+        setMedicineCheckbox: d,
+        customInputClass: f
     }) {
         if (!e)
             return null;
         console.log("[Survey] Rendering question:", e);
-        const f = d ? {}
+        const p = f ? {}
          : {
             width: "100%",
             backgroundColor: "transparent",
@@ -7942,18 +7943,18 @@
             boxSizing: "border-box",
             display: "block"
         },
-        p = {
+        m = {
             display: "flex",
             alignItems: "center",
             gap: "0.75rem",
             cursor: "pointer",
             padding: "0.5rem 0"
         },
-        m = n[e.key] ?? "",
-        h = (e.type || "text").toLowerCase(),
-        g = e.options || e.choices || e.values || [],
-        y = e.label || e.question || e.title || e.key,
-        v = e.placeholder || "";
+        h = n[e.key] ?? "",
+        g = (e.type || "text").toLowerCase(),
+        y = e.options || e.choices || e.values || [],
+        v = e.label || e.question || e.title || e.key,
+        b = e.placeholder || "";
         return (0, o.jsxs)("div", {
             style: {
                 display: "flex",
@@ -7965,47 +7966,73 @@
                         fontSize: "1.2rem",
                         fontWeight: 600
                     },
-                    children: y
+                    children: v
                 }), e.description && (0, o.jsx)("p", {
                     style: {
                         opacity: .7,
                         fontSize: "0.95rem"
                     },
                     children: e.description
-                }), "radio" === h || "select" === h || "multiple_choice" === h || "single_choice" === h || g.length > 0 && "checkbox_group" !== h ? (0, o.jsx)("div", {
+                }), "radio" === g || "select" === g || "multiple_choice" === g || "single_choice" === g || y.length > 0 && "checkbox_group" !== g ? (0, o.jsx)("div", {
                     style: {
                         display: "flex",
                         flexDirection: "column",
-                        gap: "0.5rem"
+                        gap: "0.625rem"
                     },
-                    children: g.map(t => {
+                    children: y.map(t => {
                         const n = "object" == typeof t ? t.value ?? t.label ?? t.key ?? String(t) : String(t),
-                        a = "object" == typeof t ? t.label ?? t.value ?? String(t) : String(t);
-                        return (0, o.jsxs)("label", {
-                            style: p,
-                            children: [(0, o.jsx)("input", {
-                                    type: "radio",
-                                    name: e.key,
-                                    value: n,
-                                    checked: m === n,
-                                    onChange: () => r(e.key, n),
+                        l = "object" == typeof t ? t.label ?? t.value ?? String(t) : String(t),
+                        i = h === n;
+                        return (0, o.jsxs)("div", {
+                            onClick: () => {
+                                r(e.key, n),
+                                a && a()
+                            },
+                            style: {
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "0.875rem",
+                                cursor: "pointer",
+                                padding: "0.875rem 1rem",
+                                borderRadius: "0.75rem",
+                                border: i ? "2px solid #faf08c" : "2px solid transparent",
+                                backgroundColor: i ? "rgba(250,240,140,0.12)" : "transparent",
+                                transition: "all 0.15s ease",
+                                userSelect: "none"
+                            },
+                            children: [(0, o.jsx)("div", {
                                     style: {
                                         width: "1.1rem",
                                         height: "1.1rem",
-                                        accentColor: "#003739",
-                                        cursor: "pointer",
-                                        flexShrink: 0
-                                    }
+                                        borderRadius: "50%",
+                                        border: i ? "2px solid #faf08c" : "2px solid currentColor",
+                                        flexShrink: 0,
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        opacity: i ? 1 : .5
+                                    },
+                                    children: i && (0, o.jsx)("div", {
+                                        style: {
+                                            width: "0.5rem",
+                                            height: "0.5rem",
+                                            borderRadius: "50%",
+                                            backgroundColor: "#faf08c"
+                                        }
+                                    })
                                 }), (0, o.jsx)("span", {
-                                    children: a
+                                    style: {
+                                        color: i ? "#faf08c" : "inherit"
+                                    },
+                                    children: l
                                 })]
                         }, n)
                     })
-                }) : "checkbox" === h || "boolean" === h || "yes_no" === h ? (0, o.jsxs)("label", {
-                    style: p,
+                }) : "checkbox" === g || "boolean" === g || "yes_no" === g ? (0, o.jsxs)("label", {
+                    style: m,
                     children: [(0, o.jsx)("input", {
                             type: "checkbox",
-                            checked: !0 === m || "true" === m || "yes" === m || 1 === m,
+                            checked: !0 === h || "true" === h || "yes" === h || 1 === h,
                             onChange: t => r(e.key, t.target.checked),
                             style: {
                                 width: "1.1rem",
@@ -8014,41 +8041,41 @@
                                 cursor: "pointer"
                             }
                         }), (0, o.jsx)("span", {
-                            children: v || y
+                            children: b || v
                         })]
-                }) : "date" === h ? (0, o.jsx)("input", {
+                }) : "date" === g ? (0, o.jsx)("input", {
                     type: "date",
-                    value: m,
+                    value: h,
                     onChange: t => r(e.key, t.target.value),
-                    className: d || "",
-                    style: f
-                }) : "number" === h ? (0, o.jsx)("input", {
+                    className: f || "",
+                    style: p
+                }) : "number" === g ? (0, o.jsx)("input", {
                     type: "number",
-                    value: m,
+                    value: h,
                     onChange: t => r(e.key, t.target.value),
-                    placeholder: v,
-                    className: d || "",
-                    style: f
-                }) : "textarea" === h || "long_text" === h ? (0, o.jsx)("textarea", {
-                    value: m,
+                    placeholder: b,
+                    className: f || "",
+                    style: p
+                }) : "textarea" === g || "long_text" === g ? (0, o.jsx)("textarea", {
+                    value: h,
                     onChange: t => r(e.key, t.target.value),
                     rows: 4,
-                    placeholder: v,
-                    className: d || "",
-                    style: f
+                    placeholder: b,
+                    className: f || "",
+                    style: p
                 }) : (0, o.jsx)("input", {
                     type: "text",
-                    value: m,
+                    value: h,
                     onChange: t => r(e.key, t.target.value),
-                    placeholder: v,
-                    className: d || "",
-                    style: f
-                }), a[`question_${t}`] && (0, o.jsx)("small", {
+                    placeholder: b,
+                    className: f || "",
+                    style: p
+                }), l[`question_${t}`] && (0, o.jsx)("small", {
                     style: {
                         color: "#f87171",
                         fontSize: "0.875rem"
                     },
-                    children: a[`question_${t}`]
+                    children: l[`question_${t}`]
                 })]
         })
     }
@@ -8129,7 +8156,7 @@
         [I, F] = (0, a.useState)([]),
         [D, $] = (0, a.useState)({}),
         [U, A] = (0, a.useState)(0),
-        [W, B] = (0, a.useState)(0),
+        [B, W] = (0, a.useState)(0),
         [V, Q] = (0, a.useState)(!1),
         [q, H] = (0, a.useState)(null),
         [K, Y] = (0, a.useState)(!0),
@@ -8394,6 +8421,36 @@
             } else
                 console.log("[Survey] Validation failed, aborting submit")
         }
+        function Ue() {
+            const e = I[U]?.key,
+            t = "medicare_number" === e || "individual_reference_number" === e;
+            if (I[U] && t && !ge) {
+                const e = String(D.medicare_number ?? "").trim(),
+                t = String(D.individual_reference_number ?? "").trim();
+                let n = !1;
+                if (e ? /^\d{10}$/.test(e) || (Ne(e => ({
+                                ...e,
+                                question_15: "Medicare number must be 10 digits"
+                            })), n = !0) : (Ne(e => ({
+                                ...e,
+                                question_15: "Medicare number is required"
+                            })), n = !0), t || (Ne(e => ({
+                                ...e,
+                                question_17: "Individual Reference Number is required"
+                            })), n = !0), n)
+                    return
+            }
+            let n = U + 1;
+            if (1 === U && "Yes" === D.pregnancy_status) {
+                const e = new URLSearchParams(C.toString());
+                return e.set("quiz_status", "stopped"),
+                te(!0),
+                void x.replace(`${k}?${e.toString()}`)
+            }
+            for (; n < I.length && !Me(n); )
+                n++;
+            n < I.length && (A(n), W((n + 1) / I.length * 100))
+        }
         if ((0, a.useEffect)(() => {
                 let e = !1;
                 return (async() => {
@@ -8479,7 +8536,7 @@
                                     ...t
                                 })),
                             A(n || 0),
-                            B((n + 1) / I.length * 100)
+                            W((n + 1) / I.length * 100)
                         } catch (e) {
                             console.error("Error parsing saved quiz data:", e)
                         }
@@ -8570,7 +8627,7 @@
                                 })
                             }), (0, o.jsx)("a", {
                                 href: `${u()}/patient`,
-                                className: w || `w-full block text-center ${Ue}`,
+                                className: w || `w-full block text-center ${Ae}`,
                                 children: "Login To Your Dashboard"
                             })]
                     })
@@ -8615,7 +8672,7 @@
                                 })
                             }), (0, o.jsx)("a", {
                                 href: `${u()}/patient`,
-                                className: w || `w-full block text-center ${Ue}`,
+                                className: w || `w-full block text-center ${Ae}`,
                                 children: "Login To Your Dashboard"
                             })]
                     })
@@ -8666,7 +8723,7 @@
                             }), (0, o.jsx)("a", {
                                 href: "/",
                                 children: (0, o.jsx)("button", {
-                                    className: Ae,
+                                    className: Be,
                                     children: "Return To Home Page"
                                 })
                             })]
@@ -8674,10 +8731,10 @@
                 })
             })
         }
-        const Ue = w || "font-semibold rounded-xl px-8 py-4 hover:opacity-90 transition-opacity shadow-lg hover:shadow-xl bg-[#003739] text-white",
-        Ae = w || `w-full ${Ue}`,
+        const Ae = w || "font-semibold rounded-xl px-8 py-4 hover:opacity-90 transition-opacity shadow-lg hover:shadow-xl bg-[#003739] text-white",
+        Be = w || `w-full ${Ae}`,
         We = w || "group font-semibold rounded-full px-10 py-4 hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center gap-3 bg-[#003739] text-white",
-        Be = {
+        Ve = {
             width: "100%",
             backgroundColor: "transparent",
             color: "inherit",
@@ -8688,13 +8745,13 @@
             transition: "border-color 0.15s",
             boxSizing: "border-box"
         },
-        Ve = {
-            ...Be,
+        Qe = {
+            ...Ve,
             border: "1px solid #ef4444"
         },
-        Qe = e => b ? {}
-         : _e[e] ? Ve : Be,
-        qe = e => b ? `${b} ${_e[e] ? "border-red-500" : ""}`.trim() : "";
+        qe = e => b ? {}
+         : _e[e] ? Qe : Ve,
+        He = e => b ? `${b} ${_e[e] ? "border-red-500" : ""}`.trim() : "";
         return (0, o.jsxs)(o.Fragment, {
             children: [!ue && V && (0, o.jsx)("div", {
                     className: E("w-full flex flex-col items-center justify-center py-12 px-4 text-white"),
@@ -8713,7 +8770,7 @@
                                             children: ["Complete your ", Re, " questionnaire so we can provide you with the best personalized care."]
                                         })]
                                 }), (0, o.jsx)("button", {
-                                    className: Ae,
+                                    className: Be,
                                     onClick: () => se(!0),
                                     children: "Start Questionnaire"
                                 })]
@@ -8724,58 +8781,65 @@
                     style: N,
                     children: (0, o.jsxs)("div", {
                         className: !V || ue ? "w-full max-w-4xl flex flex-col justify-center px-6 md:px-12 py-12 relative" : "flex flex-col items-center",
-                        children: [ue && (0, o.jsxs)("div", {
-                                className: "w-full mb-8 flex items-center justify-between",
-                                children: [(0, o.jsx)("div", {}), (0, o.jsx)("button", {
-                                        onClick: async function () {
-                                            pe(!0);
-                                            try {
-                                                await f("/register/complete", {
-                                                    user_id: q || sessionStorage.getItem("userId"),
-                                                    sex_at_birth: D.sex_at_birth,
-                                                    pregnancy_status: D.pregnancy_status,
-                                                    date_of_birth: D.date_of_birth,
-                                                    height: D.height,
-                                                    weight: D.weight,
-                                                    has_medical_conditions: D.has_medical_conditions,
-                                                    medical_conditions_details: D.medical_conditions_details,
-                                                    has_family_history: D.has_family_history,
-                                                    family_history_details: D.family_history_details,
-                                                    taking_medications: D.taking_medications,
-                                                    medications_details: D.medications_details,
-                                                    has_allergies: D.has_allergies,
-                                                    allergies_details: D.allergies_details,
-                                                    has_additional_info: D.has_additional_info,
-                                                    additional_info_details: D.additional_info_details,
-                                                    medicare_number: D.medicare_number,
-                                                    medicare_expiry: D.medicare_expiry ? s(D.medicare_expiry, "yyyy-MM-dd") : null,
-                                                    individual_reference_number: D.individual_reference_number,
-                                                    referral_source: D.referral_source,
-                                                    treatment_id: t,
-                                                    is_completed: !1
-                                                });
-                                                const e = new URLSearchParams(C.toString());
-                                                Z(!0),
-                                                e.set("quiz_status", "saved"),
-                                                x.replace(`${k}?${e.toString()}`),
-                                                sessionStorage.clear(),
-                                                localStorage.removeItem(m),
-                                                localStorage.removeItem(`${m}_${O}`)
-                                            } catch (e) {
-                                                console.error("Save progress error:", e),
-                                                alert("An error occurred while saving progress. Please check the console.")
-                                            } finally {
-                                                pe(!1)
-                                            }
-                                        },
-                                        className: Ae,
-                                        "aria-label": "Save Progress",
-                                        children: "Save Progress"
-                                    })]
+                        children: [ue && (0, o.jsx)("div", {
+                                style: {
+                                    width: "100%",
+                                    marginBottom: "2rem",
+                                    display: "flex",
+                                    justifyContent: "flex-end"
+                                },
+                                children: (0, o.jsx)("button", {
+                                    onClick: async function () {
+                                        pe(!0);
+                                        try {
+                                            await f("/register/complete", {
+                                                user_id: q || sessionStorage.getItem("userId"),
+                                                sex_at_birth: D.sex_at_birth,
+                                                pregnancy_status: D.pregnancy_status,
+                                                date_of_birth: D.date_of_birth,
+                                                height: D.height,
+                                                weight: D.weight,
+                                                has_medical_conditions: D.has_medical_conditions,
+                                                medical_conditions_details: D.medical_conditions_details,
+                                                has_family_history: D.has_family_history,
+                                                family_history_details: D.family_history_details,
+                                                taking_medications: D.taking_medications,
+                                                medications_details: D.medications_details,
+                                                has_allergies: D.has_allergies,
+                                                allergies_details: D.allergies_details,
+                                                has_additional_info: D.has_additional_info,
+                                                additional_info_details: D.additional_info_details,
+                                                medicare_number: D.medicare_number,
+                                                medicare_expiry: D.medicare_expiry ? s(D.medicare_expiry, "yyyy-MM-dd") : null,
+                                                individual_reference_number: D.individual_reference_number,
+                                                referral_source: D.referral_source,
+                                                treatment_id: t,
+                                                is_completed: !1
+                                            });
+                                            const e = new URLSearchParams(C.toString());
+                                            Z(!0),
+                                            e.set("quiz_status", "saved"),
+                                            x.replace(`${k}?${e.toString()}`),
+                                            sessionStorage.clear(),
+                                            localStorage.removeItem(m),
+                                            localStorage.removeItem(`${m}_${O}`)
+                                        } catch (e) {
+                                            console.error("Save progress error:", e),
+                                            alert("An error occurred while saving progress. Please check the console.")
+                                        } finally {
+                                            pe(!1)
+                                        }
+                                    },
+                                    className: We,
+                                    "aria-label": "Save Progress",
+                                    children: "Save Progress"
+                                })
                             }), V ? ue && (0, o.jsxs)("div", {
                                 className: "w-full max-w-xl mx-auto",
                                 children: [(0, o.jsx)("div", {
-                                        className: "mb-8",
+                                        style: {
+                                            margin: "2rem 0"
+                                        },
                                         children: (0, o.jsx)("div", {
                                             style: {
                                                 height: "8px",
@@ -8787,7 +8851,7 @@
                                             children: (0, o.jsx)("div", {
                                                 style: {
                                                     height: "100%",
-                                                    width: `${W}%`,
+                                                    width: `${B}%`,
                                                     backgroundColor: "#003739",
                                                     borderRadius: "9999px",
                                                     transition: "width 0.3s ease"
@@ -8807,6 +8871,7 @@
                                                             [e]: t
                                                         }))
                                                 },
+                                                onSelect: () => setTimeout(Ue, 200),
                                                 errors: _e,
                                                 setErrors: Ne,
                                                 medicareCheckbox: ge,
@@ -8821,7 +8886,7 @@
                                                             let e = U - 1;
                                                             for (; e >= 0 && !Me(e); )
                                                                 e--;
-                                                            e >= 0 && (A(e), B((e + 1) / I.length * 100))
+                                                            e >= 0 && (A(e), W((e + 1) / I.length * 100))
                                                         },
                                                         disabled: 0 === U,
                                                         className: We,
@@ -8832,36 +8897,7 @@
                                                          : {},
                                                         children: "Back"
                                                     }), U < I.length - 1 ? (0, o.jsxs)("button", {
-                                                        onClick: function () {
-                                                            const e = I[U]?.key,
-                                                            t = "medicare_number" === e || "individual_reference_number" === e;
-                                                            if (I[U] && t && !ge) {
-                                                                const e = String(D.medicare_number ?? "").trim(),
-                                                                t = String(D.individual_reference_number ?? "").trim();
-                                                                let n = !1;
-                                                                if (e ? /^\d{10}$/.test(e) || (Ne(e => ({
-                                                                                ...e,
-                                                                                question_15: "Medicare number must be 10 digits"
-                                                                            })), n = !0) : (Ne(e => ({
-                                                                                ...e,
-                                                                                question_15: "Medicare number is required"
-                                                                            })), n = !0), t || (Ne(e => ({
-                                                                                ...e,
-                                                                                question_17: "Individual Reference Number is required"
-                                                                            })), n = !0), n)
-                                                                    return
-                                                            }
-                                                            let n = U + 1;
-                                                            if (1 === U && "Yes" === D.pregnancy_status) {
-                                                                const e = new URLSearchParams(C.toString());
-                                                                return e.set("quiz_status", "stopped"),
-                                                                te(!0),
-                                                                void x.replace(`${k}?${e.toString()}`)
-                                                            }
-                                                            for (; n < I.length && !Me(n); )
-                                                                n++;
-                                                            n < I.length && (A(n), B((n + 1) / I.length * 100))
-                                                        },
+                                                        onClick: Ue,
                                                         className: We,
                                                         children: ["Continue", (0, o.jsx)("svg", {
                                                                 className: "w-5 h-5 group-hover:translate-x-1 transition-transform duration-300",
@@ -8997,8 +9033,8 @@
                                                                 type: "text",
                                                                 id: "firstName",
                                                                 name: "firstName",
-                                                                className: qe("firstName"),
-                                                                style: Qe("firstName"),
+                                                                className: He("firstName"),
+                                                                style: qe("firstName"),
                                                                 placeholder: "First Name",
                                                                 value: ke.firstName,
                                                                 onChange: Ie
@@ -9015,8 +9051,8 @@
                                                                 type: "text",
                                                                 id: "lastName",
                                                                 name: "lastName",
-                                                                className: qe("lastName"),
-                                                                style: Qe("lastName"),
+                                                                className: He("lastName"),
+                                                                style: qe("lastName"),
                                                                 placeholder: "Last Name",
                                                                 value: ke.lastName,
                                                                 onChange: Ie
@@ -9030,8 +9066,8 @@
                                                         type: "text",
                                                         id: "email",
                                                         name: "email",
-                                                        className: qe("email"),
-                                                        style: Qe("email"),
+                                                        className: He("email"),
+                                                        style: qe("email"),
                                                         placeholder: "Email",
                                                         value: ke.email,
                                                         onChange: Ie
@@ -9044,8 +9080,8 @@
                                                         id: "phone",
                                                         name: "phone",
                                                         type: "text",
-                                                        className: qe("phone"),
-                                                        style: Qe("phone"),
+                                                        className: He("phone"),
+                                                        style: qe("phone"),
                                                         value: ke.phone,
                                                         onChange: function (e) {
                                                             let t = e.target.value;
@@ -9075,8 +9111,8 @@
                                                             "" === e.target.value && (le(!1), ["streetNumber", "streetName", "suburb", "state", "postcode"].forEach(e => De(e, "")))
                                                         },
                                                         placeholder: "Residential Address",
-                                                        className: qe("address"),
-                                                        style: Qe("address")
+                                                        className: He("address"),
+                                                        style: qe("address")
                                                     }), "OK" === Te && Ce && !oe && (0, o.jsx)("div", {
                                                         className: "absolute z-20 w-full border border-[#faf08c] bg-[#112726] rounded-xl mt-2 shadow-xl overflow-hidden",
                                                         children: (0, o.jsx)("ul", {
@@ -9126,8 +9162,8 @@
                                                                         value: ke.streetNumber,
                                                                         placeholder: "Street Number",
                                                                         onChange: Ie,
-                                                                        className: qe("streetNumber"),
-                                                                        style: Qe("streetNumber")
+                                                                        className: He("streetNumber"),
+                                                                        style: qe("streetNumber")
                                                                     }), _e.streetNumber && (0, o.jsx)("small", {
                                                                         className: "text-sm text-red-600 mt-1 block",
                                                                         children: _e.streetNumber
@@ -9143,8 +9179,8 @@
                                                                         value: ke.streetName,
                                                                         placeholder: "Street Name",
                                                                         onChange: Ie,
-                                                                        className: qe("streetName"),
-                                                                        style: Qe("streetName")
+                                                                        className: He("streetName"),
+                                                                        style: qe("streetName")
                                                                     }), _e.streetName && (0, o.jsx)("small", {
                                                                         className: "text-sm text-red-600 mt-1 block",
                                                                         children: _e.streetName
@@ -9167,8 +9203,8 @@
                                                                         value: ke.suburb,
                                                                         placeholder: "Suburb",
                                                                         onChange: Ie,
-                                                                        className: qe("suburb"),
-                                                                        style: Qe("suburb")
+                                                                        className: He("suburb"),
+                                                                        style: qe("suburb")
                                                                     }), _e.suburb && (0, o.jsx)("small", {
                                                                         className: "text-sm text-red-600 mt-1 block",
                                                                         children: _e.suburb
@@ -9184,8 +9220,8 @@
                                                                         value: ke.state,
                                                                         placeholder: "State",
                                                                         onChange: Ie,
-                                                                        className: qe("state"),
-                                                                        style: Qe("state")
+                                                                        className: He("state"),
+                                                                        style: qe("state")
                                                                     }), _e.state && (0, o.jsx)("small", {
                                                                         className: "text-sm text-red-600 mt-1 block",
                                                                         children: _e.state
@@ -9198,8 +9234,8 @@
                                                                 value: ke.postcode,
                                                                 placeholder: "Post Code",
                                                                 onChange: Ie,
-                                                                className: qe("postcode"),
-                                                                style: Qe("postcode")
+                                                                className: He("postcode"),
+                                                                style: qe("postcode")
                                                             }), _e.postcode && (0, o.jsx)("small", {
                                                                 className: "text-sm text-red-600 mt-1 block",
                                                                 children: _e.postcode
@@ -9220,8 +9256,8 @@
                                                                 type: "password",
                                                                 id: "password",
                                                                 name: "password",
-                                                                className: qe("password"),
-                                                                style: Qe("password"),
+                                                                className: He("password"),
+                                                                style: qe("password"),
                                                                 placeholder: "Password",
                                                                 value: ke.password,
                                                                 onChange: Ie
@@ -9238,8 +9274,8 @@
                                                                 type: "password",
                                                                 id: "confirmPassword",
                                                                 name: "confirmPassword",
-                                                                className: qe("confirmPassword"),
-                                                                style: Qe("confirmPassword"),
+                                                                className: He("confirmPassword"),
+                                                                style: qe("confirmPassword"),
                                                                 placeholder: "Confirm Password",
                                                                 value: ke.confirmPassword,
                                                                 onChange: Ie
@@ -9253,9 +9289,9 @@
                                                         type: "text",
                                                         id: "referral_code",
                                                         name: "referral_code",
-                                                        className: i(qe("referral_code"), ne ? "opacity-50 cursor-not-allowed" : ""),
+                                                        className: i(He("referral_code"), ne ? "opacity-50 cursor-not-allowed" : ""),
                                                         style: {
-                                                            ...Qe("referral_code"),
+                                                            ...qe("referral_code"),
                                                             ...ne ? {
                                                                 opacity: .5,
                                                                 cursor: "not-allowed"
@@ -9275,7 +9311,7 @@
                                                 children: me
                                             }), (0, o.jsx)("button", {
                                                 type: "submit",
-                                                className: `${Ae} mt-6 ${ce ? "opacity-60 cursor-not-allowed" : ""}`,
+                                                className: `${Be} mt-6 ${ce ? "opacity-60 cursor-not-allowed" : ""}`,
                                                 onClick: $e,
                                                 disabled: ce,
                                                 children: ce ? "Creating your account..." : "Create Account & Continue"
