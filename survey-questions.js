@@ -7895,7 +7895,7 @@
         setMedicineCheckbox: c,
         customInputClass: d
     }) {
-        const f = d || "w-full rounded-xl border border-[#faf08c] bg-white/5 text-white placeholder:text-white/40 px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#003739]";
+        const f = d || "w-full rounded-xl border border-[#faf08c] bg-transparent text-white placeholder:text-white/40 px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#003739]";
         if (!e)
             return null;
         return (0, o.jsxs)("div", {
@@ -8404,7 +8404,7 @@
                 children: (0, o.jsx)("div", {
                     className: "max-w-2xl w-full",
                     children: (0, o.jsxs)("div", {
-                        className: "rounded-3xl shadow-2xl p-8 md:p-12 text-center border border-white/10 bg-white/5 backdrop-blur-sm",
+                        className: "rounded-3xl shadow-2xl p-8 md:p-12 text-center border border-white/10",
                         children: [(0, o.jsx)("div", {
                                 className: "mb-8 flex justify-center",
                                 children: (0, o.jsx)("div", {
@@ -8449,7 +8449,7 @@
                 children: (0, o.jsx)("div", {
                     className: "max-w-2xl w-full",
                     children: (0, o.jsxs)("div", {
-                        className: "rounded-3xl shadow-2xl p-8 md:p-12 text-center border border-white/10 bg-white/5 backdrop-blur-sm",
+                        className: "rounded-3xl shadow-2xl p-8 md:p-12 text-center border border-white/10",
                         children: [(0, o.jsx)("div", {
                                 className: "mb-8 flex justify-center",
                                 children: (0, o.jsx)("div", {
@@ -8499,7 +8499,7 @@
                 children: (0, o.jsx)("div", {
                     className: "max-w-2xl w-full",
                     children: (0, o.jsxs)("div", {
-                        className: "rounded-3xl shadow-2xl p-8 md:p-12 text-center border border-white/10 bg-white/5 backdrop-blur-sm",
+                        className: "rounded-3xl shadow-2xl p-8 md:p-12 text-center border border-white/10",
                         children: [(0, o.jsx)("div", {
                                 className: "mb-8 flex justify-center",
                                 children: (0, o.jsx)("div", {
@@ -8543,7 +8543,7 @@
         const Ue = w || "font-semibold rounded-xl px-8 py-4 hover:opacity-90 transition-opacity shadow-lg hover:shadow-xl bg-[#003739] text-white",
         Ae = w || `w-full ${Ue}`,
         Be = w || "group font-semibold rounded-full px-10 py-4 hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center gap-3 bg-[#003739] text-white",
-        We = e => b ? `${b} ${_e[e] ? "border-red-500 focus:ring-red-400" : ""}`.trim() : "w-full rounded-xl border px-4 py-3.5 focus:outline-none focus:ring-2 transition-all " + (_e[e] ? "border-red-500 focus:ring-red-400" : "border-[#faf08c] bg-white/5 text-white placeholder:text-white/40 focus:ring-[#003739] focus:border-transparent hover:border-[#faf08c]");
+        We = e => b ? `${b} ${_e[e] ? "border-red-500 focus:ring-red-400" : ""}`.trim() : "w-full rounded-xl border px-4 py-3.5 focus:outline-none focus:ring-2 transition-all " + (_e[e] ? "border-red-500 focus:ring-red-400" : "border-[#faf08c] bg-transparent text-white placeholder:text-white/40 focus:ring-[#003739] focus:border-transparent hover:border-[#faf08c]");
         return (0, o.jsxs)(o.Fragment, {
             children: [!ue && V && (0, o.jsx)("div", {
                     className: E("min-h-screen w-full flex flex-col items-center justify-center py-12 px-4 bg-primed-midnight-teal text-white"),
@@ -8551,7 +8551,7 @@
                     children: (0, o.jsx)("div", {
                         className: "max-w-lg w-full",
                         children: (0, o.jsxs)("div", {
-                            className: "rounded-2xl shadow-xl border border-white/10 bg-white/5 backdrop-blur-sm p-8 text-center",
+                            className: "rounded-2xl shadow-xl border border-white/10 p-8 text-center",
                             children: [(0, o.jsxs)("div", {
                                     className: "mb-6",
                                     children: [(0, o.jsx)("div", {
