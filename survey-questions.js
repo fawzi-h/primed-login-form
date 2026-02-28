@@ -8857,7 +8857,12 @@
                                                 children: "Where should we send your treatment plan?"
                                             })]
                                     }), (0, o.jsxs)("form", {
-                                        className: "w-full space-y-6",
+                                        className: "w-full",
+                                        style: {
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            gap: "1.25rem"
+                                        },
                                         onSubmit: Fe,
                                         children: [(0, o.jsxs)("div", {
                                                 className: "grid grid-cols-1 md:grid-cols-2 gap-4",
@@ -8961,7 +8966,13 @@
                                                         children: Se.address
                                                     })]
                                             }), (0, o.jsxs)("div", {
-                                                className: i("transition-all duration-400", re ? "max-h-[500px] p-1 space-y-4" : "max-h-0 overflow-hidden"),
+                                                className: i("transition-all duration-400", re ? "max-h-[500px] p-1" : "max-h-0 overflow-hidden"),
+                                                style: re ? {
+                                                    display: "flex",
+                                                    flexDirection: "column",
+                                                    gap: "1rem"
+                                                }
+                                                 : {},
                                                 children: [(0, o.jsxs)("div", {
                                                         className: "grid grid-cols-1 md:grid-cols-2 gap-4",
                                                         children: [(0, o.jsxs)("div", {
