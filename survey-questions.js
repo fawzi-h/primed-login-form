@@ -8435,7 +8435,7 @@
                                 })
                             }), (0, o.jsx)("a", {
                                 href: `${u()}/patient`,
-                                className: `w-full block text-center ${$e}`,
+                                className: b || `w-full block text-center ${$e}`,
                                 children: "Login To Your Dashboard"
                             })]
                     })
@@ -8480,7 +8480,7 @@
                                 })
                             }), (0, o.jsx)("a", {
                                 href: `${u()}/patient`,
-                                className: `w-full block text-center ${$e}`,
+                                className: b || `w-full block text-center ${$e}`,
                                 children: "Login To Your Dashboard"
                             })]
                     })
@@ -8540,7 +8540,7 @@
             })
         }
         const $e = b || "font-semibold rounded-xl px-8 py-4 hover:opacity-90 transition-opacity shadow-lg hover:shadow-xl bg-[#003739] text-white",
-        Ae = `w-full ${$e}`,
+        Ae = b || `w-full ${$e}`,
         Ue = b || "group font-semibold rounded-full px-10 py-4 hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center gap-3 bg-[#003739] text-white",
         Be = e => y ? `${y} ${Se[e] ? "border-red-500 focus:ring-red-400" : ""}`.trim() : "w-full rounded-xl border px-4 py-3.5 focus:outline-none focus:ring-2 transition-all " + (Se[e] ? "border-red-500 focus:ring-red-400" : "border-[#faf08c] bg-white/5 text-white placeholder:text-white/40 focus:ring-[#003739] focus:border-transparent hover:border-[#faf08c]");
         return (0, o.jsxs)(o.Fragment, {
@@ -8857,7 +8857,7 @@
                                                 children: "Where should we send your treatment plan?"
                                             })]
                                     }), (0, o.jsxs)("form", {
-                                        className: "w-full space-y-4",
+                                        className: "w-full space-y-6",
                                         onSubmit: Fe,
                                         children: [(0, o.jsxs)("div", {
                                                 className: "grid grid-cols-1 md:grid-cols-2 gap-4",
@@ -9077,7 +9077,7 @@
                                                 children: pe
                                             }), (0, o.jsx)("button", {
                                                 type: "submit",
-                                                className: `w-full mt-6 ${$e} ${se ? "opacity-60 cursor-not-allowed" : ""}`,
+                                                className: `${Ae} mt-6 ${se ? "opacity-60 cursor-not-allowed" : ""}`,
                                                 onClick: Fe,
                                                 disabled: se,
                                                 children: se ? "Creating your account..." : "Create Account & Continue"
