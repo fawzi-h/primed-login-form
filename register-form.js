@@ -38,173 +38,84 @@ class RegisterForm extends HTMLElement {
   id="register-form-el"
   novalidate
 >
-
   <!-- First Name + Last Name -->
   <div class="form_field-2col">
     <div class="form_field-wrapper">
-      <input
-        class="form_input w-input"
-        maxlength="256"
-        name="First-Name"
-        placeholder="First Name"
-        type="text"
-        id="register-first-name"
-        required
-      />
+      <input class="form_input w-input" maxlength="256" name="First-Name"
+        placeholder="First Name" type="text" id="register-first-name" required />
     </div>
 
     <div class="form_field-wrapper">
-      <input
-        class="form_input w-input"
-        maxlength="256"
-        name="Last-Name"
-        placeholder="Last Name"
-        type="text"
-        id="register-last-name"
-        required
-      />
+      <input class="form_input w-input" maxlength="256" name="Last-Name"
+        placeholder="Last Name" type="text" id="register-last-name" required />
     </div>
   </div>
 
   <!-- Email -->
   <div class="form_field-wrapper">
-    <input
-      class="form_input w-input"
-      maxlength="256"
-      name="Register-Email"
-      placeholder="Email"
-      type="email"
-      id="register-email"
-      required
-    />
+    <input class="form_input w-input" maxlength="256" name="Register-Email"
+      placeholder="Email" type="email" id="register-email" required />
   </div>
 
   <!-- Phone -->
   <div class="form_field-wrapper">
-    <input
-      class="form_input w-input"
-      maxlength="256"
-      name="Phone"
-      placeholder="Phone Number"
-      type="tel"
-      id="register-phone"
-      required
-    />
+    <input class="form_input w-input" maxlength="256" name="Phone"
+      placeholder="Phone Number" type="tel" id="register-phone" required />
   </div>
 
   <!-- Residential Address -->
   <div class="form_field-wrapper">
-    <input
-      class="form_input w-input"
-      maxlength="256"
-      name="Address"
-      placeholder="Address"
-      type="text"
-      id="register-address"
-      required
-    />
+    <input class="form_input w-input" maxlength="256" name="Address"
+      placeholder="Address" type="text" id="register-address" required />
   </div>
 
   <!-- Street Number + Street Name -->
   <div class="form_field-2col">
     <div class="form_field-wrapper">
-      <input
-        class="form_input w-input"
-        maxlength="256"
-        name="streetNumber"
-        placeholder="Street Number"
-        type="text"
-        id="streetNumber"
-        autocomplete="address-line1"
-        required
-        aria-required="true"
-      >
+      <input class="form_input w-input" maxlength="256" name="streetNumber"
+        placeholder="Street Number" type="text" id="streetNumber"
+        autocomplete="address-line1" required aria-required="true">
     </div>
 
     <div class="form_field-wrapper">
-      <input
-        class="form_input w-input"
-        maxlength="256"
-        name="streetName"
-        placeholder="Street Name"
-        type="text"
-        id="streetName"
-        required
-        aria-required="true"
-      >
+      <input class="form_input w-input" maxlength="256" name="streetName"
+        placeholder="Street Name" type="text" id="streetName"
+        required aria-required="true">
     </div>
   </div>
 
   <!-- Suburb + State + Postcode -->
   <div class="form_field-2col">
     <div class="form_field-wrapper">
-      <input
-        class="form_input w-input"
-        maxlength="256"
-        name="suburb"
-        placeholder="Suburb"
-        type="text"
-        id="suburb"
-        autocomplete="address-level2"
-        required
-        aria-required="true"
-      >
+      <input class="form_input w-input" maxlength="256" name="suburb"
+        placeholder="Suburb" type="text" id="suburb"
+        autocomplete="address-level2" required aria-required="true">
     </div>
 
     <div class="form_field-wrapper">
-      <input
-        class="form_input w-input"
-        maxlength="256"
-        name="state"
-        placeholder="State"
-        type="text"
-        id="state"
-        autocomplete="address-level1"
-        required
-        aria-required="true"
-      >
+      <input class="form_input w-input" maxlength="256" name="state"
+        placeholder="State" type="text" id="state"
+        autocomplete="address-level1" required aria-required="true">
     </div>
 
     <div class="form_field-wrapper">
-      <input
-        class="form_input w-input"
-        maxlength="256"
-        name="postcode"
-        placeholder="Postcode"
-        type="text"
-        id="postcode"
-        autocomplete="postal-code"
-        inputmode="numeric"
-        required
-        aria-required="true"
-      >
+      <input class="form_input w-input" maxlength="256" name="postcode"
+        placeholder="Postcode" type="text" id="postcode"
+        autocomplete="postal-code" inputmode="numeric"
+        required aria-required="true">
     </div>
   </div>
 
   <!-- Password + Confirm Password -->
   <div class="form_field-2col">
     <div class="form_field-wrapper">
-      <input
-        class="form_input w-input"
-        maxlength="256"
-        name="Register-Password"
-        placeholder="Password"
-        type="password"
-        id="register-password"
-        required
-      />
+      <input class="form_input w-input" maxlength="256" name="Register-Password"
+        placeholder="Password" type="password" id="register-password" required />
     </div>
 
     <div class="form_field-wrapper">
-      <input
-        class="form_input w-input"
-        maxlength="256"
-        name="Register-Confirm-Password"
-        placeholder="Confirm Password"
-        type="password"
-        id="register-confirm-password"
-        required
-      />
+      <input class="form_input w-input" maxlength="256" name="Register-Confirm-Password"
+        placeholder="Confirm Password" type="password" id="register-confirm-password" required />
     </div>
   </div>
 
@@ -214,14 +125,8 @@ class RegisterForm extends HTMLElement {
 
   <!-- Referral Code -->
   <div class="form_field-wrapper">
-    <input
-      class="form_input w-input"
-      maxlength="256"
-      name="Referral-Code"
-      placeholder="Referral Code"
-      type="text"
-      id="register-referral-code"
-    />
+    <input class="form_input w-input" maxlength="256" name="Referral-Code"
+      placeholder="Referral Code" type="text" id="register-referral-code" />
   </div>
 
   <!-- Error message -->
@@ -235,123 +140,45 @@ class RegisterForm extends HTMLElement {
 
   <!-- Buttons -->
   <div class="w-layout-grid form-button-wrapper">
-    <input
-      type="submit"
-      class="button is-full-width w-button"
-      value="Create account & Continue"
-      id="register-submit"
-    />
+    <input type="submit" class="button is-full-width w-button"
+      value="Create account & Continue" id="register-submit" />
   </div>
-<div class="button-group is-center">
-            <a href="#" class="button-glide-over w-inline-block" id="back-to-login">
-              <span class="button-glide-over__container">
-                <span class="button-glide-over__icon is-first">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" style="--index:3;" class="button-glide-over__icon-item"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="24" d="M216 128H40M112 56L40 128l72 72"></path></svg>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" style="--index:2;" class="button-glide-over__icon-item"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="20" d="M216 128H40M112 56L40 128l72 72"></path></svg>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" style="--index:1;" class="button-glide-over__icon-item"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="20" d="M216 128H40M112 56L40 128l72 72"></path></svg>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" style="--index:0;" class="button-glide-over__icon-item"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="20" d="M216 128H40M112 56L40 128l72 72"></path></svg>
-                </span>
-                <span class="button-glide-over__text">Back to Login</span>
-                <span class="button-glide-over__icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" style="--index:3;" class="button-glide-over__icon-item"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="24" d="M216 128H40M112 56L40 128l72 72"></path></svg>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" style="--index:2;" class="button-glide-over__icon-item"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="20" d="M216 128H40M112 56L40 128l72 72"></path></svg>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" style="--index:1;" class="button-glide-over__icon-item"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="20" d="M216 128H40M112 56L40 128l72 72"></path></svg>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" style="--index:0;" class="button-glide-over__icon-item"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="20" d="M216 128H40M112 56L40 128l72 72"></path></svg>
-                </span>
-              </span>
-              <div class="button-glide-over__background"></div>
-            </a>
-          </div>
-</form>
 
-  <!-- Turnstile -->
-  <input
-    type="hidden"
+  <div class="button-group is-center">
+    <a href="#" class="button-glide-over w-inline-block" id="back-to-login">
+      <span class="button-glide-over__container">
+        <span class="button-glide-over__text">Back to Login</span>
+      </span>
+      <div class="button-glide-over__background"></div>
+    </a>
+  </div>
+
+  <!-- Turnstile (must be inside form) -->
+  <input type="hidden"
     name="cf-turnstile-response"
     id="cf-chl-widget-a8hv1_response"
-    value="..."
-  >
+    value="...">
 
   <!-- Optional: place for inline errors -->
   <div class="sr-only" aria-live="polite" id="form-status"></div>
 
-</form>
-
-    <!-- Success -->
-    <div class="form_message-success-wrapper w-form-done" tabindex="-1" role="region">
-      <div class="form_message-success">
-        <div class="success-text">
-          Welcome back. You'll be redirected back to the home page.
-        </div>
-      </div>
-    </div>
-
-    <!-- Error -->
-    <div class="form_message-error-wrapper w-form-fail" tabindex="-1" role="region">
-      <div class="form_message-error">
-        <div class="error-text">
-          Login failed. Check your details and try again.
-        </div>
+  <!-- Success / Error wrappers (keep inside the form block if Webflow expects it) -->
+  <div class="form_message-success-wrapper w-form-done" tabindex="-1" role="region">
+    <div class="form_message-success">
+      <div class="success-text">
+        Welcome back. You'll be redirected back to the home page.
       </div>
     </div>
   </div>
-</div>
-      
-      
 
-        <div class="form_field-error" id="password-error" style="display:none">Passwords do not match.</div>
-
-        <!-- Referral Code -->
-        <div class="form_field-wrapper">
-          <div class="form_field-label">Referral Code</div>
-          <input
-            class="form_input w-input"
-            maxlength="256"
-            name="Referral-Code"
-            placeholder="Referral Code"
-            type="text"
-            id="register-referral-code"
-          />
-        </div>
-
-        <!-- Error message -->
-        <div class="form_message-error-wrapper w-form-fail" data-register-error-wrapper="true" style="display:none">
-          <div class="form_message-error">
-            <div data-register-error="true"></div>
-          </div>
-        </div>
-
-        <!-- Buttons -->
-        <div class="w-layout-grid form-button-wrapper">
-          <input
-            type="submit"
-            class="button is-full-width w-button"
-            value="Create account & Continue"
-            id="register-submit"
-          />
-
-          <div class="button-group is-center">
-            <a href="#" class="button-glide-over w-inline-block" id="back-to-login">
-              <span class="button-glide-over__container">
-                <span class="button-glide-over__icon is-first">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" style="--index:3;" class="button-glide-over__icon-item"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="24" d="M216 128H40M112 56L40 128l72 72"></path></svg>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" style="--index:2;" class="button-glide-over__icon-item"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="20" d="M216 128H40M112 56L40 128l72 72"></path></svg>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" style="--index:1;" class="button-glide-over__icon-item"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="20" d="M216 128H40M112 56L40 128l72 72"></path></svg>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" style="--index:0;" class="button-glide-over__icon-item"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="20" d="M216 128H40M112 56L40 128l72 72"></path></svg>
-                </span>
-                <span class="button-glide-over__text">Back to Login</span>
-                <span class="button-glide-over__icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" style="--index:3;" class="button-glide-over__icon-item"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="24" d="M216 128H40M112 56L40 128l72 72"></path></svg>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" style="--index:2;" class="button-glide-over__icon-item"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="20" d="M216 128H40M112 56L40 128l72 72"></path></svg>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" style="--index:1;" class="button-glide-over__icon-item"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="20" d="M216 128H40M112 56L40 128l72 72"></path></svg>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" style="--index:0;" class="button-glide-over__icon-item"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="20" d="M216 128H40M112 56L40 128l72 72"></path></svg>
-                </span>
-              </span>
-              <div class="button-glide-over__background"></div>
-            </a>
-          </div>
-        </div>
-      </form>
+  <div class="form_message-error-wrapper w-form-fail" tabindex="-1" role="region">
+    <div class="form_message-error">
+      <div class="error-text">
+        Login failed. Check your details and try again.
+      </div>
+    </div>
+  </div>
+</form>
     `;
 
     this._bindEvents();
