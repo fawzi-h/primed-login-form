@@ -30,6 +30,20 @@ class RegisterForm extends HTMLElement {
   // ── Lifecycle ────────────────────────────────────────────────────────────
   connectedCallback() {
     this.innerHTML = `
+<style>
+  .sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+  }
+</style>
+
 <form
   id="register-form-el"
   name="wf-form-Register-Form"
@@ -39,9 +53,7 @@ class RegisterForm extends HTMLElement {
   novalidate
 >
 
-  <p id="form-help" class="sr-only">
-    All fields are required unless marked optional.
-  </p>
+  
 
   <!-- Name -->
   <fieldset class="form_field-2col" aria-describedby="form-help">
