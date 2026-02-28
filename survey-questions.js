@@ -160,7 +160,7 @@
                 return "\n" + I + e
             }
             var $ = !1;
-            function A(e, t) {
+            function U(e, t) {
                 if (!e || $)
                     return "";
                 $ = !0;
@@ -220,7 +220,7 @@
                 }
                 return (e = e ? e.displayName || e.name : "") ? F(e) : ""
             }
-            function U(e) {
+            function A(e) {
                 switch (e.tag) {
                 case 5:
                     return F(e.type);
@@ -233,11 +233,11 @@
                 case 0:
                 case 2:
                 case 15:
-                    return e = A(e.type, !1);
+                    return e = U(e.type, !1);
                 case 11:
-                    return e = A(e.type.render, !1);
+                    return e = U(e.type.render, !1);
                 case 1:
-                    return e = A(e.type, !0);
+                    return e = U(e.type, !0);
                 default:
                     return ""
                 }
@@ -768,16 +768,16 @@
             De = null,
             Fe = !1,
             $e = null,
-            Ae = {
+            Ue = {
                 onError: function (e) {
                     Ie = !0,
                     De = e
                 }
             };
-            function Ue(e, t, n, r, a, l, o, i, u) {
+            function Ae(e, t, n, r, a, l, o, i, u) {
                 Ie = !1,
                 De = null,
-                Oe.apply(Ae, arguments)
+                Oe.apply(Ue, arguments)
             }
             function Be(e) {
                 var t = e,
@@ -1126,7 +1126,7 @@
             function $t(e, t, n) {
                 Ft(e) && n.delete(t)
             }
-            function At() {
+            function Ut() {
                 Et = !1,
                 null !== Pt && Ft(Pt) && (Pt = null),
                 null !== jt && Ft(jt) && (jt = null),
@@ -1134,21 +1134,21 @@
                 Lt.forEach($t),
                 Tt.forEach($t)
             }
-            function Ut(e, t) {
-                e.blockedOn === t && (e.blockedOn = null, Et || (Et = !0, a.unstable_scheduleCallback(a.unstable_NormalPriority, At)))
+            function At(e, t) {
+                e.blockedOn === t && (e.blockedOn = null, Et || (Et = !0, a.unstable_scheduleCallback(a.unstable_NormalPriority, Ut)))
             }
             function Bt(e) {
                 function t(t) {
-                    return Ut(t, e)
+                    return At(t, e)
                 }
                 if (0 < Ct.length) {
-                    Ut(Ct[0], e);
+                    At(Ct[0], e);
                     for (var n = 1; n < Ct.length; n++) {
                         var r = Ct[n];
                         r.blockedOn === e && (r.blockedOn = null)
                     }
                 }
-                for (null !== Pt && Ut(Pt, e), null !== jt && Ut(jt, e), null !== zt && Ut(zt, e), Lt.forEach(t), Tt.forEach(t), n = 0; n < Mt.length; n++)
+                for (null !== Pt && At(Pt, e), null !== jt && At(jt, e), null !== zt && At(zt, e), Lt.forEach(t), Tt.forEach(t), n = 0; n < Mt.length; n++)
                     (r = Mt[n]).blockedOn === e && (r.blockedOn = null);
                 for (; 0 < Mt.length && null === (n = Mt[0]).blockedOn; )
                     Dt(n), null === n.blockedOn && Mt.shift()
@@ -1586,7 +1586,7 @@
             Dn = c && (!Rn || On && 8 < On && 11 >= On),
             Fn = String.fromCharCode(32),
             $n = !1;
-            function An(e, t) {
+            function Un(e, t) {
                 switch (e) {
                 case "keyup":
                     return -1 !== Mn.indexOf(t.keyCode);
@@ -1600,7 +1600,7 @@
                     return !1
                 }
             }
-            function Un(e) {
+            function An(e) {
                 return "object" == typeof(e = e.detail) && "data" in e ? e.data : null
             }
             var Bn = !1;
@@ -1868,7 +1868,7 @@
                 var r = e.type || "unknown-event";
                 e.currentTarget = n,
                 function (e, t, n, r, a, o, i, u, s) {
-                    if (Ue.apply(this, arguments), Ie) {
+                    if (Ae.apply(this, arguments), Ie) {
                         if (!Ie)
                             throw Error(l(198));
                         var c = De;
@@ -1916,20 +1916,20 @@
                 var r = e + "__bubble";
                 n.has(r) || (Wr(t, e, 2, !1), n.add(r))
             }
-            function Ar(e, t, n) {
+            function Ur(e, t, n) {
                 var r = 0;
                 t && (r |= 4),
                 Wr(n, e, r, t)
             }
-            var Ur = "_reactListening" + Math.random().toString(36).slice(2);
+            var Ar = "_reactListening" + Math.random().toString(36).slice(2);
             function Br(e) {
-                if (!e[Ur]) {
-                    e[Ur] = !0,
+                if (!e[Ar]) {
+                    e[Ar] = !0,
                     o.forEach(function (t) {
-                        "selectionchange" !== t && (Ir.has(t) || Ar(t, !1, e), Ar(t, !0, e))
+                        "selectionchange" !== t && (Ir.has(t) || Ur(t, !1, e), Ur(t, !0, e))
                     });
                     var t = 9 === e.nodeType ? e : e.ownerDocument;
-                    null === t || t[Ur] || (t[Ur] = !0, Ar("selectionchange", !1, t))
+                    null === t || t[Ar] || (t[Ar] = !0, Ur("selectionchange", !1, t))
                 }
             }
             function Wr(e, t, n, r) {
@@ -2161,15 +2161,15 @@
                                 b = void 0
                             }
                         else
-                            Bn ? An(e, n) && (b = "onCompositionEnd") : "keydown" === e && 229 === n.keyCode && (b = "onCompositionStart");
+                            Bn ? Un(e, n) && (b = "onCompositionEnd") : "keydown" === e && 229 === n.keyCode && (b = "onCompositionStart");
                         b && (Dn && "ko" !== n.locale && (Bn || "onCompositionStart" !== b ? "onCompositionEnd" === b && Bn && (y = en()) : (Jt = "value" in(Gt = a) ? Gt.value : Gt.textContent, Bn = !0)), 0 < (v = Qr(r, b)).length && (b = new wn(b, e, null, n, a), o.push({
                                     event: b,
                                     listeners: v
-                                }), y ? b.data = y : null !== (y = Un(n)) && (b.data = y))),
+                                }), y ? b.data = y : null !== (y = An(n)) && (b.data = y))),
                         (y = In ? function (e, t) {
                             switch (e) {
                             case "compositionend":
-                                return Un(t);
+                                return An(t);
                             case "keypress":
                                 return 32 !== t.which ? null : ($n = !0, Fn);
                             case "textInput":
@@ -2180,7 +2180,7 @@
                         }
                             (e, n) : function (e, t) {
                             if (Bn)
-                                return "compositionend" === e || !Rn && An(e, t) ? (e = en(), Zt = Jt = Gt = null, Bn = !1, e) : null;
+                                return "compositionend" === e || !Rn && Un(e, t) ? (e = en(), Zt = Jt = Gt = null, Bn = !1, e) : null;
                             switch (e) {
                             case "paste":
                             default:
@@ -2424,13 +2424,13 @@
             }
             var Fa = null,
             $a = !1,
-            Aa = !1;
-            function Ua(e) {
+            Ua = !1;
+            function Aa(e) {
                 null === Fa ? Fa = [e] : Fa.push(e)
             }
             function Ba() {
-                if (!Aa && null !== Fa) {
-                    Aa = !0;
+                if (!Ua && null !== Fa) {
+                    Ua = !0;
                     var e = 0,
                     t = bt;
                     try {
@@ -2449,7 +2449,7 @@
                         t
                     } finally {
                         bt = t,
-                        Aa = !1
+                        Ua = !1
                     }
                 }
                 return null
@@ -2980,7 +2980,7 @@
                 r.interleaved = t,
                 Rl(e, n)
             }
-            function Al(e, t, n) {
+            function Ul(e, t, n) {
                 if (null !== (t = t.updateQueue) && (t = t.shared, 4194240 & n)) {
                     var r = t.lanes;
                     n |= r &= e.pendingLanes,
@@ -2988,7 +2988,7 @@
                     yt(e, n)
                 }
             }
-            function Ul(e, t) {
+            function Al(e, t) {
                 var n = e.updateQueue,
                 r = e.alternate;
                 if (null !== r && n === (r = r.updateQueue)) {
@@ -3475,11 +3475,11 @@
                     t.current = null
                 }) : void 0
             }
-            function Ao(e, t, n) {
+            function Uo(e, t, n) {
                 return n = null != n ? n.concat([e]) : null,
                 Ro(4, 4, $o.bind(null, t, e), n)
             }
-            function Uo() {}
+            function Ao() {}
             function Bo(e, t) {
                 var n = bo();
                 t = void 0 === t ? null : t;
@@ -3639,7 +3639,7 @@
                     yo().memoizedState = e
                 },
                 useState: zo,
-                useDebugValue: Uo,
+                useDebugValue: Ao,
                 useDeferredValue: function (e) {
                     return yo().memoizedState = e
                 },
@@ -3693,7 +3693,7 @@
                 useCallback: Bo,
                 useContext: zl,
                 useEffect: Io,
-                useImperativeHandle: Ao,
+                useImperativeHandle: Uo,
                 useInsertionEffect: Do,
                 useLayoutEffect: Fo,
                 useMemo: Wo,
@@ -3702,7 +3702,7 @@
                 useState: function () {
                     return xo(wo)
                 },
-                useDebugValue: Uo,
+                useDebugValue: Ao,
                 useDeferredValue: function (e) {
                     return Vo(bo(), io.memoizedState, e)
                 },
@@ -3719,7 +3719,7 @@
                 useCallback: Bo,
                 useContext: zl,
                 useEffect: Io,
-                useImperativeHandle: Ao,
+                useImperativeHandle: Uo,
                 useInsertionEffect: Do,
                 useLayoutEffect: Fo,
                 useMemo: Wo,
@@ -3728,7 +3728,7 @@
                 useState: function () {
                     return ko(wo)
                 },
-                useDebugValue: Uo,
+                useDebugValue: Ao,
                 useDeferredValue: function (e) {
                     var t = bo();
                     return null === io ? t.memoizedState = e : Vo(t, io.memoizedState, e)
@@ -3765,7 +3765,7 @@
                     l = Fl(r, a);
                     l.payload = t,
                     null != n && (l.callback = n),
-                    null !== (t = $l(e, l, a)) && (ts(t, e, a, r), Al(t, e, a))
+                    null !== (t = $l(e, l, a)) && (ts(t, e, a, r), Ul(t, e, a))
                 },
                 enqueueReplaceState: function (e, t, n) {
                     e = e._reactInternals;
@@ -3775,7 +3775,7 @@
                     l.tag = 1,
                     l.payload = t,
                     null != n && (l.callback = n),
-                    null !== (t = $l(e, l, a)) && (ts(t, e, a, r), Al(t, e, a))
+                    null !== (t = $l(e, l, a)) && (ts(t, e, a, r), Ul(t, e, a))
                 },
                 enqueueForceUpdate: function (e, t) {
                     e = e._reactInternals;
@@ -3784,7 +3784,7 @@
                     a = Fl(n, r);
                     a.tag = 2,
                     null != t && (a.callback = t),
-                    null !== (t = $l(e, a, r)) && (ts(t, e, r, n), Al(t, e, r))
+                    null !== (t = $l(e, a, r)) && (ts(t, e, r, n), Ul(t, e, r))
                 }
             };
             function li(e, t, n, r, a, l, o) {
@@ -3827,7 +3827,7 @@
                     var n = "",
                     r = t;
                     do {
-                        n += U(r),
+                        n += A(r),
                         r = r.return
                     } while (r);
                     var a = n
@@ -4220,7 +4220,7 @@
                 null !== r && (r.lanes |= t),
                 Pl(e.return, t, n)
             }
-            function Ai(e, t, n, r, a) {
+            function Ui(e, t, n, r, a) {
                 var l = e.memoizedState;
                 null === l ? e.memoizedState = {
                     isBackwards: t,
@@ -4232,7 +4232,7 @@
                 }
                  : (l.isBackwards = t, l.rendering = null, l.renderingStartTime = 0, l.last = r, l.tail = n, l.tailMode = a)
             }
-            function Ui(e, t, n) {
+            function Ai(e, t, n) {
                 var r = t.pendingProps,
                 a = r.revealOrder,
                 l = r.tail;
@@ -4268,7 +4268,7 @@
                         for (n = t.child, a = null; null !== n; )
                             null !== (e = n.alternate) && null === eo(e) && (a = n), n = n.sibling;
                         null === (n = a) ? (a = t.child, t.child = null) : (a = n.sibling, n.sibling = null),
-                        Ai(t, !1, a, n, l);
+                        Ui(t, !1, a, n, l);
                         break;
                     case "backwards":
                         for (n = null, a = t.child, t.child = null; null !== a; ) {
@@ -4281,10 +4281,10 @@
                             n = a,
                             a = e
                         }
-                        Ai(t, !0, n, null, l);
+                        Ui(t, !0, n, null, l);
                         break;
                     case "together":
-                        Ai(t, !1, null, null, void 0);
+                        Ui(t, !1, null, null, void 0);
                         break;
                     default:
                         t.memoizedState = null
@@ -4629,7 +4629,7 @@
                                     }
                                     e = e.sibling
                                 }
-                            null !== o.tail && Ge() > Uu && (t.flags |= 128, r = !0, Vi(o, !1), t.lanes = 4194304)
+                            null !== o.tail && Ge() > Au && (t.flags |= 128, r = !0, Vi(o, !1), t.lanes = 4194304)
                         }
                     else {
                         if (!r)
@@ -4637,7 +4637,7 @@
                                 if (t.flags |= 128, r = !0, null !== (n = e.updateQueue) && (t.updateQueue = n, t.flags |= 4), Vi(o, !0), null === o.tail && "hidden" === o.tailMode && !u.alternate && !al)
                                     return Hi(t), null
                             } else
-                                2 * Ge() - o.renderingStartTime > Uu && 1073741824 !== n && (t.flags |= 128, r = !0, Vi(o, !1), t.lanes = 4194304);
+                                2 * Ge() - o.renderingStartTime > Au && 1073741824 !== n && (t.flags |= 128, r = !0, Vi(o, !1), t.lanes = 4194304);
                         o.isBackwards ? (u.sibling = t.child, t.child = u) : (null !== (n = o.last) ? n.sibling = u : t.child = u, o.last = u)
                     }
                     return null !== o.tail ? (t = o.tail, o.rendering = t, o.tail = t.sibling, o.renderingStartTime = Ge(), t.sibling = null, n = Zl.current, Ea(Zl, r ? 1 & n | 2 : 1 & n), t) : (Hi(t), null);
@@ -5106,7 +5106,7 @@
                 case 13:
                     mu(t, e),
                     gu(e),
-                    8192 & (a = e.child).flags && (o = null !== a.memoizedState, a.stateNode.isHidden = o, !o || null !== a.alternate && null !== a.alternate.memoizedState || (Au = Ge())),
+                    8192 & (a = e.child).flags && (o = null !== a.memoizedState, a.stateNode.isHidden = o, !o || null !== a.alternate && null !== a.alternate.memoizedState || (Uu = Ge())),
                     4 & r && pu(e);
                     break;
                 case 22:
@@ -5444,8 +5444,8 @@
             Du = 0,
             Fu = null,
             $u = null,
-            Au = 0,
-            Uu = 1 / 0,
+            Uu = 0,
+            Au = 1 / 0,
             Bu = null,
             Wu = !1,
             Vu = null,
@@ -5467,7 +5467,7 @@
                 if (50 < Yu)
                     throw Yu = 0, Xu = null, Error(l(185));
                 vt(e, n, r),
-                2 & Cu && e === Pu || (e === Pu && (!(2 & Cu) && (Iu |= n), 4 === Mu && os(e, zu)), ns(e, r), 1 === n && 0 === Cu && !(1 & t.mode) && (Uu = Ge() + 500, $a && Ba()))
+                2 & Cu && e === Pu || (e === Pu && (!(2 & Cu) && (Iu |= n), 4 === Mu && os(e, zu)), ns(e, r), 1 === n && 0 === Cu && !(1 & t.mode) && (Au = Ge() + 500, $a && Ba()))
             }
             function ns(e, t) {
                 var n = e.callbackNode;
@@ -5488,9 +5488,9 @@
                     if (null != n && Ke(n), 1 === t)
                         0 === e.tag ? function (e) {
                             $a = !0,
-                            Ua(e)
+                            Aa(e)
                         }
-                    (is.bind(null, e)) : Ua(is.bind(null, e)),
+                    (is.bind(null, e)) : Aa(is.bind(null, e)),
                     oa(function () {
                         !(6 & Cu) && Ba()
                     }),
@@ -5532,7 +5532,7 @@
                     var a = Cu;
                     Cu |= 2;
                     var o = ps();
-                    for (Pu === e && zu === t || (Bu = null, Uu = Ge() + 500, ds(e, t)); ; )
+                    for (Pu === e && zu === t || (Bu = null, Au = Ge() + 500, ds(e, t)); ; )
                         try {
                             vs();
                             break
@@ -5594,7 +5594,7 @@
                             ws(e, $u, Bu);
                             break;
                         case 3:
-                            if (os(e, r), (130023424 & r) === r && 10 < (t = Au + 500 - Ge())) {
+                            if (os(e, r), (130023424 & r) === r && 10 < (t = Uu + 500 - Ge())) {
                                 if (0 !== ft(e, 0))
                                     break;
                                 if (((a = e.suspendedLanes) & r) !== r) {
@@ -5675,7 +5675,7 @@
                 try {
                     return e(t)
                 } finally {
-                    0 === (Cu = n) && (Uu = Ge() + 500, $a && Ba())
+                    0 === (Cu = n) && (Au = Ge() + 500, $a && Ba())
                 }
             }
             function ss(e) {
@@ -5821,7 +5821,7 @@
                                     o.flags |= 65536,
                                     t &= -t,
                                     o.lanes |= t,
-                                    Ul(o, pi(0, s, t));
+                                    Al(o, pi(0, s, t));
                                     break e;
                                 case 1:
                                     u = s;
@@ -5831,7 +5831,7 @@
                                         o.flags |= 65536,
                                         t &= -t,
                                         o.lanes |= t,
-                                        Ul(o, mi(o, u, t));
+                                        Al(o, mi(o, u, t));
                                         break e
                                     }
                                 }
@@ -6260,7 +6260,7 @@
                 null !== r && r.delete(t),
                 t = Zu(),
                 e.pingedLanes |= e.suspendedLanes & n,
-                Pu === e && (zu & n) === n && (4 === Mu || 3 === Mu && (130023424 & zu) === zu && 500 > Ge() - Au ? ds(e, 0) : Du |= n),
+                Pu === e && (zu & n) === n && (4 === Mu || 3 === Mu && (130023424 & zu) === zu && 500 > Ge() - Uu ? ds(e, 0) : Du |= n),
                 ns(e, t)
             }
             function Ns(e, t) {
@@ -6445,7 +6445,7 @@
                 Il(l),
                 e
             }
-            function As(e) {
+            function Us(e) {
                 if (!e)
                     return Ca;
                 e: {
@@ -6474,8 +6474,8 @@
                 }
                 return t
             }
-            function Us(e, t, n, r, a, l, o, i, u) {
-                return (e = $s(n, r, !0, e, 0, l, 0, i, u)).context = As(null),
+            function As(e, t, n, r, a, l, o, i, u) {
+                return (e = $s(n, r, !0, e, 0, l, 0, i, u)).context = Us(null),
                 n = e.current,
                 (l = Fl(r = Zu(), a = es(n))).callback = null != t ? t : null,
                 $l(n, l, a),
@@ -6488,13 +6488,13 @@
                 var a = t.current,
                 l = Zu(),
                 o = es(a);
-                return n = As(n),
+                return n = Us(n),
                 null === t.context ? t.context = n : t.pendingContext = n,
                 (t = Fl(l, o)).payload = {
                     element: e
                 },
                 null !== (r = void 0 === r ? null : r) && (t.callback = r),
-                null !== (e = $l(a, t, o)) && (ts(e, a, o, l), Al(e, a, o)),
+                null !== (e = $l(a, t, o)) && (ts(e, a, o, l), Ul(e, a, o)),
                 o
             }
             function Ws(e) {
@@ -6545,7 +6545,7 @@
                                 case 19:
                                     if (r = 0 !== (n & t.childLanes), 128 & e.flags) {
                                         if (r)
-                                            return Ui(e, t, n);
+                                            return Ai(e, t, n);
                                         t.flags |= 128
                                     }
                                     if (null !== (a = t.memoizedState) && (a.rendering = null, a.tail = null, a.lastEffect = null), Ea(Zl, Zl.current), r)
@@ -6772,7 +6772,7 @@
                     ui(t, r, a, n),
                     Pi(null, t, r, !0, e, n);
                 case 19:
-                    return Ui(e, t, n);
+                    return Ai(e, t, n);
                 case 22:
                     return _i(e, t, n)
                 }
@@ -6816,7 +6816,7 @@
                                     l.call(e)
                                 }
                             }
-                            var o = Us(t, r, e, 0, null, !1, 0, "", Gs);
+                            var o = As(t, r, e, 0, null, !1, 0, "", Gs);
                             return e._reactRootContainer = o,
                             e[ma] = o.current,
                             Br(8 === e.nodeType ? e.parentNode : e),
@@ -6880,7 +6880,7 @@
                     var t = e.stateNode;
                     if (t.current.memoizedState.isDehydrated) {
                         var n = dt(t.pendingLanes);
-                        0 !== n && (yt(t, 1 | n), ns(t, Ge()), !(6 & Cu) && (Uu = Ge() + 500, Ba()))
+                        0 !== n && (yt(t, 1 | n), ns(t, Ge()), !(6 & Cu) && (Au = Ge() + 500, Ba()))
                     }
                     break;
                 case 13:
@@ -7054,7 +7054,7 @@
                 a = !1,
                 o = "",
                 i = Qs;
-                if (null != n && (!0 === n.unstable_strictMode && (a = !0), void 0 !== n.identifierPrefix && (o = n.identifierPrefix), void 0 !== n.onRecoverableError && (i = n.onRecoverableError)), t = Us(t, null, e, 1, null != n ? n : null, a, 0, o, i), e[ma] = t.current, Br(e), r)
+                if (null != n && (!0 === n.unstable_strictMode && (a = !0), void 0 !== n.identifierPrefix && (o = n.identifierPrefix), void 0 !== n.onRecoverableError && (i = n.onRecoverableError)), t = As(t, null, e, 1, null != n ? n : null, a, 0, o, i), e[ma] = t.current, Br(e), r)
                     for (e = 0; e < r.length; e++)
                         a = (a = (n = r[e])._getVersion)(n._source), null == t.mutableSourceEagerHydrationData ? t.mutableSourceEagerHydrationData = [n, a] : t.mutableSourceEagerHydrationData.push(n, a);
                 return new Ks(t)
@@ -7943,16 +7943,17 @@
         treatmentName: e,
         id: t,
         mapsKeyUrl: n,
-        extraClass: r,
-        inlineStyle: l,
-        themeBg: c,
-        themeText: h,
-        themeAccent: g,
-        themeButton: v,
-        customInputClass: y,
-        customButtonClass: b
+        csrfUrl: r,
+        extraClass: l,
+        inlineStyle: c,
+        themeBg: h,
+        themeText: g,
+        themeAccent: v,
+        themeButton: y,
+        customInputClass: b,
+        customButtonClass: w
     }) {
-        const w = {
+        const x = {
             push: e => {
                 window.location.href = e
             },
@@ -7960,41 +7961,41 @@
                 window.history.replaceState(null, "", e)
             }
         },
-        x = window.location.pathname,
-        k = {
-            ...c ? {
-                "--sq-bg": c
-            }
-             : {},
+        k = window.location.pathname,
+        S = {
             ...h ? {
-                "--sq-text": h
+                "--sq-bg": h
             }
              : {},
             ...g ? {
-                "--sq-accent": g
+                "--sq-text": g
             }
              : {},
             ...v ? {
-                "--sq-button": v
+                "--sq-accent": v
+            }
+             : {},
+            ...y ? {
+                "--sq-button": y
             }
              : {}
         },
-        S = {};
-        l && l.split(";").forEach(e => {
+        _ = {};
+        c && c.split(";").forEach(e => {
             const [t, n] = e.split(":").map(e => e.trim());
             if (t && n) {
                 const e = t.replace(/-([a-z])/g, (e, t) => t.toUpperCase());
-                S[e] = n
+                _[e] = n
             }
         });
-        const _ = {
-            ...k,
-            ...S
+        const N = {
+            ...S,
+            ..._
         };
-        function N(e) {
-            return [e, r].filter(Boolean).join(" ")
+        function E(e) {
+            return [e, l].filter(Boolean).join(" ")
         }
-        const E = function () {
+        const C = function () {
             const [e, t] = (0, a.useState)(new URLSearchParams(window.location.search));
             return (0, a.useEffect)(() => {
                 const e = () => t(new URLSearchParams(window.location.search));
@@ -8004,63 +8005,63 @@
             e
         }
         (),
-        C = E.get("token") ?? "",
-        P = E.get("referral_code") ?? "",
-        j = E.get("first_name") ?? "",
-        z = E.get("last_name") ?? "",
-        L = E.get("email") ?? "",
-        T = E.get("phone") ?? "",
-        [M, R] = (0, a.useState)(C),
-        [O, I] = (0, a.useState)([]),
-        [D, F] = (0, a.useState)({}),
-        [$, A] = (0, a.useState)(0),
-        [U, B] = (0, a.useState)(0),
-        [W, V] = (0, a.useState)(!1),
-        [H, Q] = (0, a.useState)(null),
-        [q, K] = (0, a.useState)(!0),
-        [Y, X] = (0, a.useState)(!1),
-        [G, J] = (0, a.useState)(!1),
-        [Z, ee] = (0, a.useState)(!1),
-        [te, ne] = (0, a.useState)(!1),
-        [re, ae] = (0, a.useState)(!1),
-        [le, oe] = (0, a.useState)(!1),
-        [ie, ue] = (0, a.useState)(!1),
-        [se, ce] = (0, a.useState)(!1),
-        [de, fe] = (0, a.useState)(!1),
-        [pe, me] = (0, a.useState)(""),
-        [he, ge] = (0, a.useState)(!1),
-        [ve, ye] = (0, a.useState)(!1),
-        [be, we] = (0, a.useState)(""),
-        [xe, ke] = (0, a.useState)({
-            firstName: j,
-            lastName: z,
-            email: L,
-            phone: Me(T || "+61 "),
+        P = C.get("token") ?? "",
+        j = C.get("referral_code") ?? "",
+        z = C.get("first_name") ?? "",
+        L = C.get("last_name") ?? "",
+        T = C.get("email") ?? "",
+        M = C.get("phone") ?? "",
+        [R, O] = (0, a.useState)(P),
+        [I, D] = (0, a.useState)([]),
+        [F, $] = (0, a.useState)({}),
+        [U, A] = (0, a.useState)(0),
+        [B, W] = (0, a.useState)(0),
+        [V, H] = (0, a.useState)(!1),
+        [Q, q] = (0, a.useState)(null),
+        [K, Y] = (0, a.useState)(!0),
+        [X, G] = (0, a.useState)(!1),
+        [J, Z] = (0, a.useState)(!1),
+        [ee, te] = (0, a.useState)(!1),
+        [ne, re] = (0, a.useState)(!1),
+        [ae, le] = (0, a.useState)(!1),
+        [oe, ie] = (0, a.useState)(!1),
+        [ue, se] = (0, a.useState)(!1),
+        [ce, de] = (0, a.useState)(!1),
+        [fe, pe] = (0, a.useState)(!1),
+        [me, he] = (0, a.useState)(""),
+        [ge, ve] = (0, a.useState)(!1),
+        [ye, be] = (0, a.useState)(!1),
+        [we, xe] = (0, a.useState)(""),
+        [ke, Se] = (0, a.useState)({
+            firstName: z,
+            lastName: L,
+            email: T,
+            phone: Re(M || "+61 "),
             address: "",
             streetNumber: "",
             streetName: "",
             suburb: "",
             state: "",
             postcode: "",
-            referral_code: P,
+            referral_code: j,
             password: "",
             confirmPassword: ""
         }),
-        [Se, _e] = (0, a.useState)({});
+        [_e, Ne] = (0, a.useState)({});
         (0, a.useEffect)(() => {
             try {
                 const e = sessionStorage.getItem("sessionData");
                 if (e) {
                     const t = JSON.parse(e);
-                    t.userId && (Q(t.userId), V(!!t.userId))
+                    t.userId && (q(t.userId), H(!!t.userId))
                 }
             } catch (e) {
                 console.error("Session restore error", e)
             } finally {
-                K(!1)
+                Y(!1)
             }
         }, []);
-        const Ne = function ({
+        const Ee = function ({
             requestOptions: e,
             debounce: t
         }) {
@@ -8118,39 +8119,39 @@
             },
             debounce: 300
         }), {
-            value: Ee,
-            setValue: Ce,
-            clearSuggestions: Pe,
-            suggestions: je
-        } = Ne, {
-            status: ze,
-            data: Le
-        } = je,
-        Te = (0, a.useMemo)(() => {
+            value: Ce,
+            setValue: Pe,
+            clearSuggestions: je,
+            suggestions: ze
+        } = Ee, {
+            status: Le,
+            data: Te
+        } = ze,
+        Me = (0, a.useMemo)(() => {
             try {
                 return e ? decodeURIComponent(e).split("-").map(e => e.charAt(0).toUpperCase() + e.slice(1)).join(" ") : ""
             } catch {
                 return e
             }
         }, [e]);
-        function Me(e) {
+        function Re(e) {
             const t = (e || "").replace(/\D/g, "");
             return t ? !t.startsWith("614") || t.length < 11 ? e || "+61 " : `+61 ${t.slice(2, 5)} ${t.slice(5, 8)} ${t.slice(8, 11)}` : "+61 "
         }
-        function Re(e) {
-            return !!O[e] && (16 !== e && 17 !== e && ((1 !== e || "Male" !== D.sex_at_birth) && ((6 !== e || "Yes" === D.has_medical_conditions) && ((8 !== e || "Yes" === D.has_family_history) && ((10 !== e || "Yes" === D.taking_medications) && ((12 !== e || "Yes" === D.has_allergies) && (14 !== e || "Yes" === D.has_additional_info)))))))
-        }
         function Oe(e) {
+            return !!I[e] && (16 !== e && 17 !== e && ((1 !== e || "Male" !== F.sex_at_birth) && ((6 !== e || "Yes" === F.has_medical_conditions) && ((8 !== e || "Yes" === F.has_family_history) && ((10 !== e || "Yes" === F.taking_medications) && ((12 !== e || "Yes" === F.has_allergies) && (14 !== e || "Yes" === F.has_additional_info)))))))
+        }
+        function Ie(e) {
             const { name: t, value: n } = e.target;
-            ke(e => ({
+            Se(e => ({
                     ...e,
                     [t]: "phone" === t ? n.replace(/\D/g, "") : n
                 }))
         }
-        async function Ie(e) {
-            Ce(e),
-            oe(!0),
-            Pe();
+        async function De(e) {
+            Pe(e),
+            ie(!0),
+            je();
             try {
                 const t = await async function ({
                     address: e
@@ -8168,7 +8169,7 @@
                 ({
                     address: e
                 });
-                De("address", e);
+                Fe("address", e);
                 const n = t[0]?.address_components || [],
                 r = e => n.find(t => t.types.includes(e))?.long_name || "";
                 [{
@@ -8187,61 +8188,61 @@
                         name: "postcode",
                         component: "postal_code"
                     }
-                ].forEach(e => De(e.name, r(e.component))),
-                ae(!1)
+                ].forEach(e => Fe(e.name, r(e.component))),
+                le(!1)
             } catch {
-                w.push("/page/error")
+                x.push("/page/error")
             }
         }
-        function De(e, t) {
-            ke(n => ({
+        function Fe(e, t) {
+            Se(n => ({
                     ...n,
                     [e]: t
                 }))
         }
-        async function Fe(e) {
+        async function $e(e) {
             if (e.preventDefault(), function () {
                 const e = {};
                 var t;
-                return xe.firstName || (e.firstName = "First name is required"),
-                xe.lastName || (e.lastName = "Last name is required"),
-                xe.email ? (t = xe.email, /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t) || (e.email = "Invalid email address")) : e.email = "Email is required",
-                xe.phone && "+61 " !== xe.phone ? xe.phone.startsWith("+61 4") ? xe.phone.length < 12 && (e.phone = "Invalid Phone number") : e.phone = "Phone number must start with 4 or 04." : e.phone = "Phone number is required",
-                xe.address || (e.address = "Address is required"),
-                xe.streetNumber || (e.streetNumber = "Street number is required"),
-                xe.streetName || (e.streetName = "Street name is required"),
-                xe.suburb || (e.suburb = "Suburb is required"),
-                xe.state || (e.state = "State is required"),
-                xe.postcode || (e.postcode = "Postcode is required"),
-                xe.password ? xe.password.length < 8 && (e.password = "Password must be at least 8 characters long") : e.password = "Password is required",
-                xe.confirmPassword || (e.confirmPassword = "Password is required"),
-                xe.password !== xe.confirmPassword && (e.confirmPassword = "Passwords do not match"),
-                _e(e),
+                return ke.firstName || (e.firstName = "First name is required"),
+                ke.lastName || (e.lastName = "Last name is required"),
+                ke.email ? (t = ke.email, /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t) || (e.email = "Invalid email address")) : e.email = "Email is required",
+                ke.phone && "+61 " !== ke.phone ? ke.phone.startsWith("+61 4") ? ke.phone.length < 12 && (e.phone = "Invalid Phone number") : e.phone = "Phone number must start with 4 or 04." : e.phone = "Phone number is required",
+                ke.address || (e.address = "Address is required"),
+                ke.streetNumber || (e.streetNumber = "Street number is required"),
+                ke.streetName || (e.streetName = "Street name is required"),
+                ke.suburb || (e.suburb = "Suburb is required"),
+                ke.state || (e.state = "State is required"),
+                ke.postcode || (e.postcode = "Postcode is required"),
+                ke.password ? ke.password.length < 8 && (e.password = "Password must be at least 8 characters long") : e.password = "Password is required",
+                ke.confirmPassword || (e.confirmPassword = "Password is required"),
+                ke.password !== ke.confirmPassword && (e.confirmPassword = "Passwords do not match"),
+                Ne(e),
                 0 === Object.keys(e).length
             }
                 ()) {
-                ce(!0);
+                de(!0);
                 try {
-                    await d("/sanctum/csrf-cookie", {
+                    await d(r || "/sanctum/csrf-cookie", {
                         rawPath: !0
                     });
                     const e = await f("/register/guest", {
-                        first_name: xe.firstName,
-                        last_name: xe.lastName,
-                        email: xe.email,
-                        password: xe.password,
-                        phone: xe.phone,
-                        address: xe.address,
-                        streetNumber: xe.streetNumber,
-                        streetName: xe.streetName,
-                        suburb: xe.suburb,
-                        state: xe.state,
-                        postcode: xe.postcode,
-                        referral_code: xe.referral_code
+                        first_name: ke.firstName,
+                        last_name: ke.lastName,
+                        email: ke.email,
+                        password: ke.password,
+                        phone: ke.phone,
+                        address: ke.address,
+                        streetNumber: ke.streetNumber,
+                        streetName: ke.streetName,
+                        suburb: ke.suburb,
+                        state: ke.state,
+                        postcode: ke.postcode,
+                        referral_code: ke.referral_code
                     }),
                     t = e?.data?.user_id || e?.user_id;
-                    t && Q(String(t)),
-                    V(!0)
+                    t && q(String(t)),
+                    H(!0)
                 } catch (e) {
                     const t = e?.response?.status;
                     if (422 === t) {
@@ -8251,11 +8252,11 @@
                         a = t.phone?.[0],
                         l = t.referral_code?.[0];
                         r && a ? n = "Email and phone are already used." : r ? n = r + " Login to your account instead." : a ? n = a : l && (n = l),
-                        me(n)
+                        he(n)
                     } else
-                        me("Server error. Please try again."), w.push("/page/error")
+                        he("Server error. Please try again."), x.push("/page/error")
                 } finally {
-                    ce(!1)
+                    de(!1)
                 }
             }
         }
@@ -8264,7 +8265,7 @@
                 return (async() => {
                     try {
                         const t = await d("/initial-questionnaire");
-                        !e && Array.isArray(t) && (I(t), F(e => {
+                        !e && Array.isArray(t) && (D(t), $(e => {
                                 if (Object.keys(e).length > 0)
                                     return e;
                                 const n = {};
@@ -8273,7 +8274,7 @@
                                 return n
                             }))
                     } catch {
-                        w.push("/page/error")
+                        x.push("/page/error")
                     }
                 })(),
                 () => {
@@ -8295,7 +8296,7 @@
                         if (!t.ok)
                             throw new Error(`GET ${n} failed: ${t.status}`);
                             const r = await t.json();
-                            !e && r.key && we(r.key)
+                            !e && r.key && xe(r.key)
                         } catch (e) {
                             console.error("Failed to load Maps key", e)
                         }
@@ -8304,91 +8305,91 @@
                         e = !0
                     }
                 }, [n]), (0, a.useEffect)(() => {
-                    if (!be)
+                    if (!we)
                         return;
                     if (document.getElementById("gmaps"))
                         return;
                     const e = document.createElement("script");
                     e.id = "gmaps",
-                    e.src = `https://maps.googleapis.com/maps/api/js?key=${be}&libraries=places&loading=async`,
+                    e.src = `https://maps.googleapis.com/maps/api/js?key=${we}&libraries=places&loading=async`,
                     e.async = !0,
                     e.defer = !0,
                     document.body.appendChild(e)
-                }, [be]), (0, a.useEffect)(() => {
-                    P && ne(!0)
-                }, [P]), (0, a.useEffect)(() => {
-                    let e = C,
+                }, [we]), (0, a.useEffect)(() => {
+                    j && re(!0)
+                }, [j]), (0, a.useEffect)(() => {
+                    let e = P,
                     t = !1;
                     e || (e = Math.random().toString(36).slice(2, 20), t = !0),
-                    R(e);
-                    const n = new URLSearchParams(E.toString()),
+                    O(e);
+                    const n = new URLSearchParams(C.toString()),
                     r = (e, r) => {
                         r ? n.get(e) !== r && (n.set(e, r), t = !0) : n.has(e) && (n.delete(e), t = !0)
                     };
                     r("token", e),
-                    r("referral_code", P),
-                    r("first_name", j),
-                    r("last_name", z),
-                    r("email", L),
-                    r("phone", T ? Me(T) : void 0),
-                    t && w.replace(`${x}?${n.toString()}`)
+                    r("referral_code", j),
+                    r("first_name", z),
+                    r("last_name", L),
+                    r("email", T),
+                    r("phone", M ? Re(M) : void 0),
+                    t && x.replace(`${k}?${n.toString()}`)
                 }, []), (0, a.useEffect)(() => {
-                    if (!M || 0 === O.length)
+                    if (!R || 0 === I.length)
                         return;
-                    const e = localStorage.getItem(`${m}_${M}`);
+                    const e = localStorage.getItem(`${m}_${R}`);
                     if (e)
                         try {
                             const { answers: t, currentQuestion: n } = JSON.parse(e);
-                            F(e => ({
+                            $(e => ({
                                     ...e,
                                     ...t
                                 })),
                             A(n || 0),
-                            B((n + 1) / O.length * 100)
+                            W((n + 1) / I.length * 100)
                         } catch (e) {
                             console.error("Error parsing saved quiz data:", e)
                         }
-                }, [M, O.length]), (0, a.useEffect)(() => {
-                    if (Y)
+                }, [R, I.length]), (0, a.useEffect)(() => {
+                    if (X)
                         return;
-                    const e = E.get("token"),
+                    const e = C.get("token"),
                     t = sessionStorage.getItem("sessionData");
                     if (t)
                         try {
                             const { userId: n, token: r } = JSON.parse(t);
-                            r === e ? !H && n && Q(n) : sessionStorage.removeItem("sessionData")
+                            r === e ? !Q && n && q(n) : sessionStorage.removeItem("sessionData")
                         } catch {
                             sessionStorage.removeItem("sessionData")
                         }
                     else
-                        H && e && sessionStorage.setItem("sessionData", JSON.stringify({
-                                userId: H,
-                                formSubmitted: W,
+                        Q && e && sessionStorage.setItem("sessionData", JSON.stringify({
+                                userId: Q,
+                                formSubmitted: V,
                                 token: e
                             }))
-                }, [H, W, Y]), (0, a.useEffect)(() => {
-                    M && localStorage.setItem(`${m}_${M}`, JSON.stringify({
-                            answers: D,
-                            currentQuestion: $,
+                }, [Q, V, X]), (0, a.useEffect)(() => {
+                    R && localStorage.setItem(`${m}_${R}`, JSON.stringify({
+                            answers: F,
+                            currentQuestion: U,
                             timestamp: Date.now()
                         }))
-                }, [M, D, $]), (0, a.useEffect)(() => {
-                    const e = E.get("quiz_status");
-                    "done" === e && X(!0),
-                    "stopped" === e && ee(!0),
-                    "saved" === e && J(!0)
+                }, [R, F, U]), (0, a.useEffect)(() => {
+                    const e = C.get("quiz_status");
+                    "done" === e && G(!0),
+                    "stopped" === e && te(!0),
+                    "saved" === e && Z(!0)
                 }, []), (0, a.useEffect)(() => {
-                    if (M)
+                    if (R)
                         try {
-                            const e = localStorage.getItem(`${m}_${M}`);
+                            const e = localStorage.getItem(`${m}_${R}`);
                             if (!e)
                                 return;
                             const { timestamp: t } = JSON.parse(e);
-                            Date.now() - t > 864e5 && localStorage.removeItem(`${m}_${M}`)
+                            Date.now() - t > 864e5 && localStorage.removeItem(`${m}_${R}`)
                         } catch {}
-                }, [M]), q || W && 0 === O.length)return (0, o.jsxs)("div", {
-                className: N("min-h-screen w-full flex flex-col items-center justify-center bg-primed-midnight-teal text-white"),
-                style: _,
+                }, [R]), K || V && 0 === I.length)return (0, o.jsxs)("div", {
+                className: E("min-h-screen w-full flex flex-col items-center justify-center bg-primed-midnight-teal text-white"),
+                style: N,
                 children: [(0, o.jsx)("div", {
                         className: "animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#003739]"
                     }), (0, o.jsx)("p", {
@@ -8396,10 +8397,10 @@
                         children: "Loading..."
                     })]
             });
-        if (Y)
+        if (X)
             return (0, o.jsx)("div", {
-                className: N("min-h-screen w-full flex flex-col items-center justify-center py-12 px-4 bg-primed-midnight-teal text-white"),
-                style: _,
+                className: E("min-h-screen w-full flex flex-col items-center justify-center py-12 px-4 bg-primed-midnight-teal text-white"),
+                style: N,
                 children: (0, o.jsx)("div", {
                     className: "max-w-2xl w-full",
                     children: (0, o.jsxs)("div", {
@@ -8426,7 +8427,7 @@
                                 children: "That's it! You're all done."
                             }), (0, o.jsxs)("p", {
                                 className: "text-lg text-slate-300 mb-6 leading-relaxed",
-                                children: ["Thank you for completing the questionnaire. We look forward to discussing your", " ", Te, " health journey in your upcoming consultation."]
+                                children: ["Thank you for completing the questionnaire. We look forward to discussing your", " ", Me, " health journey in your upcoming consultation."]
                             }), (0, o.jsx)("div", {
                                 className: "bg-teal-500/10 border border-teal-100 rounded-xl p-6 mb-8",
                                 children: (0, o.jsx)("p", {
@@ -8435,16 +8436,16 @@
                                 })
                             }), (0, o.jsx)("a", {
                                 href: `${u()}/patient`,
-                                className: b || `w-full block text-center ${$e}`,
+                                className: w || `w-full block text-center ${Ue}`,
                                 children: "Login To Your Dashboard"
                             })]
                     })
                 })
             });
-        if (G)
+        if (J)
             return (0, o.jsx)("div", {
-                className: N("min-h-screen w-full flex flex-col items-center justify-center py-12 px-4 bg-primed-midnight-teal text-white"),
-                style: _,
+                className: E("min-h-screen w-full flex flex-col items-center justify-center py-12 px-4 bg-primed-midnight-teal text-white"),
+                style: N,
                 children: (0, o.jsx)("div", {
                     className: "max-w-2xl w-full",
                     children: (0, o.jsxs)("div", {
@@ -8471,7 +8472,7 @@
                                 children: "Your Progress Is Saved!"
                             }), (0, o.jsxs)("p", {
                                 className: "text-lg text-slate-300 mb-6 leading-relaxed",
-                                children: ["Login anytime to your account to continue your questionnaire for the ", Te, " ", "telehealth assessment from where you stopped!"]
+                                children: ["Login anytime to your account to continue your questionnaire for the ", Me, " ", "telehealth assessment from where you stopped!"]
                             }), (0, o.jsx)("div", {
                                 className: "bg-teal-500/10 border border-teal-100 rounded-xl p-6 mb-8",
                                 children: (0, o.jsx)("p", {
@@ -8480,21 +8481,21 @@
                                 })
                             }), (0, o.jsx)("a", {
                                 href: `${u()}/patient`,
-                                className: b || `w-full block text-center ${$e}`,
+                                className: w || `w-full block text-center ${Ue}`,
                                 children: "Login To Your Dashboard"
                             })]
                     })
                 })
             });
-        if (Z) {
+        if (ee) {
             try {
-                M && localStorage.removeItem(`${m}_${M}`),
+                R && localStorage.removeItem(`${m}_${R}`),
                 localStorage.removeItem(m),
                 sessionStorage.clear()
             } catch {}
             return (0, o.jsx)("div", {
-                className: N("min-h-screen w-full flex flex-col items-center justify-center py-12 px-4 bg-primed-midnight-teal text-white"),
-                style: _,
+                className: E("min-h-screen w-full flex flex-col items-center justify-center py-12 px-4 bg-primed-midnight-teal text-white"),
+                style: N,
                 children: (0, o.jsx)("div", {
                     className: "max-w-2xl w-full",
                     children: (0, o.jsxs)("div", {
@@ -8539,14 +8540,14 @@
                 })
             })
         }
-        const $e = b || "font-semibold rounded-xl px-8 py-4 hover:opacity-90 transition-opacity shadow-lg hover:shadow-xl bg-[#003739] text-white",
-        Ae = b || `w-full ${$e}`,
-        Ue = b || "group font-semibold rounded-full px-10 py-4 hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center gap-3 bg-[#003739] text-white",
-        Be = e => y ? `${y} ${Se[e] ? "border-red-500 focus:ring-red-400" : ""}`.trim() : "w-full rounded-xl border px-4 py-3.5 focus:outline-none focus:ring-2 transition-all " + (Se[e] ? "border-red-500 focus:ring-red-400" : "border-[#faf08c] bg-white/5 text-white placeholder:text-white/40 focus:ring-[#003739] focus:border-transparent hover:border-[#faf08c]");
+        const Ue = w || "font-semibold rounded-xl px-8 py-4 hover:opacity-90 transition-opacity shadow-lg hover:shadow-xl bg-[#003739] text-white",
+        Ae = w || `w-full ${Ue}`,
+        Be = w || "group font-semibold rounded-full px-10 py-4 hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center gap-3 bg-[#003739] text-white",
+        We = e => b ? `${b} ${_e[e] ? "border-red-500 focus:ring-red-400" : ""}`.trim() : "w-full rounded-xl border px-4 py-3.5 focus:outline-none focus:ring-2 transition-all " + (_e[e] ? "border-red-500 focus:ring-red-400" : "border-[#faf08c] bg-white/5 text-white placeholder:text-white/40 focus:ring-[#003739] focus:border-transparent hover:border-[#faf08c]");
         return (0, o.jsxs)(o.Fragment, {
-            children: [!ie && W && (0, o.jsx)("div", {
-                    className: N("min-h-screen w-full flex flex-col items-center justify-center py-12 px-4 bg-primed-midnight-teal text-white"),
-                    style: _,
+            children: [!ue && V && (0, o.jsx)("div", {
+                    className: E("min-h-screen w-full flex flex-col items-center justify-center py-12 px-4 bg-primed-midnight-teal text-white"),
+                    style: N,
                     children: (0, o.jsx)("div", {
                         className: "max-w-lg w-full",
                         children: (0, o.jsxs)("div", {
@@ -8572,62 +8573,62 @@
                                             children: "Ready to Begin?"
                                         }), (0, o.jsxs)("p", {
                                             className: "text-slate-300 leading-relaxed",
-                                            children: ["Complete your ", Te, " questionnaire so we can provide you with the best personalized care."]
+                                            children: ["Complete your ", Me, " questionnaire so we can provide you with the best personalized care."]
                                         })]
                                 }), (0, o.jsx)("button", {
                                     className: Ae,
-                                    onClick: () => ue(!0),
+                                    onClick: () => se(!0),
                                     children: "Start Questionnaire"
                                 })]
                         })
                     })
-                }), !(!ie && W) && (0, o.jsx)("div", {
-                    className: N(!W || ie ? "flex min-h-screen w-full justify-center bg-primed-midnight-teal text-white" : "container mx-auto py-8 lg:py-12 grid grid-cols-1 gap-8 bg-primed-midnight-teal text-white"),
-                    style: _,
+                }), !(!ue && V) && (0, o.jsx)("div", {
+                    className: E(!V || ue ? "flex min-h-screen w-full justify-center bg-primed-midnight-teal text-white" : "container mx-auto py-8 lg:py-12 grid grid-cols-1 gap-8 bg-primed-midnight-teal text-white"),
+                    style: N,
                     children: (0, o.jsxs)("div", {
-                        className: !W || ie ? "w-full max-w-4xl flex flex-col justify-center px-6 md:px-12 py-12 relative" : "flex flex-col items-center",
-                        children: [ie && (0, o.jsxs)("div", {
+                        className: !V || ue ? "w-full max-w-4xl flex flex-col justify-center px-6 md:px-12 py-12 relative" : "flex flex-col items-center",
+                        children: [ue && (0, o.jsxs)("div", {
                                 className: "w-full mb-8 flex items-center justify-between",
                                 children: [(0, o.jsx)("div", {}), (0, o.jsxs)("button", {
                                         onClick: async function () {
-                                            fe(!0);
+                                            pe(!0);
                                             try {
                                                 await f("/register/complete", {
-                                                    user_id: H || sessionStorage.getItem("userId"),
-                                                    sex_at_birth: D.sex_at_birth,
-                                                    pregnancy_status: D.pregnancy_status,
-                                                    date_of_birth: D.date_of_birth,
-                                                    height: D.height,
-                                                    weight: D.weight,
-                                                    has_medical_conditions: D.has_medical_conditions,
-                                                    medical_conditions_details: D.medical_conditions_details,
-                                                    has_family_history: D.has_family_history,
-                                                    family_history_details: D.family_history_details,
-                                                    taking_medications: D.taking_medications,
-                                                    medications_details: D.medications_details,
-                                                    has_allergies: D.has_allergies,
-                                                    allergies_details: D.allergies_details,
-                                                    has_additional_info: D.has_additional_info,
-                                                    additional_info_details: D.additional_info_details,
-                                                    medicare_number: D.medicare_number,
-                                                    medicare_expiry: D.medicare_expiry ? s(D.medicare_expiry, "yyyy-MM-dd") : null,
-                                                    individual_reference_number: D.individual_reference_number,
-                                                    referral_source: D.referral_source,
+                                                    user_id: Q || sessionStorage.getItem("userId"),
+                                                    sex_at_birth: F.sex_at_birth,
+                                                    pregnancy_status: F.pregnancy_status,
+                                                    date_of_birth: F.date_of_birth,
+                                                    height: F.height,
+                                                    weight: F.weight,
+                                                    has_medical_conditions: F.has_medical_conditions,
+                                                    medical_conditions_details: F.medical_conditions_details,
+                                                    has_family_history: F.has_family_history,
+                                                    family_history_details: F.family_history_details,
+                                                    taking_medications: F.taking_medications,
+                                                    medications_details: F.medications_details,
+                                                    has_allergies: F.has_allergies,
+                                                    allergies_details: F.allergies_details,
+                                                    has_additional_info: F.has_additional_info,
+                                                    additional_info_details: F.additional_info_details,
+                                                    medicare_number: F.medicare_number,
+                                                    medicare_expiry: F.medicare_expiry ? s(F.medicare_expiry, "yyyy-MM-dd") : null,
+                                                    individual_reference_number: F.individual_reference_number,
+                                                    referral_source: F.referral_source,
                                                     treatment_id: t,
                                                     is_completed: !1
                                                 });
-                                                const e = new URLSearchParams(E.toString());
-                                                J(!0),
+                                                const e = new URLSearchParams(C.toString());
+                                                Z(!0),
                                                 e.set("quiz_status", "saved"),
-                                                w.replace(`${x}?${e.toString()}`),
+                                                x.replace(`${k}?${e.toString()}`),
                                                 sessionStorage.clear(),
                                                 localStorage.removeItem(m),
-                                                localStorage.removeItem(`${m}_${M}`)
+                                                localStorage.removeItem(`${m}_${R}`)
                                             } catch (e) {
                                                 console.error("Save progress error:", e),
                                                 alert("An error occurred while saving progress. Please check the console.")
                                             } finally {
-                                                fe(!1)
+                                                pe(!1)
                                             }
                                         },
                                         className: "group flex items-center text-[#faf08c] gap-2.5 bg-white/5 border hover:bg-white/10 px-5 py-2.5 rounded-full font-medium transition-all duration-300 shadow-sm hover:shadow border-[#faf08c]",
@@ -8648,7 +8649,7 @@
                                                 children: "Save Progress"
                                             })]
                                     })]
-                            }), W ? ie && (0, o.jsxs)("div", {
+                            }), V ? ue && (0, o.jsxs)("div", {
                                 className: "w-full max-w-xl mx-auto",
                                 children: [(0, o.jsxs)("div", {
                                         className: "mb-8",
@@ -8659,47 +8660,47 @@
                                                         children: "Progress"
                                                     }), (0, o.jsxs)("span", {
                                                         className: "text-sm font-medium text-[#003739]",
-                                                        children: [Math.round(U), "%"]
+                                                        children: [Math.round(B), "%"]
                                                     })]
                                             }), (0, o.jsx)("div", {
                                                 className: "h-2 w-full bg-slate-100 rounded-full overflow-hidden",
                                                 children: (0, o.jsx)("div", {
                                                     className: "h-full transition-all duration-300 rounded-full bg-[#003739]",
                                                     style: {
-                                                        width: `${U}%`
+                                                        width: `${B}%`
                                                     }
                                                 })
                                             })]
                                     }), (0, o.jsxs)("div", {
                                         className: "py-4",
-                                        children: [O[$] && (0, o.jsx)(p, {
-                                                question: O[$],
-                                                index: $,
-                                                questions: O,
-                                                answers: D,
+                                        children: [I[U] && (0, o.jsx)(p, {
+                                                question: I[U],
+                                                index: U,
+                                                questions: I,
+                                                answers: F,
                                                 handleAnswer: function (e, t) {
-                                                    F(n => ({
+                                                    $(n => ({
                                                             ...n,
                                                             [e]: t
                                                         }))
                                                 },
-                                                errors: Se,
-                                                setErrors: _e,
-                                                medicareCheckbox: he,
-                                                setMedicareCheckbox: ge,
-                                                medicineCheckbox: ve,
-                                                setMedicineCheckbox: ye,
-                                                customInputClass: y
+                                                errors: _e,
+                                                setErrors: Ne,
+                                                medicareCheckbox: ge,
+                                                setMedicareCheckbox: ve,
+                                                medicineCheckbox: ye,
+                                                setMedicineCheckbox: be,
+                                                customInputClass: b
                                             }), (0, o.jsxs)("div", {
                                                 className: "flex items-center justify-between pt-10 mt-10 border-t border-slate-100",
                                                 children: [(0, o.jsxs)("button", {
                                                         onClick: function () {
-                                                            let e = $ - 1;
-                                                            for (; e >= 0 && !Re(e); )
+                                                            let e = U - 1;
+                                                            for (; e >= 0 && !Oe(e); )
                                                                 e--;
-                                                            e >= 0 && (A(e), B((e + 1) / O.length * 100))
+                                                            e >= 0 && (A(e), W((e + 1) / I.length * 100))
                                                         },
-                                                        disabled: 0 === $,
+                                                        disabled: 0 === U,
                                                         className: "group flex items-center gap-2 text-slate-500 font-medium disabled:opacity-0 disabled:cursor-not-allowed transition-all duration-300 px-4 py-2 rounded-lg hover:bg-white/5",
                                                         children: [(0, o.jsx)("svg", {
                                                                 className: "w-5 h-5 group-hover:-translate-x-1 transition-transform duration-300",
@@ -8713,38 +8714,38 @@
                                                                     d: "M15 19l-7-7 7-7"
                                                                 })
                                                             }), "Back"]
-                                                    }), $ < O.length - 1 ? (0, o.jsxs)("button", {
+                                                    }), U < I.length - 1 ? (0, o.jsxs)("button", {
                                                         onClick: function () {
-                                                            const e = O[$]?.key,
+                                                            const e = I[U]?.key,
                                                             t = "medicare_number" === e || "individual_reference_number" === e;
-                                                            if (O[$] && t && !he) {
-                                                                const e = String(D.medicare_number ?? "").trim(),
-                                                                t = String(D.individual_reference_number ?? "").trim();
+                                                            if (I[U] && t && !ge) {
+                                                                const e = String(F.medicare_number ?? "").trim(),
+                                                                t = String(F.individual_reference_number ?? "").trim();
                                                                 let n = !1;
-                                                                if (e ? /^\d{10}$/.test(e) || (_e(e => ({
+                                                                if (e ? /^\d{10}$/.test(e) || (Ne(e => ({
                                                                                 ...e,
                                                                                 question_15: "Medicare number must be 10 digits"
-                                                                            })), n = !0) : (_e(e => ({
+                                                                            })), n = !0) : (Ne(e => ({
                                                                                 ...e,
                                                                                 question_15: "Medicare number is required"
-                                                                            })), n = !0), t || (_e(e => ({
+                                                                            })), n = !0), t || (Ne(e => ({
                                                                                 ...e,
                                                                                 question_17: "Individual Reference Number is required"
                                                                             })), n = !0), n)
                                                                     return
                                                             }
-                                                            let n = $ + 1;
-                                                            if (1 === $ && "Yes" === D.pregnancy_status) {
-                                                                const e = new URLSearchParams(E.toString());
+                                                            let n = U + 1;
+                                                            if (1 === U && "Yes" === F.pregnancy_status) {
+                                                                const e = new URLSearchParams(C.toString());
                                                                 return e.set("quiz_status", "stopped"),
-                                                                ee(!0),
-                                                                void w.replace(`${x}?${e.toString()}`)
+                                                                te(!0),
+                                                                void x.replace(`${k}?${e.toString()}`)
                                                             }
-                                                            for (; n < O.length && !Re(n); )
+                                                            for (; n < I.length && !Oe(n); )
                                                                 n++;
-                                                            n < O.length && (A(n), B((n + 1) / O.length * 100))
+                                                            n < I.length && (A(n), W((n + 1) / I.length * 100))
                                                         },
-                                                        className: Ue,
+                                                        className: Be,
                                                         children: ["Continue", (0, o.jsx)("svg", {
                                                                 className: "w-5 h-5 group-hover:translate-x-1 transition-transform duration-300",
                                                                 fill: "none",
@@ -8759,57 +8760,57 @@
                                                             })]
                                                     }) : (0, o.jsx)("button", {
                                                         onClick: async function () {
-                                                            fe(!0);
+                                                            pe(!0);
                                                             try {
                                                                 await f("/register/complete", {
-                                                                    user_id: H || sessionStorage.getItem("userId"),
-                                                                    sex_at_birth: D.sex_at_birth,
-                                                                    pregnancy_status: D.pregnancy_status,
-                                                                    date_of_birth: D.date_of_birth,
-                                                                    height: D.height,
-                                                                    weight: D.weight,
-                                                                    has_medical_conditions: D.has_medical_conditions,
-                                                                    medical_conditions_details: D.medical_conditions_details,
-                                                                    has_family_history: D.has_family_history,
-                                                                    family_history_details: D.family_history_details,
-                                                                    taking_medications: D.taking_medications,
-                                                                    medications_details: D.medications_details,
-                                                                    has_allergies: D.has_allergies,
-                                                                    allergies_details: D.allergies_details,
-                                                                    has_additional_info: D.has_additional_info,
-                                                                    additional_info_details: D.additional_info_details,
-                                                                    medicare_number: D.medicare_number,
-                                                                    medicare_expiry: D.medicare_expiry ? s(D.medicare_expiry, "yyyy-MM") : null,
-                                                                    individual_reference_number: D.individual_reference_number,
-                                                                    referral_source: D.referral_source,
+                                                                    user_id: Q || sessionStorage.getItem("userId"),
+                                                                    sex_at_birth: F.sex_at_birth,
+                                                                    pregnancy_status: F.pregnancy_status,
+                                                                    date_of_birth: F.date_of_birth,
+                                                                    height: F.height,
+                                                                    weight: F.weight,
+                                                                    has_medical_conditions: F.has_medical_conditions,
+                                                                    medical_conditions_details: F.medical_conditions_details,
+                                                                    has_family_history: F.has_family_history,
+                                                                    family_history_details: F.family_history_details,
+                                                                    taking_medications: F.taking_medications,
+                                                                    medications_details: F.medications_details,
+                                                                    has_allergies: F.has_allergies,
+                                                                    allergies_details: F.allergies_details,
+                                                                    has_additional_info: F.has_additional_info,
+                                                                    additional_info_details: F.additional_info_details,
+                                                                    medicare_number: F.medicare_number,
+                                                                    medicare_expiry: F.medicare_expiry ? s(F.medicare_expiry, "yyyy-MM") : null,
+                                                                    individual_reference_number: F.individual_reference_number,
+                                                                    referral_source: F.referral_source,
                                                                     treatment_id: t,
                                                                     is_completed: !0
                                                                 });
                                                                 const e = {
                                                                     isAuthenticated: !0,
-                                                                    userName: xe.firstName || "Patient",
+                                                                    userName: ke.firstName || "Patient",
                                                                     panelLink: `${u()}/patient`
                                                                 };
                                                                 localStorage.setItem("user_auth", JSON.stringify(e)),
                                                                 window.dispatchEvent(new Event("auth-change"));
-                                                                const n = new URLSearchParams(E.toString());
+                                                                const n = new URLSearchParams(C.toString());
                                                                 n.set("quiz_status", "done"),
-                                                                X(!0),
-                                                                w.replace(`${x}?${n.toString()}`),
+                                                                G(!0),
+                                                                x.replace(`${k}?${n.toString()}`),
                                                                 sessionStorage.clear(),
                                                                 localStorage.removeItem(m),
-                                                                M && localStorage.removeItem(`${m}_${M}`),
-                                                                H && localStorage.removeItem(`${m}_USER_${H}_${t}`)
+                                                                R && localStorage.removeItem(`${m}_${R}`),
+                                                                Q && localStorage.removeItem(`${m}_USER_${Q}_${t}`)
                                                             } catch {
-                                                                w.push("/page/error")
+                                                                x.push("/page/error")
                                                             }
                                                             finally {
-                                                                fe(!1)
+                                                                pe(!1)
                                                             }
                                                         },
-                                                        disabled: de,
-                                                        className: `${Ue} ${de ? "opacity-60 cursor-not-allowed" : ""}`,
-                                                        children: de ? (0, o.jsxs)(o.Fragment, {
+                                                        disabled: fe,
+                                                        className: `${Be} ${fe ? "opacity-60 cursor-not-allowed" : ""}`,
+                                                        children: fe ? (0, o.jsxs)(o.Fragment, {
                                                             children: [(0, o.jsxs)("svg", {
                                                                     className: "animate-spin -ml-1 mr-2 h-5 w-5 text-white",
                                                                     xmlns: "http://www.w3.org/2000/svg",
@@ -8863,7 +8864,7 @@
                                             flexDirection: "column",
                                             gap: "1.25rem"
                                         },
-                                        onSubmit: Fe,
+                                        onSubmit: $e,
                                         children: [(0, o.jsxs)("div", {
                                                 style: {
                                                     display: "flex",
@@ -8879,13 +8880,13 @@
                                                                 type: "text",
                                                                 id: "firstName",
                                                                 name: "firstName",
-                                                                className: Be("firstName"),
+                                                                className: We("firstName"),
                                                                 placeholder: "First Name",
-                                                                value: xe.firstName,
-                                                                onChange: Oe
-                                                            }), Se.firstName && (0, o.jsx)("small", {
+                                                                value: ke.firstName,
+                                                                onChange: Ie
+                                                            }), _e.firstName && (0, o.jsx)("small", {
                                                                 className: "text-sm text-red-600 mt-1 block",
-                                                                children: Se.firstName
+                                                                children: _e.firstName
                                                             })]
                                                     }), (0, o.jsxs)("div", {
                                                         style: {
@@ -8896,13 +8897,13 @@
                                                                 type: "text",
                                                                 id: "lastName",
                                                                 name: "lastName",
-                                                                className: Be("lastName"),
+                                                                className: We("lastName"),
                                                                 placeholder: "Last Name",
-                                                                value: xe.lastName,
-                                                                onChange: Oe
-                                                            }), Se.lastName && (0, o.jsx)("small", {
+                                                                value: ke.lastName,
+                                                                onChange: Ie
+                                                            }), _e.lastName && (0, o.jsx)("small", {
                                                                 className: "text-sm text-red-600 mt-1 block",
-                                                                children: Se.lastName
+                                                                children: _e.lastName
                                                             })]
                                                     })]
                                             }), (0, o.jsxs)("div", {
@@ -8910,21 +8911,21 @@
                                                         type: "text",
                                                         id: "email",
                                                         name: "email",
-                                                        className: Be("email"),
+                                                        className: We("email"),
                                                         placeholder: "Email",
-                                                        value: xe.email,
-                                                        onChange: Oe
-                                                    }), Se.email && (0, o.jsx)("small", {
+                                                        value: ke.email,
+                                                        onChange: Ie
+                                                    }), _e.email && (0, o.jsx)("small", {
                                                         className: "text-sm text-red-600 mt-1 block",
-                                                        children: Se.email
+                                                        children: _e.email
                                                     })]
                                             }), (0, o.jsxs)("div", {
                                                 children: [(0, o.jsx)("input", {
                                                         id: "phone",
                                                         name: "phone",
                                                         type: "text",
-                                                        className: Be("phone"),
-                                                        value: xe.phone,
+                                                        className: We("phone"),
+                                                        value: ke.phone,
                                                         onChange: function (e) {
                                                             let t = e.target.value;
                                                             t.startsWith("+61 ") || (t = "+61 ");
@@ -8932,34 +8933,34 @@
                                                             n.startsWith("0") && n.length > 1 && (n = n[1] + n.slice(2)),
                                                             n.length > 9 && (n = n.slice(0, 9));
                                                             const r = "+61 " + n.replace(/(\d{3})(\d{3})(\d{3})?/, "$1 $2 $3").trim();
-                                                            ke(e => ({
+                                                            Se(e => ({
                                                                     ...e,
                                                                     phone: r
                                                                 }))
                                                         },
                                                         placeholder: "+61 4XX XXX XXX"
-                                                    }), Se.phone && (0, o.jsx)("small", {
+                                                    }), _e.phone && (0, o.jsx)("small", {
                                                         className: "text-sm text-red-600 mt-1 block",
-                                                        children: Se.phone
+                                                        children: _e.phone
                                                     })]
                                             }), (0, o.jsxs)("div", {
                                                 className: "relative",
                                                 children: [(0, o.jsx)("input", {
-                                                        value: Ee,
+                                                        value: Ce,
                                                         onChange: e => {
-                                                            Ce(e.target.value),
-                                                            oe(!1),
-                                                            De("address", e.target.value),
-                                                            "" === e.target.value && (ae(!1), ["streetNumber", "streetName", "suburb", "state", "postcode"].forEach(e => De(e, "")))
+                                                            Pe(e.target.value),
+                                                            ie(!1),
+                                                            Fe("address", e.target.value),
+                                                            "" === e.target.value && (le(!1), ["streetNumber", "streetName", "suburb", "state", "postcode"].forEach(e => Fe(e, "")))
                                                         },
                                                         placeholder: "Residential Address",
-                                                        className: Be("address")
-                                                    }), "OK" === ze && Ee && !le && (0, o.jsx)("div", {
+                                                        className: We("address")
+                                                    }), "OK" === Le && Ce && !oe && (0, o.jsx)("div", {
                                                         className: "absolute z-20 w-full border border-[#faf08c] bg-[#112726] rounded-xl mt-2 shadow-xl overflow-hidden",
                                                         children: (0, o.jsx)("ul", {
                                                             className: "max-h-60 overflow-y-auto",
                                                             role: "listbox",
-                                                            children: Le.map(({
+                                                            children: Te.map(({
                                                                     place_id: e,
                                                                     description: t
                                                                 }) => (0, o.jsx)("li", {
@@ -8969,16 +8970,16 @@
                                                                     style: {
                                                                         cursor: "pointer"
                                                                     },
-                                                                    onMouseDown: () => Ie(t),
+                                                                    onMouseDown: () => De(t),
                                                                     children: t
                                                                 }, e))
                                                         })
-                                                    }), Se.address && (0, o.jsx)("small", {
+                                                    }), _e.address && (0, o.jsx)("small", {
                                                         className: "text-sm text-red-600 mt-1 block",
-                                                        children: Se.address
+                                                        children: _e.address
                                                     })]
                                             }), (0, o.jsxs)("div", {
-                                                style: le ? {
+                                                style: oe ? {
                                                     display: "flex",
                                                     flexDirection: "column",
                                                     gap: "1rem"
@@ -9000,13 +9001,13 @@
                                                                 children: [(0, o.jsx)("input", {
                                                                         type: "text",
                                                                         name: "streetNumber",
-                                                                        value: xe.streetNumber,
+                                                                        value: ke.streetNumber,
                                                                         placeholder: "Street Number",
-                                                                        onChange: Oe,
-                                                                        className: Be("streetNumber")
-                                                                    }), Se.streetNumber && (0, o.jsx)("small", {
+                                                                        onChange: Ie,
+                                                                        className: We("streetNumber")
+                                                                    }), _e.streetNumber && (0, o.jsx)("small", {
                                                                         className: "text-sm text-red-600 mt-1 block",
-                                                                        children: Se.streetNumber
+                                                                        children: _e.streetNumber
                                                                     })]
                                                             }), (0, o.jsxs)("div", {
                                                                 style: {
@@ -9016,13 +9017,13 @@
                                                                 children: [(0, o.jsx)("input", {
                                                                         type: "text",
                                                                         name: "streetName",
-                                                                        value: xe.streetName,
+                                                                        value: ke.streetName,
                                                                         placeholder: "Street Name",
-                                                                        onChange: Oe,
-                                                                        className: Be("streetName")
-                                                                    }), Se.streetName && (0, o.jsx)("small", {
+                                                                        onChange: Ie,
+                                                                        className: We("streetName")
+                                                                    }), _e.streetName && (0, o.jsx)("small", {
                                                                         className: "text-sm text-red-600 mt-1 block",
-                                                                        children: Se.streetName
+                                                                        children: _e.streetName
                                                                     })]
                                                             })]
                                                     }), (0, o.jsxs)("div", {
@@ -9039,13 +9040,13 @@
                                                                 children: [(0, o.jsx)("input", {
                                                                         type: "text",
                                                                         name: "suburb",
-                                                                        value: xe.suburb,
+                                                                        value: ke.suburb,
                                                                         placeholder: "Suburb",
-                                                                        onChange: Oe,
-                                                                        className: Be("suburb")
-                                                                    }), Se.suburb && (0, o.jsx)("small", {
+                                                                        onChange: Ie,
+                                                                        className: We("suburb")
+                                                                    }), _e.suburb && (0, o.jsx)("small", {
                                                                         className: "text-sm text-red-600 mt-1 block",
-                                                                        children: Se.suburb
+                                                                        children: _e.suburb
                                                                     })]
                                                             }), (0, o.jsxs)("div", {
                                                                 style: {
@@ -9055,26 +9056,26 @@
                                                                 children: [(0, o.jsx)("input", {
                                                                         type: "text",
                                                                         name: "state",
-                                                                        value: xe.state,
+                                                                        value: ke.state,
                                                                         placeholder: "State",
-                                                                        onChange: Oe,
-                                                                        className: Be("state")
-                                                                    }), Se.state && (0, o.jsx)("small", {
+                                                                        onChange: Ie,
+                                                                        className: We("state")
+                                                                    }), _e.state && (0, o.jsx)("small", {
                                                                         className: "text-sm text-red-600 mt-1 block",
-                                                                        children: Se.state
+                                                                        children: _e.state
                                                                     })]
                                                             })]
                                                     }), (0, o.jsxs)("div", {
                                                         children: [(0, o.jsx)("input", {
                                                                 type: "text",
                                                                 name: "postcode",
-                                                                value: xe.postcode,
+                                                                value: ke.postcode,
                                                                 placeholder: "Post Code",
-                                                                onChange: Oe,
-                                                                className: Be("postcode")
-                                                            }), Se.postcode && (0, o.jsx)("small", {
+                                                                onChange: Ie,
+                                                                className: We("postcode")
+                                                            }), _e.postcode && (0, o.jsx)("small", {
                                                                 className: "text-sm text-red-600 mt-1 block",
-                                                                children: Se.postcode
+                                                                children: _e.postcode
                                                             })]
                                                     })]
                                             }), (0, o.jsxs)("div", {
@@ -9092,13 +9093,13 @@
                                                                 type: "password",
                                                                 id: "password",
                                                                 name: "password",
-                                                                className: Be("password"),
+                                                                className: We("password"),
                                                                 placeholder: "Password",
-                                                                value: xe.password,
-                                                                onChange: Oe
-                                                            }), Se.password && (0, o.jsx)("small", {
+                                                                value: ke.password,
+                                                                onChange: Ie
+                                                            }), _e.password && (0, o.jsx)("small", {
                                                                 className: "text-sm text-red-600 mt-1 block",
-                                                                children: Se.password
+                                                                children: _e.password
                                                             })]
                                                     }), (0, o.jsxs)("div", {
                                                         style: {
@@ -9109,13 +9110,13 @@
                                                                 type: "password",
                                                                 id: "confirmPassword",
                                                                 name: "confirmPassword",
-                                                                className: Be("confirmPassword"),
+                                                                className: We("confirmPassword"),
                                                                 placeholder: "Confirm Password",
-                                                                value: xe.confirmPassword,
-                                                                onChange: Oe
-                                                            }), Se.confirmPassword && (0, o.jsx)("small", {
+                                                                value: ke.confirmPassword,
+                                                                onChange: Ie
+                                                            }), _e.confirmPassword && (0, o.jsx)("small", {
                                                                 className: "text-sm text-red-600 mt-1 block",
-                                                                children: Se.confirmPassword
+                                                                children: _e.confirmPassword
                                                             })]
                                                     })]
                                             }), (0, o.jsxs)("div", {
@@ -9123,24 +9124,24 @@
                                                         type: "text",
                                                         id: "referral_code",
                                                         name: "referral_code",
-                                                        className: i(Be("referral_code"), te ? "opacity-50 cursor-not-allowed" : ""),
+                                                        className: i(We("referral_code"), ne ? "opacity-50 cursor-not-allowed" : ""),
                                                         placeholder: "Referral code",
-                                                        value: xe.referral_code,
-                                                        onChange: Oe,
-                                                        disabled: te
-                                                    }), Se.referral_code && (0, o.jsx)("small", {
+                                                        value: ke.referral_code,
+                                                        onChange: Ie,
+                                                        disabled: ne
+                                                    }), _e.referral_code && (0, o.jsx)("small", {
                                                         className: "text-sm text-red-600 mt-1 block",
-                                                        children: String(Se.referral_code)
+                                                        children: String(_e.referral_code)
                                                     })]
-                                            }), pe && (0, o.jsx)("div", {
+                                            }), me && (0, o.jsx)("div", {
                                                 className: "rounded-xl border border-red-200 bg-red-50 text-red-700 px-4 py-3 text-sm",
-                                                children: pe
+                                                children: me
                                             }), (0, o.jsx)("button", {
                                                 type: "submit",
-                                                className: `${Ae} mt-6 ${se ? "opacity-60 cursor-not-allowed" : ""}`,
-                                                onClick: Fe,
-                                                disabled: se,
-                                                children: se ? "Creating your account..." : "Create Account & Continue"
+                                                className: `${Ae} mt-6 ${ce ? "opacity-60 cursor-not-allowed" : ""}`,
+                                                onClick: $e,
+                                                disabled: ce,
+                                                children: ce ? "Creating your account..." : "Create Account & Continue"
                                             }), (0, o.jsx)("div", {
                                                 className: "text-center mt-8",
                                                 children: (0, o.jsxs)("p", {
@@ -9162,32 +9163,34 @@
         const t = e.getAttribute("data-treatment-name") || "",
         n = e.getAttribute("data-id") || "",
         r = e.getAttribute("data-maps-key-url") || "",
-        i = e.getAttribute("data-class") || "",
-        u = e.getAttribute("data-input-class") || "",
-        s = e.getAttribute("data-button-class") || "",
-        c = e.getAttribute("data-style") || "",
-        d = e.getAttribute("data-theme-bg") || "",
-        f = e.getAttribute("data-theme-text") || "",
-        p = e.getAttribute("data-theme-accent") || "",
-        m = e.getAttribute("data-theme-button") || "";
+        i = e.getAttribute("data-csrf-url") || "",
+        u = e.getAttribute("data-class") || "",
+        s = e.getAttribute("data-input-class") || "",
+        c = e.getAttribute("data-button-class") || "",
+        d = e.getAttribute("data-style") || "",
+        f = e.getAttribute("data-theme-bg") || "",
+        p = e.getAttribute("data-theme-text") || "",
+        m = e.getAttribute("data-theme-accent") || "",
+        g = e.getAttribute("data-theme-button") || "";
         console.log("[SurveyQuestions] Mounting to", e, "treatmentName:", t, "id:", n);
-        const g = l.createRoot(e);
-        return g.render((0, o.jsx)(a.StrictMode, {
+        const v = l.createRoot(e);
+        return v.render((0, o.jsx)(a.StrictMode, {
                 children: (0, o.jsx)(h, {
                     treatmentName: t,
                     id: n,
                     mapsKeyUrl: r,
-                    extraClass: i,
-                    customInputClass: u,
-                    customButtonClass: s,
-                    inlineStyle: c,
-                    themeBg: d,
-                    themeText: f,
-                    themeAccent: p,
-                    themeButton: m
+                    csrfUrl: i,
+                    extraClass: u,
+                    customInputClass: s,
+                    customButtonClass: c,
+                    inlineStyle: d,
+                    themeBg: f,
+                    themeText: p,
+                    themeAccent: m,
+                    themeButton: g
                 })
             })),
-        g
+        v
     }
     function v() {
         const e = document.getElementById("survey-root");
@@ -9205,7 +9208,7 @@
             themeText: i,
             themeAccent: u,
             themeButton: s
-        } = {}) => ("string" == typeof e && (e = document.querySelector(e)), e ? (void 0 !== t && e.setAttribute("data-treatment-name", t), void 0 !== n && e.setAttribute("data-id", n), void 0 !== r && e.setAttribute("data-maps-key-url", r), void 0 !== a && e.setAttribute("data-class", a), void 0 !== inputClass && e.setAttribute("data-input-class", inputClass), void 0 !== buttonClass && e.setAttribute("data-button-class", buttonClass), void 0 !== l && e.setAttribute("data-style", l), void 0 !== o && e.setAttribute("data-theme-bg", o), void 0 !== i && e.setAttribute("data-theme-text", i), void 0 !== u && e.setAttribute("data-theme-accent", u), void 0 !== s && e.setAttribute("data-theme-button", s), g(e)) : (console.error("[SurveyQuestions] mount(): element not found"), null))
+        } = {}) => ("string" == typeof e && (e = document.querySelector(e)), e ? (void 0 !== t && e.setAttribute("data-treatment-name", t), void 0 !== n && e.setAttribute("data-id", n), void 0 !== r && e.setAttribute("data-maps-key-url", r), void 0 !== csrfUrl && e.setAttribute("data-csrf-url", csrfUrl), void 0 !== a && e.setAttribute("data-class", a), void 0 !== inputClass && e.setAttribute("data-input-class", inputClass), void 0 !== buttonClass && e.setAttribute("data-button-class", buttonClass), void 0 !== l && e.setAttribute("data-style", l), void 0 !== o && e.setAttribute("data-theme-bg", o), void 0 !== i && e.setAttribute("data-theme-text", i), void 0 !== u && e.setAttribute("data-theme-accent", u), void 0 !== s && e.setAttribute("data-theme-button", s), g(e)) : (console.error("[SurveyQuestions] mount(): element not found"), null))
     };
     const y = h;
     var b = window;
