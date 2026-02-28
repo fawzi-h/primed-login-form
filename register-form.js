@@ -264,31 +264,6 @@ class RegisterForm extends HTMLElement {
     </div>
   </fieldset>
 
-  <!-- Referral (make optional if it is optional) -->
-  <div class="form_field-wrapper">
-    <label class="sr-only" for="Referral-Code">Referral code</label>
-    <input
-      class="form_input w-input"
-      maxlength="256"
-      name="Referral-Code"
-      placeholder="Referral Code"
-      type="text"
-      id="Referral-Code"
-      autocomplete="off"
-    >
-  </div>
-
-  <!-- Submit -->
-  <div class="w-layout-grid form-button-wrapper">
-    <input
-      type="submit"
-      data-wait="Please wait..."
-      class="button is-full-width w-button"
-      value="Create account & Continue"
-      aria-describedby="form-help"
-    >
-  </div>
-
   <!-- Turnstile -->
   <input
     type="hidden"
