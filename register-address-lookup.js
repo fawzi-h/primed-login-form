@@ -4,8 +4,8 @@
   // =========================
   // CONFIG (edit if needed)
   // =========================
-  const LOOKUP_ID = "address-lookup";
-  const DETAILS_WRAPPER_ID = "address-details-wrapper"; // wrapper to unhide after selection
+  const LOOKUP_ID = "register-address";          // <-- your autocomplete input id
+  const DETAILS_WRAPPER_ID = "address-details-wrapper"; // optional wrapper to unhide (set to null if not used)
 
   const FIELD_IDS = {
     streetNumber: "streetNumber",
@@ -70,7 +70,7 @@
   }
 
   // =========================
-  // Google address parsing
+  // Parse Google address_components
   // =========================
   function getComponent(place, type) {
     if (!place || !place.address_components) return null;
@@ -99,17 +99,17 @@
     const stateEl = $(FIELD_IDS.state);
     const postcodeEl = $(FIELD_IDS.postcode);
 
-    // Fill
+    // Fill values
     if (streetNumberEl) streetNumberEl.value = streetNumberC ? streetNumberC.long_name : "";
     if (streetNameEl) streetNameEl.value = routeC ? routeC.long_name : "";
     if (suburbEl) suburbEl.value = suburbC ? suburbC.long_name : "";
     if (stateEl) stateEl.value = stateC ? (stateC.short_name || stateC.long_name) : "";
     if (postcodeEl) postcodeEl.value = postcodeC ? postcodeC.long_name : "";
 
-    // Show detailed fields
-    show($(DETAILS_WRAPPER_ID));
+    // Unhide details if you are hiding them initially
+    if (DETAILS_WRAPPER_ID) show($(DETAILS_WRAPPER_ID));
 
-    // If some components are missing, flag those fields (user can complete manually)
+    // Flag missing bits so user can complete manually
     if (streetNumberEl) streetNumberC ? clearError(streetNumberEl) : setError(streetNumberEl, "Street number missing. Please enter it.");
     if (streetNameEl) routeC ? clearError(streetNameEl) : setError(streetNameEl, "Street name missing. Please enter it.");
     if (suburbEl) suburbC ? clearError(suburbEl) : setError(suburbEl, "Suburb missing. Please enter it.");
@@ -125,11 +125,16 @@
     const maxWaitMs = 15000;
 
     (function tick() {
-      const ready = window.google && google.maps && google.maps.places && google.maps.places.Autocomplete;
+      const ready =
+        window.google &&
+        google.maps &&
+        google.maps.places &&
+        typeof google.maps.places.Autocomplete === "function";
+
       if (ready) return onReady();
 
       if (Date.now() - start > maxWaitMs) {
-        setError(lookupInput, "Address lookup is unavailable right now. Please enter your address manually.");
+        setError(lookupInput, "Address lookup is unavailable. Please enter your address manually.");
         return;
       }
 
