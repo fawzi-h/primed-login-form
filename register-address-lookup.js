@@ -12,16 +12,31 @@
     postcode: "postcode",
   };
 
+  // Match your form spacing. If your form uses a different rhythm, change this.
+  const ROW_GAP_PX = 16;
+
   function injectStyles() {
-    if (document.getElementById("primed-address-anim-styles")) return;
+    if (document.getElementById("primed-address-styles")) return;
 
     const style = document.createElement("style");
-    style.id = "primed-address-anim-styles";
+    style.id = "primed-address-styles";
     style.textContent = `
+      /* Animation */
       .addr-anim {
         overflow: hidden;
         transition: max-height 260ms ease, opacity 220ms ease;
         will-change: max-height, opacity;
+      }
+
+      /* Spacing inside the detailed address wrapper */
+      #${DETAILS_WRAPPER_ID} > * + * {
+        margin-top: ${ROW_GAP_PX}px;
+      }
+
+      /* If your 2-col rows contain form_field-wrapper children,
+         this adds a little internal vertical space if they ever wrap */
+      #${DETAILS_WRAPPER_ID} .form_field-2col .form_field-wrapper + .form_field-wrapper {
+        margin-top: 0;
       }
     `;
     document.head.appendChild(style);
@@ -76,14 +91,11 @@
     if (!el) return;
 
     el.classList.add("addr-anim");
-
-    // Make it render (no gap before this because it was display:none)
     el.style.display = "block";
     el.style.opacity = "0";
     el.style.maxHeight = "0px";
     el.style.pointerEvents = "none";
 
-    // Force reflow then animate open
     void el.offsetHeight;
 
     const target = el.scrollHeight;
@@ -91,7 +103,6 @@
     el.style.maxHeight = target + "px";
     el.style.pointerEvents = "auto";
 
-    // Remove height cap after animation so it adapts
     setTimeout(function () {
       el.style.maxHeight = "none";
     }, 320);
@@ -102,7 +113,6 @@
 
     el.classList.add("addr-anim");
 
-    // If maxHeight is none, set it to current height so we can animate down
     const h = el.scrollHeight;
     el.style.maxHeight = h + "px";
     el.style.opacity = "1";
@@ -114,7 +124,6 @@
     el.style.opacity = "0";
     el.style.pointerEvents = "none";
 
-    // After transition ends, remove from layout completely (no gap)
     setTimeout(function () {
       el.style.display = "none";
     }, 300);
@@ -151,7 +160,7 @@
 
     lookupInput.__primedBound = true;
 
-    // Ensure initial no-gap hidden state
+    // Ensure initial hidden state (no gap)
     wrapper.style.display = "none";
     wrapper.style.opacity = "0";
     wrapper.style.maxHeight = "0px";
@@ -184,7 +193,7 @@
         });
       },
       function () {
-        // If Google fails, just show fields (no animation needed)
+        // If Google fails, show fields so user can type
         wrapper.style.display = "block";
         wrapper.style.opacity = "1";
         wrapper.style.maxHeight = "none";
