@@ -8388,7 +8388,7 @@
                             Date.now() - t > 864e5 && localStorage.removeItem(`${m}_${R}`)
                         } catch {}
                 }, [R]), K || V && 0 === I.length)return (0, o.jsxs)("div", {
-                className: E("min-h-screen w-full flex flex-col items-center justify-center bg-primed-midnight-teal text-white"),
+                className: E("w-full flex flex-col items-center justify-center text-white"),
                 style: N,
                 children: [(0, o.jsx)("div", {
                         className: "animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#003739]"
@@ -8399,7 +8399,7 @@
             });
         if (X)
             return (0, o.jsx)("div", {
-                className: E("min-h-screen w-full flex flex-col items-center justify-center py-12 px-4 bg-primed-midnight-teal text-white"),
+                className: E("w-full flex flex-col items-center justify-center py-12 px-4 text-white"),
                 style: N,
                 children: (0, o.jsx)("div", {
                     className: "max-w-2xl w-full",
@@ -8444,7 +8444,7 @@
             });
         if (J)
             return (0, o.jsx)("div", {
-                className: E("min-h-screen w-full flex flex-col items-center justify-center py-12 px-4 bg-primed-midnight-teal text-white"),
+                className: E("w-full flex flex-col items-center justify-center py-12 px-4 text-white"),
                 style: N,
                 children: (0, o.jsx)("div", {
                     className: "max-w-2xl w-full",
@@ -8494,7 +8494,7 @@
                 sessionStorage.clear()
             } catch {}
             return (0, o.jsx)("div", {
-                className: E("min-h-screen w-full flex flex-col items-center justify-center py-12 px-4 bg-primed-midnight-teal text-white"),
+                className: E("w-full flex flex-col items-center justify-center py-12 px-4 text-white"),
                 style: N,
                 children: (0, o.jsx)("div", {
                     className: "max-w-2xl w-full",
@@ -8546,7 +8546,7 @@
         We = e => b ? `${b} ${_e[e] ? "border-red-500 focus:ring-red-400" : ""}`.trim() : "w-full rounded-xl border px-4 py-3.5 focus:outline-none focus:ring-2 transition-all " + (_e[e] ? "border-red-500 focus:ring-red-400" : "border-[#faf08c] bg-transparent text-white placeholder:text-white/40 focus:ring-[#003739] focus:border-transparent hover:border-[#faf08c]");
         return (0, o.jsxs)(o.Fragment, {
             children: [!ue && V && (0, o.jsx)("div", {
-                    className: E("min-h-screen w-full flex flex-col items-center justify-center py-12 px-4 bg-primed-midnight-teal text-white"),
+                    className: E("w-full flex flex-col items-center justify-center py-12 px-4 text-white"),
                     style: N,
                     children: (0, o.jsx)("div", {
                         className: "max-w-lg w-full",
@@ -8583,7 +8583,7 @@
                         })
                     })
                 }), !(!ue && V) && (0, o.jsx)("div", {
-                    className: E(!V || ue ? "flex min-h-screen w-full justify-center bg-primed-midnight-teal text-white" : "container mx-auto py-8 lg:py-12 grid grid-cols-1 gap-8 bg-primed-midnight-teal text-white"),
+                    className: E(!V || ue ? "flex w-full justify-center text-white" : "container mx-auto py-8 lg:py-12 grid grid-cols-1 gap-8 text-white"),
                     style: N,
                     children: (0, o.jsxs)("div", {
                         className: !V || ue ? "w-full max-w-4xl flex flex-col justify-center px-6 md:px-12 py-12 relative" : "flex flex-col items-center",
