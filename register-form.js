@@ -1,3 +1,229 @@
+(function () {
+  "use strict";
+
+  // =========================
+  // CONFIG
+  // =========================
+  const LOOKUP_ID = "register-address";
+  const DETAILS_WRAPPER_ID = "address-details-wrapper";
+
+  const FIELD_IDS = {
+    streetNumber: "streetNumber",
+    streetName: "streetName",
+    suburb: "suburb",
+    state: "state",
+    postcode: "postcode",
+  };
+
+  // =========================
+  // CSS injection (animation + errors)
+  // =========================
+  function injectStyles() {
+    if (document.getElementById("primed-address-anim-styles")) return;
+
+    const style = document.createElement("style");
+    style.id = "primed-address-anim-styles";
+    style.textContent = `
+      /* Reveal animation */
+      .addr-hidden {
+        display: none !important;
+      }
+
+      .addr-collapsed {
+        display: block !important;
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        pointer-events: none;
+        transition: max-height 260ms ease, opacity 220ms ease;
+      }
+
+      .addr-expanded {
+        display: block !important;
+        max-height: 900px; /* large enough for the group */
+        opacity: 1;
+        overflow: visible;
+        pointer-events: auto;
+      }
+
+      /* Validation styling */
+      .is-invalid {
+        border-color: #d93025 !important;
+      }
+      .field-error {
+        color: #d93025;
+        font-size: 0.875rem;
+        margin-top: 6px;
+        display: none;
+      }
+      .field-error.is-visible {
+        display: block;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function $(id) {
+    return document.getElementById(id);
+  }
+
+  // =========================
+  // Animated show/hide
+  // =========================
+  function hideAnimated(el) {
+    if (!el) return;
+
+    // Start from expanded -> collapsed
+    el.classList.remove("addr-expanded");
+    el.classList.add("addr-collapsed");
+
+    // After transition, set display none
+    window.setTimeout(function () {
+      el.classList.add("addr-hidden");
+    }, 280);
+  }
+
+  function showAnimated(el) {
+    if (!el) return;
+
+    // Ensure it can animate from collapsed state
+    el.classList.remove("addr-hidden");
+    el.classList.add("addr-collapsed");
+
+    // Trigger reflow so transition applies
+    void el.offsetHeight;
+
+    el.classList.add("addr-expanded");
+    el.classList.remove("addr-collapsed");
+  }
+
+  // =========================
+  // Address parsing helpers
+  // =========================
+  function getComponent(place, type) {
+    if (!place || !place.address_components) return null;
+    for (const c of place.address_components) {
+      if (c.types && c.types.indexOf(type) > -1) return c;
+    }
+    return null;
+  }
+
+  function populateAddress(place) {
+    const streetNumberC = getComponent(place, "street_number");
+    const routeC = getComponent(place, "route");
+
+    const suburbC =
+      getComponent(place, "locality") ||
+      getComponent(place, "postal_town") ||
+      getComponent(place, "sublocality") ||
+      getComponent(place, "sublocality_level_1");
+
+    const stateC = getComponent(place, "administrative_area_level_1");
+    const postcodeC = getComponent(place, "postal_code");
+
+    const streetNumberEl = $(FIELD_IDS.streetNumber);
+    const streetNameEl = $(FIELD_IDS.streetName);
+    const suburbEl = $(FIELD_IDS.suburb);
+    const stateEl = $(FIELD_IDS.state);
+    const postcodeEl = $(FIELD_IDS.postcode);
+
+    if (streetNumberEl) streetNumberEl.value = streetNumberC ? streetNumberC.long_name : "";
+    if (streetNameEl) streetNameEl.value = routeC ? routeC.long_name : "";
+    if (suburbEl) suburbEl.value = suburbC ? suburbC.long_name : "";
+    if (stateEl) stateEl.value = stateC ? (stateC.short_name || stateC.long_name) : "";
+    if (postcodeEl) postcodeEl.value = postcodeC ? postcodeC.long_name : "";
+  }
+
+  function clearAddressFields() {
+    const ids = Object.values(FIELD_IDS);
+    ids.forEach(function (id) {
+      const el = $(id);
+      if (el) el.value = "";
+    });
+  }
+
+  // =========================
+  // Wait for Google Places
+  // =========================
+  function waitForPlaces(onReady, onFail) {
+    const start = Date.now();
+    const maxWaitMs = 15000;
+
+    (function tick() {
+      const ready =
+        window.google &&
+        google.maps &&
+        google.maps.places &&
+        typeof google.maps.places.Autocomplete === "function";
+
+      if (ready) return onReady();
+
+      if (Date.now() - start > maxWaitMs) {
+        if (typeof onFail === "function") onFail();
+        return;
+      }
+
+      setTimeout(tick, 200);
+    })();
+  }
+
+  // =========================
+  // Init
+  // =========================
+  function init() {
+    injectStyles();
+
+    const lookupInput = $(LOOKUP_ID);
+    const detailsWrapper = $(DETAILS_WRAPPER_ID);
+
+    if (!lookupInput || !detailsWrapper) return;
+
+    // Ensure initial hidden state (even if designer accidentally shows it)
+    detailsWrapper.classList.add("addr-hidden");
+    detailsWrapper.classList.remove("addr-expanded", "addr-collapsed");
+
+    waitForPlaces(
+      function () {
+        const autocomplete = new google.maps.places.Autocomplete(lookupInput, {
+          types: ["address"],
+          componentRestrictions: { country: "au" },
+          fields: ["address_components", "formatted_address"],
+        });
+
+        autocomplete.addListener("place_changed", function () {
+          const place = autocomplete.getPlace();
+          if (!place || !place.address_components) return;
+
+          if (place.formatted_address) lookupInput.value = place.formatted_address;
+
+          populateAddress(place);
+          showAnimated(detailsWrapper);
+        });
+
+        // Hide and clear if user deletes the lookup field value
+        lookupInput.addEventListener("input", function () {
+          if (!lookupInput.value.trim()) {
+            clearAddressFields();
+            hideAnimated(detailsWrapper);
+          }
+        });
+      },
+      function () {
+        // If Places never loads, do not block the user: show fields for manual entry
+        showAnimated(detailsWrapper);
+      }
+    );
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+})();
+
+
+
 class RegisterForm extends HTMLElement {
 
   // ── Config ──────────────────────────────────────────────────────────────
@@ -68,7 +294,7 @@ class RegisterForm extends HTMLElement {
     <input class="form_input w-input" maxlength="256" name="Address"
       placeholder="Address" type="text" id="register-address" required />
   </div>
-
+<div id="address-details-wrapper" style="display: none;">
   <!-- Street Number + Street Name -->
   <div class="form_field-2col">
     <div class="form_field-wrapper">
@@ -103,6 +329,7 @@ class RegisterForm extends HTMLElement {
         placeholder="Postcode" type="text" id="postcode"
         autocomplete="postal-code" inputmode="numeric"
         required aria-required="true">
+    </div>
     </div>
   </div>
 
