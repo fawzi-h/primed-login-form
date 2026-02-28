@@ -8104,7 +8104,7 @@
                 }))
         }
         async function ke(e) {
-            pe(e, !1),
+            pe(""),
             me();
             try {
                 const t = await async function ({
@@ -8869,7 +8869,10 @@
                                                                 }) => (0, o.jsx)("li", {
                                                                     role: "option",
                                                                     "aria-selected": !1,
-                                                                    className: "px-4 py-2.5 text-sm text-white hover:bg-white/10 cursor-pointer border-b border-white/5 last:border-0 transition-colors",
+                                                                    className: "px-4 py-2.5 text-sm text-white hover:bg-white/10 border-b border-white/5 last:border-0 transition-colors",
+                                                                    style: {
+                                                                        cursor: "pointer"
+                                                                    },
                                                                     onMouseDown: () => ke(t),
                                                                     children: t
                                                                 }, e))
