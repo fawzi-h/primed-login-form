@@ -208,9 +208,32 @@ class RegisterForm extends HTMLElement {
 </form>
     `;
 
+    // Pre-fill referral code if provided via global variable `referral_code`
+    // (supports either `referral_code` global or `window.referral_code`)
+    this._prefillReferralCodeFromGlobal();
+    
     this._bindEvents();
   }
+_prefillReferralCodeFromGlobal() {
+    try {
+      const input = this.querySelector("#register-referral-code");
+      if (!input) return;
 
+      // Read from global variable `referral_code` if it exists
+      const globalValue =
+        (typeof window !== "undefined" && typeof window.referral_code === "string")
+          ? window.referral_code
+          : (typeof referral_code === "string" ? referral_code : "");
+
+      const value = (globalValue || "").trim();
+      if (!value) return;
+
+      input.value = value;
+    } catch {
+      // ignore
+    }
+  }
+  
   // ── Cookie helpers ───────────────────────────────────────────────────────
   _getCookie(name) {
     const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
