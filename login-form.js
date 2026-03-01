@@ -1,13 +1,11 @@
+/* login-form.js (adjusted to redirect using API response panel.url, with safe host allowlist) */
+
 class LoginForm extends HTMLElement {
 
   // ── Config ──────────────────────────────────────────────────────────────
-  // static LOGIN_ENDPOINT           = "https://api.dev.primedclinic.com.au/api/login";
-  // static SEND_CODE_ENDPOINT       = "https://api.dev.primedclinic.com.au/api/send-code";
-  // static VALIDATE_CODE_ENDPOINT   = "https://api.dev.primedclinic.com.au/api/validate-code";
-  // static FORGOT_PASSWORD_ENDPOINT = "https://api.dev.primedclinic.com.au/api/forgot-password";
-  // static SANCTUM_CSRF_ENDPOINT    = "https://api.dev.primedclinic.com.au/sanctum/csrf-cookie";
   static CSRF_TTL_SECONDS         = 7200; // 2 hours
   static CSRF_EXPIRY_COOKIE       = "wf_csrf_expires_at";
+
   // URL param that triggers the register form on load.
   // Matches ?view=register  OR  #register
   static REGISTER_PARAM_NAME      = "view";
@@ -15,36 +13,36 @@ class LoginForm extends HTMLElement {
 
   static LOGIN_ENDPOINT_MAP = {
     "dev-frontend.primedclinic.com.au": "https://api.dev.primedclinic.com.au/api/login",
-    "www.primedclinic.com.au": "https://app.primedclinic.com.au/api/login",
+    "www.primedclinic.com.au":          "https://app.primedclinic.com.au/api/login",
   };
 
   static SEND_CODE_ENDPOINT_MAP = {
     "dev-frontend.primedclinic.com.au": "https://api.dev.primedclinic.com.au/api/send-code",
-    "www.primedclinic.com.au": "https://app.primedclinic.com.au/api/send-code",
+    "www.primedclinic.com.au":          "https://app.primedclinic.com.au/api/send-code",
   };
 
   static VALIDATE_CODE_ENDPOINT_MAP = {
     "dev-frontend.primedclinic.com.au": "https://api.dev.primedclinic.com.au/api/validate-code",
-    "www.primedclinic.com.au": "https://app.primedclinic.com.au/api/validate-code",
+    "www.primedclinic.com.au":          "https://app.primedclinic.com.au/api/validate-code",
   };
 
   static FORGOT_PASSWORD_ENDPOINT_MAP = {
     "dev-frontend.primedclinic.com.au": "https://api.dev.primedclinic.com.au/api/forgot-password",
-    "www.primedclinic.com.au": "https://app.primedclinic.com.au/api/forgot-password",
+    "www.primedclinic.com.au":          "https://app.primedclinic.com.au/api/forgot-password",
   };
 
   static SANCTUM_CSRF_ENDPOINT_MAP = {
     "dev-frontend.primedclinic.com.au": "https://api.dev.primedclinic.com.au/sanctum/csrf-cookie",
-    "www.primedclinic.com.au": "https://app.primedclinic.com.au/sanctum/csrf-cookie",
-  };
-  // Domain → post-login redirect map.
-  // The first hostname that ends with the key is used.
-  static LOGIN_REDIRECT_MAP = {
-    "dev-frontend.primedclinic.com.au": "https://api.dev.primedclinic.com.au/patient",
-    "www.primedclinic.com.au": "https://app.primedclinic.com.au/patient",
+    "www.primedclinic.com.au":          "https://app.primedclinic.com.au/sanctum/csrf-cookie",
   };
 
-  // ── Redirect helper ─────────────────────────────────────────────────────
+  // Domain → post-login redirect map (fallback only, used if API does not return panel.url)
+  static LOGIN_REDIRECT_MAP = {
+    "dev-frontend.primedclinic.com.au": "https://api.dev.primedclinic.com.au/patient",
+    "www.primedclinic.com.au":          "https://app.primedclinic.com.au/patient",
+  };
+
+  // ── Redirect helper (fallback) ───────────────────────────────────────────
   _getLoginRedirectUrl() {
     const hostname = window.location.hostname;
     for (const [key, url] of Object.entries(LoginForm.LOGIN_REDIRECT_MAP)) {
@@ -52,34 +50,28 @@ class LoginForm extends HTMLElement {
     }
     return "/"; // fallback
   }
-  // LOGIN route
 
-static _resolveEndpoint(map) {
+  // ── Endpoint resolver (throws if missing) ────────────────────────────────
+  static _resolveEndpoint(map) {
     const hostname = window.location.hostname;
     for (const [key, url] of Object.entries(map)) {
-      // exact match or subdomain match
-      if (hostname === key || hostname.endsWith("." + key)) {
-        return url;
-      }
+      if (hostname === key || hostname.endsWith("." + key)) return url;
     }
     throw new Error(`No endpoint configured for host: ${hostname}`);
   }
-  
+
   static get LOGIN_ENDPOINT() {
     return this._resolveEndpoint(this.LOGIN_ENDPOINT_MAP);
   }
   static get SEND_CODE_ENDPOINT() {
     return this._resolveEndpoint(this.SEND_CODE_ENDPOINT_MAP);
   }
-
   static get VALIDATE_CODE_ENDPOINT() {
     return this._resolveEndpoint(this.VALIDATE_CODE_ENDPOINT_MAP);
   }
-
   static get FORGOT_PASSWORD_ENDPOINT() {
     return this._resolveEndpoint(this.FORGOT_PASSWORD_ENDPOINT_MAP);
   }
-
   static get SANCTUM_CSRF_ENDPOINT() {
     return this._resolveEndpoint(this.SANCTUM_CSRF_ENDPOINT_MAP);
   }
@@ -254,26 +246,21 @@ static _resolveEndpoint(map) {
     this._codeStep       = "identifier"; // "identifier" | "otp"
     this._codeIdentifier = null;
     this._codeType       = null;
+
     this._bindEvents();
 
     // If the URL contains the register param or hash, swap to the register form immediately
     if (this._shouldShowRegister()) {
-      const registerForm = document.createElement('register-form');
+      const registerForm = document.createElement("register-form");
       this.replaceWith(registerForm);
     }
   }
 
   // ── Register redirect detection ──────────────────────────────────────────
   _shouldShowRegister() {
-    // Check query param: e.g. ?view=register
     const params = new URLSearchParams(window.location.search);
-    if (params.get(LoginForm.REGISTER_PARAM_NAME) === LoginForm.REGISTER_PARAM_VALUE) {
-      return true;
-    }
-    // Check hash: e.g. #register
-    if (window.location.hash === `#${LoginForm.REGISTER_PARAM_VALUE}`) {
-      return true;
-    }
+    if (params.get(LoginForm.REGISTER_PARAM_NAME) === LoginForm.REGISTER_PARAM_VALUE) return true;
+    if (window.location.hash === `#${LoginForm.REGISTER_PARAM_VALUE}`) return true;
     return false;
   }
 
@@ -286,32 +273,30 @@ static _resolveEndpoint(map) {
     return null;
   }
 
-  // ── Panel / step switching ────────────────────────────────────────────────
+  // ── Panel / step switching ───────────────────────────────────────────────
   _switchPanel(panel) {
     this._activePanel = panel;
 
-    const allPanels          = this.querySelectorAll('[data-login-panel]');
-    const toggleWrapper      = this.querySelector('[data-login-toggle-wrapper]');
-    const registerBtnWrapper = this.querySelector('[data-login-register-btn-wrapper]');
+    const allPanels          = this.querySelectorAll("[data-login-panel]");
+    const toggleWrapper      = this.querySelector("[data-login-toggle-wrapper]");
+    const registerBtnWrapper = this.querySelector("[data-login-register-btn-wrapper]");
 
     allPanels.forEach(el => {
       el.style.display = el.dataset.loginPanel === panel ? "" : "none";
     });
 
     const isReset = panel === "reset";
-    if (toggleWrapper)      toggleWrapper.style.display      = isReset ? "none" : "";
+    if (toggleWrapper) toggleWrapper.style.display = isReset ? "none" : "";
     if (registerBtnWrapper) registerBtnWrapper.style.display = isReset ? "none" : "";
 
-    if (panel === "code") {
-      this._switchCodeStep("identifier");
-    }
+    if (panel === "code") this._switchCodeStep("identifier");
 
     if (panel === "reset") {
       this.querySelector('[data-reset-email="true"]')?.focus();
     }
 
-    this.querySelectorAll('.form_toggle-btn').forEach(btn => {
-      btn.classList.toggle('is-active', btn.dataset.toggle === panel);
+    this.querySelectorAll(".form_toggle-btn").forEach(btn => {
+      btn.classList.toggle("is-active", btn.dataset.toggle === panel);
     });
 
     this._hideMessages();
@@ -325,11 +310,9 @@ static _resolveEndpoint(map) {
     const otpStep        = this.querySelector('[data-code-step="otp"]');
 
     identifierStep.style.display = step === "identifier" ? "" : "none";
-    otpStep.style.display        = step === "otp"        ? "" : "none";
+    otpStep.style.display        = step === "otp" ? "" : "none";
 
-    if (step === "otp") {
-      this.querySelector('[data-login-otp="true"]')?.focus();
-    }
+    if (step === "otp") this.querySelector('[data-login-otp="true"]')?.focus();
 
     this._updateSubmitLabel();
   }
@@ -339,13 +322,15 @@ static _resolveEndpoint(map) {
     if (!submitBtn) return;
 
     if (loading) {
-      submitBtn.value = this._activePanel === "password" ? "Logging in..."
-        : this._activePanel === "reset"   ? "Sending..."
+      submitBtn.value =
+        this._activePanel === "password" ? "Logging in..."
+        : this._activePanel === "reset" ? "Sending..."
         : this._codeStep === "identifier" ? "Sending..."
         : "Verifying...";
     } else {
-      submitBtn.value = this._activePanel === "password" ? "Login"
-        : this._activePanel === "reset"   ? "Send Reset Link"
+      submitBtn.value =
+        this._activePanel === "password" ? "Login"
+        : this._activePanel === "reset" ? "Send Reset Link"
         : this._codeStep === "identifier" ? "Send Code"
         : "Verify Code";
     }
@@ -433,6 +418,25 @@ static _resolveEndpoint(map) {
     };
   }
 
+  // ── Redirect safety helper ───────────────────────────────────────────────
+  _safeRedirectUrl(rawUrl) {
+    if (!rawUrl) return null;
+    try {
+      const u = new URL(rawUrl, window.location.origin);
+      const allowedHosts = new Set([
+        "app.primedclinic.com.au",
+        "primedclinic.com.au",
+        "www.primedclinic.com.au",
+        "dev-frontend.primedclinic.com.au",
+        "api.dev.primedclinic.com.au",
+      ]);
+      if (!allowedHosts.has(u.hostname)) return null;
+      return u.toString();
+    } catch {
+      return null;
+    }
+  }
+
   // ── UI helpers ───────────────────────────────────────────────────────────
   _showMessage(type, text) {
     const isSuccess   = type === "success";
@@ -504,7 +508,9 @@ static _resolveEndpoint(map) {
 
       await this._setUserSessionCookie();
       this._showMessage("success", "Logged in successfully.");
-      window.location.href = this._getLoginRedirectUrl();
+
+      const redirectUrl = this._safeRedirectUrl(data?.panel?.url) || this._getLoginRedirectUrl();
+      window.location.href = redirectUrl;
 
     } catch (err) {
       this._showMessage("error", err.message || "Login failed due to a network error.");
@@ -620,7 +626,9 @@ static _resolveEndpoint(map) {
 
       await this._setUserSessionCookie();
       this._showMessage("success", "Logged in successfully.");
-      window.location.href = this._getLoginRedirectUrl();
+
+      const redirectUrl = this._safeRedirectUrl(data?.panel?.url) || this._getLoginRedirectUrl();
+      window.location.href = redirectUrl;
 
     } catch (err) {
       this._showMessage("error", err.message || "Verification failed due to a network error.");
@@ -701,27 +709,27 @@ static _resolveEndpoint(map) {
   // ── Event binding ────────────────────────────────────────────────────────
   _bindEvents() {
     const form           = this.querySelector('[data-login-form="true"]');
-    const registerBtn    = this.querySelector('#go-to-register');
-    const toggleBtns     = this.querySelectorAll('.form_toggle-btn');
+    const registerBtn    = this.querySelector("#go-to-register");
+    const toggleBtns     = this.querySelectorAll(".form_toggle-btn");
     const resendBtn      = this.querySelector('[data-resend-code="true"]');
     const resetLink      = this.querySelector('[data-reset-password-link="true"]');
     const backToLoginBtn = this.querySelector('[data-back-to-login="true"]');
 
     toggleBtns.forEach(btn => {
-      btn.addEventListener('click', () => this._switchPanel(btn.dataset.toggle));
+      btn.addEventListener("click", () => this._switchPanel(btn.dataset.toggle));
     });
 
-    resetLink.addEventListener('click', (e) => {
+    resetLink.addEventListener("click", (e) => {
       e.preventDefault();
       this._switchPanel("reset");
     });
 
-    backToLoginBtn.addEventListener('click', (e) => {
+    backToLoginBtn.addEventListener("click", (e) => {
       e.preventDefault();
       this._switchPanel("password");
     });
 
-    resendBtn.addEventListener('click', async (e) => {
+    resendBtn.addEventListener("click", async (e) => {
       e.preventDefault();
       if (this._codeStep !== "otp" || !this._codeIdentifier) return;
       const submitBtn = form.querySelector('[data-login-submit="true"]');
@@ -735,12 +743,12 @@ static _resolveEndpoint(map) {
       form.addEventListener("submit", (e) => this._handleSubmit(e));
     }
 
-    registerBtn.addEventListener('click', (e) => {
+    registerBtn.addEventListener("click", (e) => {
       e.preventDefault();
-      const registerForm = document.createElement('register-form');
+      const registerForm = document.createElement("register-form");
       this.replaceWith(registerForm);
     });
   }
 }
 
-customElements.define('login-form', LoginForm);
+customElements.define("login-form", LoginForm);
