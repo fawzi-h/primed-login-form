@@ -1,4 +1,4 @@
-/* register-form.js (refactored to match LoginForm resolver pattern) */
+/* register-form.js (full version: host resolver + redirects via panel.url + referral_code from URL param) */
 
 class RegisterForm extends HTMLElement {
 
@@ -6,19 +6,17 @@ class RegisterForm extends HTMLElement {
   static CSRF_TTL_SECONDS   = 7200; // 2 hours
   static CSRF_EXPIRY_COOKIE = "wf_csrf_expires_at";
 
-  // Domain → register endpoint map (mirrors login-form.js)
   static REGISTER_ENDPOINT_MAP = {
     "dev-frontend.primedclinic.com.au": "https://api.dev.primedclinic.com.au/api/register/guest",
     "www.primedclinic.com.au":          "https://app.primedclinic.com.au/api/register/guest",
   };
 
-  // Domain → login endpoint map (mirrors login-form.js)
   static LOGIN_ENDPOINT_MAP = {
     "dev-frontend.primedclinic.com.au": "https://api.dev.primedclinic.com.au/api/login",
     "www.primedclinic.com.au":          "https://app.primedclinic.com.au/api/login",
   };
 
-  // Domain → onboarding redirect map (fallback used only if API panel.url is missing)
+  // Fallback only if API does not return panel.url after auto-login
   static ONBOARDING_URL_MAP = {
     "dev-frontend.primedclinic.com.au": "https://dev-frontend.primedclinic.com.au/client-onboarding",
     "www.primedclinic.com.au":          "https://www.primedclinic.com.au/client-onboarding",
@@ -41,15 +39,12 @@ class RegisterForm extends HTMLElement {
   static get REGISTER_ENDPOINT() {
     return this._resolveEndpoint(this.REGISTER_ENDPOINT_MAP);
   }
-
   static get LOGIN_ENDPOINT() {
     return this._resolveEndpoint(this.LOGIN_ENDPOINT_MAP);
   }
-
   static get SANCTUM_CSRF_ENDPOINT() {
     return this._resolveEndpoint(this.SANCTUM_CSRF_ENDPOINT_MAP);
   }
-
   static get ONBOARDING_URL() {
     return this._resolveEndpoint(this.ONBOARDING_URL_MAP);
   }
@@ -208,61 +203,24 @@ class RegisterForm extends HTMLElement {
 </form>
     `;
 
-    // Pre-fill referral code if provided via global variable `referral_code`
-    // (supports either `referral_code` global or `window.referral_code`)
-this._prefillReferralCodeWithRetries();    
+    // Prefill referral code from URL (?referral_code=...)
+    const ref = this._getReferralCodeFromUrl();
+    const refInput = this.querySelector("#register-referral-code");
+    if (refInput && ref) refInput.value = ref;
+
     this._bindEvents();
   }
-_getReferralCodeFromGlobal() {
-  try {
-    // globalThis works for window, workers, etc.
-    const v = globalThis && Object.prototype.hasOwnProperty.call(globalThis, "referral_code")
-      ? globalThis.referral_code
-      : undefined;
 
-    if (v === undefined || v === null) return "";
-
-    // Accept numbers and other primitives too
-    if (typeof v === "string") return v.trim();
-    if (typeof v === "number" || typeof v === "boolean") return String(v).trim();
-
-    // If it is something else (object/function), do not use it
-    return "";
-  } catch {
-    return "";
+  // ── Referral code (URL) ──────────────────────────────────────────────────
+  _getReferralCodeFromUrl() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      return (params.get("referral_code") || "").trim();
+    } catch {
+      return "";
+    }
   }
-}
 
-_prefillReferralCodeWithRetries() {
-  const input = this.querySelector("#register-referral-code");
-  if (!input) return;
-
-  const trySet = () => {
-    const code = this._getReferralCodeFromGlobal();
-    if (code) {
-      input.value = code;
-      return true;
-    }
-    return false;
-  };
-
-  // Try immediately
-  if (trySet()) return;
-
-  // Retry a few times in case referral_code is set after component loads
-  let attempts = 0;
-  const maxAttempts = 20; // about 2 seconds total
-  const intervalMs = 100;
-
-  const timer = setInterval(() => {
-    attempts += 1;
-    if (trySet() || attempts >= maxAttempts) {
-      clearInterval(timer);
-    }
-  }, intervalMs);
-}
-  
-  
   // ── Cookie helpers ───────────────────────────────────────────────────────
   _getCookie(name) {
     const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
@@ -319,12 +277,11 @@ _prefillReferralCodeWithRetries() {
     submitBtn.value = loading ? "Please wait..." : "Create account & Continue";
   }
 
-  // Fallback if API does not return panel.url after auto-login
   _getOnboardingUrl() {
     return RegisterForm.ONBOARDING_URL;
   }
 
-  // ── JWT / session cookie (mirrors login-form.js) ─────────────────────────
+  // ── JWT / session cookie ─────────────────────────────────────────────────
   async _generateUserToken() {
     const b64url = (buf) =>
       btoa(String.fromCharCode(...new Uint8Array(buf)))
@@ -465,7 +422,7 @@ _prefillReferralCodeWithRetries() {
         state:         "",
         postcode:      "",
         password:      password.value,
-        referral_code: (this.querySelector("#register-referral-code")?.value || "").trim()
+        referral_code: this._getReferralCodeFromUrl()
       };
 
       const res = await fetch(RegisterForm.REGISTER_ENDPOINT, {
@@ -518,6 +475,7 @@ _prefillReferralCodeWithRetries() {
     backBtn.addEventListener("click", (e) => {
       e.preventDefault();
 
+      // Keep referral_code in URL, only remove view=register and #register
       const url = new URL(window.location.href);
       url.searchParams.delete("view");
       if (url.hash === "#register") url.hash = "";
