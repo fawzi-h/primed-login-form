@@ -210,29 +210,58 @@ class RegisterForm extends HTMLElement {
 
     // Pre-fill referral code if provided via global variable `referral_code`
     // (supports either `referral_code` global or `window.referral_code`)
-    this._prefillReferralCodeFromGlobal();
-    
+this._prefillReferralCodeWithRetries();    
     this._bindEvents();
   }
-_prefillReferralCodeFromGlobal() {
-    try {
-      const input = this.querySelector("#register-referral-code");
-      if (!input) return;
+_getReferralCodeFromGlobal() {
+  try {
+    // globalThis works for window, workers, etc.
+    const v = globalThis && Object.prototype.hasOwnProperty.call(globalThis, "referral_code")
+      ? globalThis.referral_code
+      : undefined;
 
-      // Read from global variable `referral_code` if it exists
-      const globalValue =
-        (typeof window !== "undefined" && typeof window.referral_code === "string")
-          ? window.referral_code
-          : (typeof referral_code === "string" ? referral_code : "");
+    if (v === undefined || v === null) return "";
 
-      const value = (globalValue || "").trim();
-      if (!value) return;
+    // Accept numbers and other primitives too
+    if (typeof v === "string") return v.trim();
+    if (typeof v === "number" || typeof v === "boolean") return String(v).trim();
 
-      input.value = value;
-    } catch {
-      // ignore
-    }
+    // If it is something else (object/function), do not use it
+    return "";
+  } catch {
+    return "";
   }
+}
+
+_prefillReferralCodeWithRetries() {
+  const input = this.querySelector("#register-referral-code");
+  if (!input) return;
+
+  const trySet = () => {
+    const code = this._getReferralCodeFromGlobal();
+    if (code) {
+      input.value = code;
+      return true;
+    }
+    return false;
+  };
+
+  // Try immediately
+  if (trySet()) return;
+
+  // Retry a few times in case referral_code is set after component loads
+  let attempts = 0;
+  const maxAttempts = 20; // about 2 seconds total
+  const intervalMs = 100;
+
+  const timer = setInterval(() => {
+    attempts += 1;
+    if (trySet() || attempts >= maxAttempts) {
+      clearInterval(timer);
+    }
+  }, intervalMs);
+}
+  
   
   // ── Cookie helpers ───────────────────────────────────────────────────────
   _getCookie(name) {
