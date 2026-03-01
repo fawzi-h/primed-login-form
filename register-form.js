@@ -1,32 +1,59 @@
+/* register-form.js (refactored to match LoginForm resolver pattern) */
+
 class RegisterForm extends HTMLElement {
 
   // ── Config ──────────────────────────────────────────────────────────────
-  static REGISTER_ENDPOINT     = "https://api.dev.primedclinic.com.au/api/register/guest";
-  static SANCTUM_CSRF_ENDPOINT = "https://api.dev.primedclinic.com.au/sanctum/csrf-cookie";
-  static CSRF_TTL_SECONDS      = 7200;
-  static CSRF_EXPIRY_COOKIE    = "wf_csrf_expires_at";
+  static CSRF_TTL_SECONDS   = 7200; // 2 hours
+  static CSRF_EXPIRY_COOKIE = "wf_csrf_expires_at";
 
-  // Domain → login endpoint map (mirrors login-form.js)
+  // Domain → register endpoint map (mirrors login-form.js)
   static REGISTER_ENDPOINT_MAP = {
     "dev-frontend.primedclinic.com.au": "https://api.dev.primedclinic.com.au/api/register/guest",
-    "www.primedclinic.com.au":              "https://app.primedclinic.com.au/api/register/guest",
+    "www.primedclinic.com.au":          "https://app.primedclinic.com.au/api/register/guest",
   };
 
   // Domain → login endpoint map (mirrors login-form.js)
   static LOGIN_ENDPOINT_MAP = {
     "dev-frontend.primedclinic.com.au": "https://api.dev.primedclinic.com.au/api/login",
-    "www.primedclinic.com.au":              "https://app.primedclinic.com.au/api/login",
+    "www.primedclinic.com.au":          "https://app.primedclinic.com.au/api/login",
   };
 
-  // Domain → onboarding redirect map
+  // Domain → onboarding redirect map (fallback used only if API panel.url is missing)
   static ONBOARDING_URL_MAP = {
     "dev-frontend.primedclinic.com.au": "https://dev-frontend.primedclinic.com.au/client-onboarding",
-    "www.primedclinic.com.au":              "https://primedclinic.com.au/client-onboarding",
+    "www.primedclinic.com.au":          "https://www.primedclinic.com.au/client-onboarding",
   };
+
   static SANCTUM_CSRF_ENDPOINT_MAP = {
     "dev-frontend.primedclinic.com.au": "https://api.dev.primedclinic.com.au/sanctum/csrf-cookie",
     "www.primedclinic.com.au":          "https://app.primedclinic.com.au/sanctum/csrf-cookie",
   };
+
+  // ── Host resolver (same pattern as LoginForm) ────────────────────────────
+  static _resolveEndpoint(map) {
+    const hostname = window.location.hostname;
+    for (const [key, url] of Object.entries(map)) {
+      if (hostname === key || hostname.endsWith("." + key)) return url;
+    }
+    throw new Error(`No endpoint configured for host: ${hostname}`);
+  }
+
+  static get REGISTER_ENDPOINT() {
+    return this._resolveEndpoint(this.REGISTER_ENDPOINT_MAP);
+  }
+
+  static get LOGIN_ENDPOINT() {
+    return this._resolveEndpoint(this.LOGIN_ENDPOINT_MAP);
+  }
+
+  static get SANCTUM_CSRF_ENDPOINT() {
+    return this._resolveEndpoint(this.SANCTUM_CSRF_ENDPOINT_MAP);
+  }
+
+  static get ONBOARDING_URL() {
+    return this._resolveEndpoint(this.ONBOARDING_URL_MAP);
+  }
+
   // ── Lifecycle ────────────────────────────────────────────────────────────
   connectedCallback() {
     this.innerHTML = `
@@ -68,42 +95,43 @@ class RegisterForm extends HTMLElement {
     <input class="form_input w-input" maxlength="256" name="Address"
       placeholder="Address" type="text" id="register-address" required />
   </div>
-<div id="address-details-wrapper"  style="display:none;">
-  <!-- Street Number + Street Name -->
-  <div class="form_field-2col">
-    <div class="form_field-wrapper">
-      <input class="form_input w-input" maxlength="256" name="streetNumber"
-        placeholder="Street Number" type="text" id="streetNumber"
-        autocomplete="address-line1" required aria-required="true">
+
+  <div id="address-details-wrapper" style="display:none;">
+    <!-- Street Number + Street Name -->
+    <div class="form_field-2col">
+      <div class="form_field-wrapper">
+        <input class="form_input w-input" maxlength="256" name="streetNumber"
+          placeholder="Street Number" type="text" id="streetNumber"
+          autocomplete="address-line1" required aria-required="true">
+      </div>
+
+      <div class="form_field-wrapper">
+        <input class="form_input w-input" maxlength="256" name="streetName"
+          placeholder="Street Name" type="text" id="streetName"
+          required aria-required="true">
+      </div>
     </div>
 
-    <div class="form_field-wrapper">
-      <input class="form_input w-input" maxlength="256" name="streetName"
-        placeholder="Street Name" type="text" id="streetName"
-        required aria-required="true">
-    </div>
-  </div>
+    <!-- Suburb + State + Postcode -->
+    <div class="form_field-2col">
+      <div class="form_field-wrapper">
+        <input class="form_input w-input" maxlength="256" name="suburb"
+          placeholder="Suburb" type="text" id="suburb"
+          autocomplete="address-level2" required aria-required="true">
+      </div>
 
-  <!-- Suburb + State + Postcode -->
-  <div class="form_field-2col">
-    <div class="form_field-wrapper">
-      <input class="form_input w-input" maxlength="256" name="suburb"
-        placeholder="Suburb" type="text" id="suburb"
-        autocomplete="address-level2" required aria-required="true">
-    </div>
+      <div class="form_field-wrapper">
+        <input class="form_input w-input" maxlength="256" name="state"
+          placeholder="State" type="text" id="state"
+          autocomplete="address-level1" required aria-required="true">
+      </div>
 
-    <div class="form_field-wrapper">
-      <input class="form_input w-input" maxlength="256" name="state"
-        placeholder="State" type="text" id="state"
-        autocomplete="address-level1" required aria-required="true">
-    </div>
-
-    <div class="form_field-wrapper">
-      <input class="form_input w-input" maxlength="256" name="postcode"
-        placeholder="Postcode" type="text" id="postcode"
-        autocomplete="postal-code" inputmode="numeric"
-        required aria-required="true">
-    </div>
+      <div class="form_field-wrapper">
+        <input class="form_input w-input" maxlength="256" name="postcode"
+          placeholder="Postcode" type="text" id="postcode"
+          autocomplete="postal-code" inputmode="numeric"
+          required aria-required="true">
+      </div>
     </div>
   </div>
 
@@ -160,10 +188,8 @@ class RegisterForm extends HTMLElement {
     id="cf-chl-widget-a8hv1_response"
     value="...">
 
-  <!-- Optional: place for inline errors -->
   <div class="sr-only" aria-live="polite" id="form-status"></div>
 
-  <!-- Success / Error wrappers (keep inside the form block if Webflow expects it) -->
   <div class="form_message-success-wrapper w-form-done" tabindex="-1" role="region">
     <div class="form_message-success">
       <div class="success-text">
@@ -207,7 +233,7 @@ class RegisterForm extends HTMLElement {
   async _ensureCsrfCookie() {
     if (this._csrfIsValid()) return;
 
-    await fetch(this._getCsrfEndpoint(), {
+    await fetch(RegisterForm.SANCTUM_CSRF_ENDPOINT, {
       method: "GET",
       credentials: "include"
     });
@@ -220,7 +246,7 @@ class RegisterForm extends HTMLElement {
   _showError(message) {
     const wrapper = this.querySelector("[data-register-error-wrapper]");
     const el      = this.querySelector("[data-register-error]");
-    if (el)      el.textContent = message;
+    if (el) el.textContent = message;
     if (wrapper) {
       wrapper.classList.add("w-form-fail");
       wrapper.style.display = "block";
@@ -241,37 +267,11 @@ class RegisterForm extends HTMLElement {
     submitBtn.value = loading ? "Please wait..." : "Create account & Continue";
   }
 
+  // Fallback if API does not return panel.url after auto-login
   _getOnboardingUrl() {
-    const hostname = window.location.hostname;
-    for (const [key, url] of Object.entries(RegisterForm.ONBOARDING_URL_MAP)) {
-      if (hostname === key || hostname.endsWith("." + key)) return url;
-    }
-    return "/client-onboarding"; // fallback
+    return RegisterForm.ONBOARDING_URL;
   }
 
-  _getLoginEndpoint() {
-    const hostname = window.location.hostname;
-    for (const [key, url] of Object.entries(RegisterForm.LOGIN_ENDPOINT_MAP)) {
-      if (hostname === key || hostname.endsWith("." + key)) return url;
-    }
-    return RegisterForm.REGISTER_ENDPOINT.replace("/register/guest", "/login"); // fallback
-  }
-
-  _getRegisterEndpoint() {
-    const hostname = window.location.hostname;
-    for (const [key, url] of Object.entries(RegisterForm.REGISTER_ENDPOINT_MAP)) {
-      if (hostname === key || hostname.endsWith("." + key)) return url;
-    }
-    return RegisterForm.REGISTER_ENDPOINT; // fallback
-  }
-  // helper to resolve CSRF endpoint
-  _getCsrfEndpoint() {
-    const hostname = window.location.hostname;
-    for (const [key, url] of Object.entries(RegisterForm.SANCTUM_CSRF_ENDPOINT_MAP)) {
-      if (hostname === key || hostname.endsWith("." + key)) return url;
-    }
-    return RegisterForm.SANCTUM_CSRF_ENDPOINT; // fallback
-  }
   // ── JWT / session cookie (mirrors login-form.js) ─────────────────────────
   async _generateUserToken() {
     const b64url = (buf) =>
@@ -309,38 +309,65 @@ class RegisterForm extends HTMLElement {
   }
 
   _showSuccess(userId) {
-    const url = new URL(this._getOnboardingUrl());
+    const url = new URL(this._getOnboardingUrl(), window.location.origin);
     if (userId) url.searchParams.set("user_id", userId);
     window.location.href = url.toString();
   }
 
-  // ── Auto-login after registration ───────────────────────────────────────────
+  // Optional: allow only your domains for redirect
+  _safeRedirectUrl(rawUrl) {
+    if (!rawUrl) return null;
+    try {
+      const u = new URL(rawUrl, window.location.origin);
+      const allowedHosts = new Set([
+        "app.primedclinic.com.au",
+        "primedclinic.com.au",
+        "www.primedclinic.com.au",
+        "dev-frontend.primedclinic.com.au",
+        "api.dev.primedclinic.com.au",
+      ]);
+      if (!allowedHosts.has(u.hostname)) return null;
+      return u.toString();
+    } catch {
+      return null;
+    }
+  }
+
+  // ── Auto-login after registration ─────────────────────────────────────────
   async _autoLogin(email, password, userId) {
+    let redirectUrl = null;
+
     try {
       await this._ensureCsrfCookie();
       const xsrfToken = this._getCookie("XSRF-TOKEN");
 
-      const res = await fetch(this._getLoginEndpoint(), {
-        method:      "POST",
+      const res = await fetch(RegisterForm.LOGIN_ENDPOINT, {
+        method: "POST",
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          "Accept":        "application/json",
+          "Accept": "application/json",
           ...(xsrfToken ? { "X-XSRF-TOKEN": xsrfToken } : {})
         },
         body: JSON.stringify({ email, password })
       });
 
+      const data = await res.json().catch(() => ({}));
+
       if (res.ok) {
         await this._setUserSessionCookie();
+        redirectUrl = this._safeRedirectUrl(data?.panel?.url);
         console.log("register-form: auto-login successful.");
       } else {
-        // Login failed — still redirect, but without the session cookie.
-        // The user can log in manually on the next page.
         console.warn("register-form: auto-login failed, continuing without session.");
       }
     } catch (err) {
       console.warn("register-form: auto-login error, continuing without session.", err);
+    }
+
+    if (redirectUrl) {
+      window.location.href = redirectUrl;
+      return;
     }
 
     this._showSuccess(userId);
@@ -357,7 +384,6 @@ class RegisterForm extends HTMLElement {
     const pwError   = this.querySelector("#password-error");
     const submitBtn = form.querySelector('input[type="submit"]');
 
-    // Client-side password match check
     if (password.value !== confirm.value) {
       pwError.style.display = "block";
       confirm.classList.add("is-error");
@@ -371,27 +397,26 @@ class RegisterForm extends HTMLElement {
 
     try {
       await this._ensureCsrfCookie();
-
       const xsrfToken = this._getCookie("XSRF-TOKEN");
 
-      const email   = (this.querySelector("#register-email")?.value || "").trim();
+      const email = (this.querySelector("#register-email")?.value || "").trim();
 
       const payload = {
-        first_name:   (this.querySelector("#register-first-name")?.value   || "").trim(),
-        last_name:    (this.querySelector("#register-last-name")?.value    || "").trim(),
+        first_name:    (this.querySelector("#register-first-name")?.value || "").trim(),
+        last_name:     (this.querySelector("#register-last-name")?.value || "").trim(),
         email,
-        phone:        (this.querySelector("#register-phone")?.value        || "").trim(),
-        address:      (this.querySelector("#register-address")?.value      || "").trim(),
-        streetNumber: "",
-        streetName:   "",
-        suburb:       "",
-        state:        "",
-        postcode:     "",
-        password:     password.value,
+        phone:         (this.querySelector("#register-phone")?.value || "").trim(),
+        address:       (this.querySelector("#register-address")?.value || "").trim(),
+        streetNumber:  "",
+        streetName:    "",
+        suburb:        "",
+        state:         "",
+        postcode:      "",
+        password:      password.value,
         referral_code: (this.querySelector("#register-referral-code")?.value || "").trim()
       };
 
-      const res = await fetch(this._getRegisterEndpoint(), {
+      const res = await fetch(RegisterForm.REGISTER_ENDPOINT, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -410,7 +435,6 @@ class RegisterForm extends HTMLElement {
         return;
       }
 
-      // Success — auto-login with the credentials just used, then redirect
       await this._autoLogin(email, password.value, data.user_id);
 
     } catch (err) {
@@ -423,35 +447,34 @@ class RegisterForm extends HTMLElement {
 
   // ── Event binding ────────────────────────────────────────────────────────
   _bindEvents() {
-    const form     = this.querySelector('#register-form-el');
-    const password = this.querySelector('#register-password');
-    const confirm  = this.querySelector('#register-confirm-password');
-    const pwError  = this.querySelector('#password-error');
-    const backBtn  = this.querySelector('#back-to-login');
+    const form     = this.querySelector("#register-form-el");
+    const password = this.querySelector("#register-password");
+    const confirm  = this.querySelector("#register-confirm-password");
+    const pwError  = this.querySelector("#password-error");
+    const backBtn  = this.querySelector("#back-to-login");
 
-    // Clear password mismatch error as user re-types
-    confirm.addEventListener('input', () => {
-      if (pwError.style.display === 'block') {
-        pwError.style.display = 'none';
-        confirm.classList.remove('is-error');
-        password.classList.remove('is-error');
+    confirm.addEventListener("input", () => {
+      if (pwError.style.display === "block") {
+        pwError.style.display = "none";
+        confirm.classList.remove("is-error");
+        password.classList.remove("is-error");
       }
     });
 
-    form.addEventListener('submit', (e) => this._handleSubmit(e));
+    form.addEventListener("submit", (e) => this._handleSubmit(e));
 
-    backBtn.addEventListener('click', (e) => {
+    backBtn.addEventListener("click", (e) => {
       e.preventDefault();
-      // Strip the register param/hash from the URL so the login form
-      // doesn't immediately detect it and swap back to register.
+
       const url = new URL(window.location.href);
       url.searchParams.delete("view");
       if (url.hash === "#register") url.hash = "";
       history.replaceState(null, "", url.toString());
-      const loginForm = document.createElement('login-form');
+
+      const loginForm = document.createElement("login-form");
       this.replaceWith(loginForm);
     });
   }
 }
 
-customElements.define('register-form', RegisterForm);
+customElements.define("register-form", RegisterForm);
