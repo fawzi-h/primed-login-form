@@ -18,8 +18,8 @@ class RegisterForm extends HTMLElement {
 
   // Fallback only if API does not return panel.url after auto-login
   static ONBOARDING_URL_MAP = {
-    "dev-frontend.primedclinic.com.au": "https://dev-frontend.primedclinic.com.au/client-onboarding",
-    "www.primedclinic.com.au":          "https://www.primedclinic.com.au/client-onboarding",
+    "dev-frontend.primedclinic.com.au": "https://api.dev.primedclinic.com.au/patient",
+    "www.primedclinic.com.au":          "https://app.primedclinic.com.au/patient",
   };
 
   static SANCTUM_CSRF_ENDPOINT_MAP = {
