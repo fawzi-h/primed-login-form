@@ -81,7 +81,7 @@
         "api.dev.primedclinic.com.au",
       ]);
       return allowed.has(u.hostname) ? u.toString() : null;
-    } catch {
+    } catch (_e) {
       return null;
     }
   }
@@ -158,7 +158,7 @@
     if (!document.getElementById("lf-panel-style")) {
       const style = document.createElement("style");
       style.id = "lf-panel-style";
-      style.textContent = `[data-login-panel] { display: none !important; } [data-login-panel].lf-active { display: block !important; }`;
+      style.textContent = `[data-login-panel] { display: none !important; } [data-login-panel].lf-active { display: block !important; } .lf-hidden { display: none !important; }`;
       document.head.appendChild(style);
     }
 
@@ -238,7 +238,7 @@
     registerBtnWrapper.setAttribute("data-login-register-btn-wrapper", "");
     const submitGrid   = submitBtn.closest(".w-layout-grid") || submitBtn.parentNode;
     const wfParagraph  = Array.from(form.querySelectorAll("p.text-size-small")).find(el => !el.closest("[data-login-panel]"));
-    const marginBottom = wfParagraph?.closest(".margin-bottom");
+    const marginBottom = wfParagraph && wfParagraph.closest(".margin-bottom");
     const buttonGroup  = Array.from(form.querySelectorAll(".button-group")).find(el => !el.closest("[data-login-panel]"));
     submitGrid.after(registerBtnWrapper);
     if (marginBottom) registerBtnWrapper.appendChild(marginBottom);
@@ -351,7 +351,7 @@
       if (registerBtnWrapper) registerBtnWrapper.style.display = isReset ? "none" : "";
 
       if (panel === "code")  switchCodeStep("identifier");
-      if (panel === "reset") form.querySelector("[data-reset-email]")?.focus();
+      if (panel === "reset") { var _re = form.querySelector("[data-reset-email]"); if (_re) _re.focus(); }
 
       loginDiv.querySelectorAll(".form_toggle-btn").forEach(btn => {
         btn.classList.toggle("is-active", btn.dataset.toggle === panel);
@@ -367,22 +367,22 @@
       const otpStep        = form.querySelector('[data-code-step="otp"]');
       if (identifierStep) identifierStep.style.display = step === "identifier" ? "" : "none";
       if (otpStep)        otpStep.style.display        = step === "otp"        ? "" : "none";
-      if (step === "otp") form.querySelector("[data-login-otp]")?.focus();
+      if (step === "otp") { var _oi = form.querySelector("[data-login-otp]"); if (_oi) _oi.focus(); }
       updateSubmitLabel();
     }
 
     // ── Login / Register swap ─────────────────────────────────────────────
     function showRegister() {
-      loginDiv.style.display = "none";
-      if (registerDiv) registerDiv.style.display = "block";
+      loginDiv.classList.add("lf-hidden");
+      if (registerDiv) registerDiv.classList.remove("lf-hidden");
       const url = new URL(window.location.href);
       url.searchParams.set(REGISTER_PARAM_NAME, REGISTER_PARAM_VALUE);
       history.replaceState(null, "", url.toString());
     }
 
     function showLogin() {
-      loginDiv.style.display = "block";
-      if (registerDiv) registerDiv.style.display = "none";
+      loginDiv.classList.remove("lf-hidden");
+      if (registerDiv) registerDiv.classList.add("lf-hidden");
       const url = new URL(window.location.href);
       url.searchParams.delete(REGISTER_PARAM_NAME);
       if (url.hash === `#${REGISTER_PARAM_VALUE}`) url.hash = "";
@@ -413,10 +413,10 @@
           body: JSON.stringify({ email, password })
         });
         const data = await res.json().catch(() => ({}));
-        if (!res.ok) { showMessage("error", data?.message || data?.error || "Login failed. Please check your details and try again."); return; }
+        if (!res.ok) { showMessage("error", data && data.message || data && data.error || "Login failed. Please check your details and try again."); return; }
         await setUserSessionCookie();
         showMessage("success", "Logged in successfully.");
-        window.location.href = safeRedirectUrl(data?.panel?.url) || getLoginRedirectUrl();
+        window.location.href = safeRedirectUrl(data && data.panel && data.panel.url) || getLoginRedirectUrl();
       } catch (err) {
         showMessage("error", err.message || "Login failed due to a network error.");
         console.error("Login error:", err);
@@ -428,16 +428,16 @@
     async function handleSendCode() {
       const identifierInput = form.querySelector("[data-login-identifier]");
       const identifierError = form.querySelector("[data-login-identifier-error]");
-      const raw = (identifierInput?.value || "").trim();
+      const raw = (identifierInput ? identifierInput.value : "").trim();
 
       if (identifierError) { identifierError.style.display = "none"; identifierError.textContent = ""; }
-      identifierInput?.classList.remove("is-error");
+      identifierInput && identifierInput.classList.remove("is-error");
 
       const type = detectIdentifierType(raw);
       if (!type) {
         if (identifierError) { identifierError.textContent = "Please enter a valid email address or phone number."; identifierError.style.display = "block"; }
-        identifierInput?.classList.add("is-error");
-        identifierInput?.focus();
+        identifierInput && identifierInput.classList.add("is-error");
+        identifierInput && identifierInput.focus();
         return;
       }
 
@@ -451,7 +451,7 @@
           body: JSON.stringify({ email: type === "email" ? raw : "", phone: type === "phone" ? raw : "" })
         });
         const data = await res.json().catch(() => ({}));
-        if (!res.ok) { showMessage("error", data?.message || data?.error || "Failed to send code. Please try again."); return; }
+        if (!res.ok) { showMessage("error", data && data.message || data && data.error || "Failed to send code. Please try again."); return; }
         codeIdentifier = raw;
         codeType       = type;
         hideMessages();
@@ -467,15 +467,15 @@
     async function handleValidateCode() {
       const otpInput = form.querySelector("[data-login-otp]");
       const otpError = form.querySelector("[data-login-otp-error]");
-      const code     = (otpInput?.value || "").trim();
+      const code     = (otpInput ? otpInput.value : "").trim();
 
       if (otpError) { otpError.style.display = "none"; otpError.textContent = ""; }
-      otpInput?.classList.remove("is-error");
+      otpInput && otpInput.classList.remove("is-error");
 
       if (!code) {
         if (otpError) { otpError.textContent = "Please enter the code sent to you."; otpError.style.display = "block"; }
-        otpInput?.classList.add("is-error");
-        otpInput?.focus();
+        otpInput && otpInput.classList.add("is-error");
+        otpInput && otpInput.focus();
         return;
       }
 
@@ -494,13 +494,13 @@
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) {
-          if (otpError) { otpError.textContent = data?.message || data?.error || "Invalid code. Please try again."; otpError.style.display = "block"; }
-          otpInput?.classList.add("is-error");
+          if (otpError) { otpError.textContent = data && data.message || data && data.error || "Invalid code. Please try again."; otpError.style.display = "block"; }
+          otpInput && otpInput.classList.add("is-error");
           return;
         }
         await setUserSessionCookie();
         showMessage("success", "Logged in successfully.");
-        window.location.href = safeRedirectUrl(data?.panel?.url) || getLoginRedirectUrl();
+        window.location.href = safeRedirectUrl(data && data.panel && data.panel.url) || getLoginRedirectUrl();
       } catch (err) {
         showMessage("error", err.message || "Verification failed due to a network error.");
         console.error("Validate code error:", err);
@@ -512,15 +512,15 @@
     async function handleForgotPassword() {
       const emailEl  = form.querySelector("[data-reset-email]");
       const emailErr = form.querySelector("[data-reset-email-error]");
-      const email    = (emailEl?.value || "").trim();
+      const email    = (emailEl ? emailEl.value : "").trim();
 
       if (emailErr) { emailErr.style.display = "none"; emailErr.textContent = ""; }
-      emailEl?.classList.remove("is-error");
+      emailEl && emailEl.classList.remove("is-error");
 
       if (!email) {
         if (emailErr) { emailErr.textContent = "Please enter your email address."; emailErr.style.display = "block"; }
-        emailEl?.classList.add("is-error");
-        emailEl?.focus();
+        emailEl && emailEl.classList.add("is-error");
+        emailEl && emailEl.focus();
         return;
       }
 
@@ -534,7 +534,7 @@
           body: JSON.stringify({ email })
         });
         const data = await res.json().catch(() => ({}));
-        if (!res.ok) { showMessage("error", data?.message || data?.error || "Failed to send reset link. Please try again."); return; }
+        if (!res.ok) { showMessage("error", data && data.message || data && data.error || "Failed to send reset link. Please try again."); return; }
         showMessage("success", "If an account exists for that email, a password reset link has been sent.");
       } catch (err) {
         showMessage("error", err.message || "Failed to send reset link due to a network error.");
@@ -604,8 +604,8 @@
     if (shouldShowRegister()) {
       showRegister();
     } else {
-      loginDiv.style.display = "block";
-      if (registerDiv) registerDiv.style.display = "none";
+      loginDiv.classList.remove("lf-hidden");
+      if (registerDiv) registerDiv.classList.add("lf-hidden");
     }
   }
 
