@@ -77,182 +77,60 @@ class LoginForm extends HTMLElement {
   }
 
   // ── Lifecycle ────────────────────────────────────────────────────────────
-  connectedCallback() {
-    this.innerHTML = `
-      <form
-        name="wf-form-Log-in-Form-14"
-        method="get"
-        class="sign-up-login_header_form"
-        aria-label="Log in Form 14"
-        data-login-form="true"
-      >
+  // ── Swap helpers (no DOM replacement) ───────────────────────────────────
+  _getAuthContainer() {
+    // Prefer same parent so multiple instances don't clash
+    return this.parentElement || document;
+  }
 
-        <!-- Login method toggle (hidden on reset panel) -->
-        <div class="form_toggle-wrapper" data-login-toggle-wrapper="true">
-          <button type="button" class="form_toggle-btn is-active" data-toggle="password">
-            Login with Password
-          </button>
-          <button type="button" class="form_toggle-btn" data-toggle="code">
-            Login with Code
-          </button>
-        </div>
+  _showRegister() {
+    const root = this._getAuthContainer();
+    const loginEl = this; // current <login-form>
+    const registerEl =
+      root.querySelector("register-form") || document.querySelector("register-form");
 
-        <!-- ── Password fields ── -->
-        <div data-login-panel="password">
+    if (!registerEl) {
+      console.error("[LoginForm] register-form not found in DOM");
+      return;
+    }
 
-          <!-- Email -->
-          <div class="form_field-wrapper">
-            <div class="form_field-label">Email</div>
-            <input
-              class="form_input w-input"
-              maxlength="256"
-              name="Log-In-Form-7-Email"
-              placeholder=""
-              type="email"
-              data-login-email="true"
-            />
-          </div>
+    // Optional: update URL to reflect the view
+    const url = new URL(window.location.href);
+    url.searchParams.set(LoginForm.REGISTER_PARAM_NAME, LoginForm.REGISTER_PARAM_VALUE);
+    url.hash = `#${LoginForm.REGISTER_PARAM_VALUE}`;
+    history.replaceState(null, "", url.toString());
 
-          <!-- Password -->
-          <div class="form_field-wrapper">
-            <div class="field-label-wrapper">
-              <div class="form_field-label">Password</div>
-              <a href="#" class="text-style-link" data-reset-password-link="true">Reset your password</a>
-            </div>
-            <input
-              class="form_input w-input"
-              maxlength="256"
-              name="Log-In-Form-7-Password"
-              placeholder=""
-              type="password"
-              data-login-password="true"
-            />
-          </div>
+    loginEl.style.display = "none";
+    registerEl.style.display = "block";
 
-        </div>
+    // Optional: focus the first register field
+    const firstName = registerEl.querySelector("#register-first-name");
+    if (firstName) firstName.focus();
+  }
 
-        <!-- ── Code fields ── -->
-        <div data-login-panel="code" style="display:none">
+  _showLogin() {
+    const root = this._getAuthContainer();
+    const loginEl = this;
+    const registerEl =
+      root.querySelector("register-form") || document.querySelector("register-form");
 
-          <!-- Step 1: identifier input -->
-          <div data-code-step="identifier">
-            <div class="form_field-wrapper">
-              <div class="form_field-label">Email or Phone Number</div>
-              <input
-                class="form_input w-input"
-                maxlength="256"
-                name="Log-In-Code-Identifier"
-                placeholder=""
-                type="text"
-                data-login-identifier="true"
-              />
-              <div class="form_field-error" data-login-identifier-error="true" style="display:none"></div>
-            </div>
-          </div>
+    if (registerEl) registerEl.style.display = "none";
+    loginEl.style.display = "block";
 
-          <!-- Step 2: OTP input (hidden until code is sent) -->
-          <div data-code-step="otp" style="display:none">
-            <div class="form_field-wrapper">
-              <div class="field-label-wrapper">
-                <div class="form_field-label">Enter your code</div>
-                <a href="#" class="text-style-link" data-resend-code="true">Resend code</a>
-              </div>
-              <input
-                class="form_input w-input"
-                maxlength="6"
-                name="Log-In-OTP"
-                placeholder=""
-                type="text"
-                inputmode="numeric"
-                autocomplete="one-time-code"
-                data-login-otp="true"
-              />
-              <div class="form_field-error" data-login-otp-error="true" style="display:none"></div>
-            </div>
-          </div>
+    // Optional: clean URL
+    const url = new URL(window.location.href);
+    url.searchParams.delete(LoginForm.REGISTER_PARAM_NAME);
+    if (url.hash === `#${LoginForm.REGISTER_PARAM_VALUE}`) url.hash = "";
+    history.replaceState(null, "", url.toString());
 
-        </div>
-
-        <!-- ── Reset password fields ── -->
-        <div data-login-panel="reset" style="display:none">
-
-          <div class="form_field-wrapper">
-            <div class="field-label-wrapper">
-              <div class="form_field-label">Email</div>
-              <a href="#" class="text-style-link" data-back-to-login="true">Back to Login</a>
-            </div>
-            <input
-              class="form_input w-input"
-              maxlength="256"
-              name="Reset-Email"
-              placeholder=""
-              type="email"
-              data-reset-email="true"
-            />
-            <div class="form_field-error" data-reset-email-error="true" style="display:none"></div>
-          </div>
-
-        </div>
-
-        <!-- Buttons -->
-        <div class="w-layout-grid form-button-wrapper">
-          <input
-            type="submit"
-            class="button is-full-width w-button"
-            data-login-submit="true"
-            value="Login"
-          />
-
-          <div class="button-group is-center" data-login-register-btn-wrapper="true">
-            <a href="#" class="button-glide-over w-inline-block" id="go-to-register">
-              <span class="button-glide-over__container">
-                <span class="button-glide-over__icon is-first">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" style="--index:3;" class="button-glide-over__icon-item"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="24" d="M40 128h176M144 56l72 72-72 72"></path></svg>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" style="--index:2;" class="button-glide-over__icon-item"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="20" d="M40 128h176M144 56l72 72-72 72"></path></svg>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" style="--index:1;" class="button-glide-over__icon-item"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="20" d="M40 128h176M144 56l72 72-72 72"></path></svg>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" style="--index:0;" class="button-glide-over__icon-item"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="20" d="M40 128h176M144 56l72 72-72 72"></path></svg>
-                </span>
-                <span class="button-glide-over__text">Register</span>
-                <span class="button-glide-over__icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" style="--index:3;" class="button-glide-over__icon-item"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="24" d="M40 128h176M144 56l72 72-72 72"></path></svg>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" style="--index:2;" class="button-glide-over__icon-item"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="20" d="M40 128h176M144 56l72 72-72 72"></path></svg>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" style="--index:1;" class="button-glide-over__icon-item"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="20" d="M40 128h176M144 56l72 72-72 72"></path></svg>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" style="--index:0;" class="button-glide-over__icon-item"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="20" d="M40 128h176M144 56l72 72-72 72"></path></svg>
-                </span>
-              </span>
-              <div class="button-glide-over__background"></div>
-            </a>
-          </div>
-        </div>
-
-        <!-- Success message -->
-        <div class="form_message-success-wrapper w-form-done" data-login-success-wrapper="true" style="display:none">
-          <div class="form_message-success">
-            <div data-login-success="true"></div>
-          </div>
-        </div>
-
-        <!-- Error message -->
-        <div class="form_message-error-wrapper w-form-fail" data-login-error-wrapper="true" style="display:none">
-          <div class="form_message-error">
-            <div data-login-error="true"></div>
-          </div>
-        </div>
-
-      </form>
-    `;
-
-    this._activePanel    = "password";
-    this._codeStep       = "identifier"; // "identifier" | "otp"
-    this._codeIdentifier = null;
-    this._codeType       = null;
-
-    this._bindEvents();
+    const email = loginEl.querySelector('[data-login-email="true"]');
+    if (email) email.focus();
+  }
+  
 
     // If the URL contains the register param or hash, swap to the register form immediately
     if (this._shouldShowRegister()) {
-      const registerForm = document.createElement("register-form");
-      this.replaceWith(registerForm);
+      this._showRegister();
     }
   }
 
@@ -745,8 +623,7 @@ class LoginForm extends HTMLElement {
 
     registerBtn.addEventListener("click", (e) => {
       e.preventDefault();
-      const registerForm = document.createElement("register-form");
-      this.replaceWith(registerForm);
+      this._showRegister();
     });
   }
 }
