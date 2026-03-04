@@ -104,7 +104,7 @@
       ]);
       if (!allowedHosts.has(u.hostname)) return null;
       return u.toString();
-    } catch {
+    } catch (_e) {
       return null;
     }
   }
@@ -113,7 +113,7 @@
   function getReferralCodeFromUrl() {
     try {
       return (new URLSearchParams(window.location.search).get("referral_code") || "").trim();
-    } catch {
+    } catch (_e) {
       return "";
     }
   }
@@ -136,8 +136,8 @@
 
       // Inject password error element after Confirm Password if not present
       if (!this.container.querySelector("#password-error")) {
-        const confirmWrapper = this.container.querySelector("#Confirm-Password")
-          ?.closest(".form_field-wrapper");
+        var _cpEl = this.container.querySelector("#Confirm-Password");
+        const confirmWrapper = _cpEl ? _cpEl.closest(".form_field-wrapper") : null;
         if (confirmWrapper) {
           const pwError = document.createElement("div");
           pwError.id = "password-error";
@@ -174,11 +174,11 @@
     // ── Show survey ───────────────────────────────────────────────────────
     _showSurvey(userId, dashboardUrl) {
       if (userId) sessionStorage.setItem("userId", String(userId));
-      this.container.style.display = "none";
+      this.container.classList.add("lf-hidden");
       const surveyDiv = document.querySelector("#primed-survey");
       if (surveyDiv) {
         if (dashboardUrl) surveyDiv.setAttribute("data-dashboard-url", dashboardUrl);
-        surveyDiv.style.display = "block";
+        surveyDiv.classList.remove("lf-hidden");
       } else {
         console.warn("[RegisterForm] #primed-survey not found");
       }
@@ -202,7 +202,7 @@
         const data = await res.json().catch(() => ({}));
         if (res.ok) {
           await setUserSessionCookie();
-          dashboardUrl = safeRedirectUrl(data?.panel?.url);
+          dashboardUrl = safeRedirectUrl(data && data.panel && data.panel.url);
         } else {
           console.warn("[RegisterForm] Auto-login failed, continuing without session");
         }
@@ -247,19 +247,19 @@
       try {
         await ensureCsrfCookie();
         const xsrfToken = getCookie("XSRF-TOKEN");
-        const email = (c.querySelector("#Email")?.value || "").trim();
+        const email = ((function(){ var _el = c.querySelector("#Email"); return _el ? _el.value : ""; }()) || "").trim();
 
         const payload = {
-          first_name:   (c.querySelector("#First-Name")?.value   || "").trim(),
-          last_name:    (c.querySelector("#Last-Name")?.value    || "").trim(),
+          first_name:   ((function(){ var _el = c.querySelector("#First-Name"); return _el ? _el.value : ""; }())   || "").trim(),
+          last_name:    ((function(){ var _el = c.querySelector("#Last-Name"); return _el ? _el.value : ""; }())    || "").trim(),
           email,
-          phone:        (c.querySelector("#Phone")?.value        || "").trim(),
-          address:      (c.querySelector("#Address")?.value      || "").trim(),
-          streetNumber: (c.querySelector("#streetNumber")?.value || "").trim(),
-          streetName:   (c.querySelector("#streetName")?.value   || "").trim(),
-          suburb:       (c.querySelector("#suburb")?.value       || "").trim(),
-          state:        (c.querySelector("#state")?.value        || "").trim(),
-          postcode:     (c.querySelector("#postcode")?.value     || "").trim(),
+          phone:        ((function(){ var _el = c.querySelector("#Phone"); return _el ? _el.value : ""; }())        || "").trim(),
+          address:      ((function(){ var _el = c.querySelector("#Address"); return _el ? _el.value : ""; }())      || "").trim(),
+          streetNumber: ((function(){ var _el = c.querySelector("#streetNumber"); return _el ? _el.value : ""; }()) || "").trim(),
+          streetName:   ((function(){ var _el = c.querySelector("#streetName"); return _el ? _el.value : ""; }())   || "").trim(),
+          suburb:       ((function(){ var _el = c.querySelector("#suburb"); return _el ? _el.value : ""; }())       || "").trim(),
+          state:        ((function(){ var _el = c.querySelector("#state"); return _el ? _el.value : ""; }())        || "").trim(),
+          postcode:     ((function(){ var _el = c.querySelector("#postcode"); return _el ? _el.value : ""; }())     || "").trim(),
           password:     password.value,
           referral_code: getReferralCodeFromUrl(),
         };
@@ -277,14 +277,14 @@
         const data = await res.json().catch(() => ({}));
 
         if (!res.ok) {
-          this._showError(data?.message || data?.error || "Registration failed. Please check your details and try again.");
+          this._showError(data && data.message || data && data.error || "Registration failed. Please check your details and try again.");
           return;
         }
 
         await this._autoLogin(email, password.value, data.user_id);
 
       } catch (err) {
-        this._showError(err?.message || "Registration failed due to a network error.");
+        this._showError(err && err.message || "Registration failed due to a network error.");
         console.error("[RegisterForm] Register error:", err);
       } finally {
         this._setSubmitState(false);
@@ -298,12 +298,12 @@
       if (url.hash === "#register") url.hash = "";
       history.replaceState(null, "", url.toString());
 
-      this.container.style.display = "none";
+      this.container.classList.add("lf-hidden");
 
       const loginContainer = document.querySelector("#login-form");
       if (loginContainer) {
-        loginContainer.style.display = "block";
-        loginContainer.querySelector("#log-in_input-form")?.focus();
+        loginContainer.classList.remove("lf-hidden");
+        var _lf = loginContainer.querySelector("#log-in_input-form"); if (_lf) _lf.focus();
       } else {
         console.error("[RegisterForm] #login-form not found");
       }
@@ -328,11 +328,11 @@
       }
 
       // Clear password mismatch error on re-type
-      confirm?.addEventListener("input", () => {
-        if (pwError?.style.display === "block") {
+      if (confirm) confirm.addEventListener("input", function() {
+        if (pwError && pwError.style.display === "block") {
           pwError.style.display = "none";
           confirm.classList.remove("is-error");
-          password?.classList.remove("is-error");
+          password && password.classList.remove("is-error");
         }
       });
 
