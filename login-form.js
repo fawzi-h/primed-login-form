@@ -3,6 +3,22 @@
 (function () {
   "use strict";
 
+  // ── UUID fallback (Safari iOS < 15.4 does not support crypto.randomUUID) ──
+  function generateUUID() {
+    if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+      return crypto.randomUUID();
+    }
+    // Manual fallback using crypto.getRandomValues
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+      var r = (typeof crypto !== "undefined" && crypto.getRandomValues)
+        ? (crypto.getRandomValues(new Uint8Array(1))[0] & 15)
+        : Math.floor(Math.random() * 16);
+      var v = c === "x" ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  }
+
+
   // ── Config ──────────────────────────────────────────────────────────────
   const CSRF_TTL_SECONDS   = 7200;
   const CSRF_EXPIRY_COOKIE = "wf_csrf_expires_at";
@@ -88,7 +104,7 @@
         .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
     const encode = (obj) => b64url(new TextEncoder().encode(JSON.stringify(obj)));
     const header  = encode({ alg: "HS256", typ: "JWT" });
-    const payload = encode({ iat: Math.floor(Date.now() / 1000), jti: crypto.randomUUID(), session: true });
+    const payload = encode({ iat: Math.floor(Date.now() / 1000), jti: generateUUID(), session: true });
     const key = await crypto.subtle.generateKey({ name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
     const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(`${header}.${payload}`));
     return `${header}.${payload}.${b64url(sig)}`;
