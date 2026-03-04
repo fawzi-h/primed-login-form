@@ -141,6 +141,7 @@
     // Wrap existing email + password field-wrappers in a password panel div
     const passwordPanel = document.createElement("div");
     passwordPanel.setAttribute("data-login-panel", "password");
+    passwordPanel.style.display = "none";
     const emailWrapper = emailInput.closest(".form_field-wrapper");
     const passWrapper  = passInput.closest(".form_field-wrapper");
     emailWrapper.parentNode.insertBefore(passwordPanel, emailWrapper);
@@ -305,7 +306,7 @@
       activePanel = panel;
 
       loginDiv.querySelectorAll("[data-login-panel]").forEach(el => {
-        el.style.display = el.dataset.loginPanel === panel ? "" : "none";
+        el.style.display = el.dataset.loginPanel === panel ? "block" : "none";
       });
 
       const toggleWrapper      = loginDiv.querySelector("[data-login-toggle-wrapper]");
