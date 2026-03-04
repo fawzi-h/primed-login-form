@@ -314,7 +314,17 @@
       activePanel = panel;
 
       loginDiv.querySelectorAll("[data-login-panel]").forEach(el => {
-        el.classList.toggle("lf-active", el.dataset.loginPanel === panel);
+        const isActive = el.dataset.loginPanel === panel;
+        el.classList.toggle("lf-active", isActive);
+        // Disable required on hidden panel inputs to prevent browser validation errors
+        el.querySelectorAll("input, select, textarea").forEach(input => {
+          if (isActive) {
+            if (input.dataset.wasRequired === "true") input.required = true;
+          } else {
+            if (input.required) input.dataset.wasRequired = "true";
+            input.required = false;
+          }
+        });
       });
 
       const toggleWrapper      = loginDiv.querySelector("[data-login-toggle-wrapper]");
