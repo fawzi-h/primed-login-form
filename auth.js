@@ -102,7 +102,8 @@ async function checkServerAuthStatus() {
 
   const headers = new Headers({
     "Accept":       "application/json",
-    "Content-Type": "application/json",
+    // removing content type to avoid cors
+    // "Content-Type": "application/json",
     ...(xsrfToken ? { "X-XSRF-TOKEN": xsrfToken } : {})
   });
 
