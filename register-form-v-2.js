@@ -565,18 +565,35 @@ class RegisterForm extends HTMLElement {
       this._handleSubmit(e);
     });
 
-    backBtn.addEventListener("click", (e) => {
-      console.log("[RegisterForm] Back to login clicked");
-      e.preventDefault();
+backBtn.addEventListener("click", (e) => {
+  console.log("[RegisterForm] Back to login clicked");
+  e.preventDefault();
 
-      const url = new URL(window.location.href);
-      url.searchParams.delete("view");
-      if (url.hash === "#register") url.hash = "";
-      history.replaceState(null, "", url.toString());
+  // Optional: clean the URL
+  const url = new URL(window.location.href);
+  url.searchParams.delete("view");
+  if (url.hash === "#register") url.hash = "";
+  history.replaceState(null, "", url.toString());
 
-      const loginForm = document.createElement("login-form");
-      this.replaceWith(loginForm);
-    });
+  // Toggle visibility instead of replacing DOM
+  const registerEl = this; // <register-form>
+  const container = registerEl.parentElement || document;
+
+  const loginEl =
+    container.querySelector("login-form") || document.querySelector("login-form");
+
+  if (!loginEl) {
+    console.error("[RegisterForm] login-form not found in DOM");
+    return;
+  }
+
+  registerEl.style.display = "none";
+  loginEl.style.display = "block";
+
+  // Optional: set focus to first login input if you have one
+  const loginEmail = loginEl.querySelector('input[type="email"], input[name="email"]');
+  if (loginEmail) loginEmail.focus();
+});
 
     console.log("[RegisterForm] Event binding complete");
   }
