@@ -1,4 +1,4 @@
-/* register-form-v-2.js — works with existing Webflow div#signup-form structure */
+/* register-form-v-2.js — no DOM injection, works with existing Webflow HTML */
 
 (function () {
   "use strict";
@@ -20,7 +20,7 @@
     "www.primedclinic.com.au":          "https://app.primedclinic.com.au/sanctum/csrf-cookie",
   };
 
-  // ── Endpoint resolver ────────────────────────────────────────────────────
+  // ── Endpoint resolver ─────────────────────────────────────────────────────
   function resolveEndpoint(map) {
     const hostname = window.location.hostname;
     for (const [key, url] of Object.entries(map)) {
@@ -102,189 +102,60 @@
     }
   }
 
-  // ── DOM injection ─────────────────────────────────────────────────────────
-  // Replaces the existing Webflow signup form content with the controlled markup.
-  function injectRegisterForm(container) {
-    container.innerHTML = `
-      <div id="get-started" class="margin-bottom margin-medium get-started">
-        <div class="text-align-center">
-          <div class="max-width-large align-center">
-            <div class="margin-bottom margin-small">
-              <h1 class="heading-style-h1 text-align-center margin-bottom margin-small">Get Started</h1>
-            </div>
-            <p class="text-size-medium">Your health data stays private. Create an account to get started.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="max-width-small align-center">
-        <div class="sign-up-login_header_form-block w-form">
-          <form
-            name="wf-form-Register-Form"
-            method="get"
-            class="sign-up-login_header_form"
-            aria-label="Register Form"
-            id="register-form-el"
-            novalidate
-          >
-            <div class="form_field-2col">
-              <div class="form_field-wrapper">
-                <input class="form_input w-input" maxlength="256" name="First-Name"
-                  placeholder="First Name" type="text" id="register-first-name" required />
-              </div>
-              <div class="form_field-wrapper">
-                <input class="form_input w-input" maxlength="256" name="Last-Name"
-                  placeholder="Last Name" type="text" id="register-last-name" required />
-              </div>
-            </div>
-
-            <div class="form_field-wrapper">
-              <input class="form_input w-input" maxlength="256" name="Register-Email"
-                placeholder="Email" type="email" id="register-email" required />
-            </div>
-
-            <div class="form_field-wrapper">
-              <input class="form_input w-input" maxlength="256" name="Phone"
-                placeholder="Phone Number" type="tel" id="register-phone" required />
-            </div>
-
-            <div class="form_field-wrapper">
-              <input class="form_input w-input" maxlength="256" name="Address"
-                placeholder="Address" type="text" id="register-address" required />
-            </div>
-
-            <div id="address-details-wrapper" style="display:none;">
-              <div class="form_field-2col">
-                <div class="form_field-wrapper">
-                  <input class="form_input w-input" maxlength="256" name="streetNumber"
-                    placeholder="Street Number" type="text" id="streetNumber"
-                    autocomplete="address-line1" required aria-required="true" />
-                </div>
-                <div class="form_field-wrapper">
-                  <input class="form_input w-input" maxlength="256" name="streetName"
-                    placeholder="Street Name" type="text" id="streetName"
-                    required aria-required="true" />
-                </div>
-              </div>
-              <div class="form_field-2col">
-                <div class="form_field-wrapper">
-                  <input class="form_input w-input" maxlength="256" name="suburb"
-                    placeholder="Suburb" type="text" id="suburb"
-                    autocomplete="address-level2" required aria-required="true" />
-                </div>
-                <div class="form_field-wrapper">
-                  <input class="form_input w-input" maxlength="256" name="state"
-                    placeholder="State" type="text" id="state"
-                    autocomplete="address-level1" required aria-required="true" />
-                </div>
-                <div class="form_field-wrapper">
-                  <input class="form_input w-input" maxlength="256" name="postcode"
-                    placeholder="Postcode" type="text" id="postcode"
-                    autocomplete="postal-code" inputmode="numeric"
-                    required aria-required="true" />
-                </div>
-              </div>
-            </div>
-
-            <div class="form_field-2col">
-              <div class="form_field-wrapper">
-                <input class="form_input w-input" maxlength="256" name="Register-Password"
-                  placeholder="Password" type="password" id="register-password" required />
-              </div>
-              <div class="form_field-wrapper">
-                <input class="form_input w-input" maxlength="256" name="Register-Confirm-Password"
-                  placeholder="Confirm Password" type="password"
-                  id="register-confirm-password" required />
-              </div>
-            </div>
-
-            <div class="form_field-error" id="password-error" style="display:none;">
-              Passwords do not match.
-            </div>
-
-            <div class="form_field-wrapper">
-              <input class="form_input w-input" maxlength="256" name="Referral-Code"
-                placeholder="Referral Code" type="text" id="register-referral-code" />
-            </div>
-
-            <div class="form_message-error-wrapper w-form-fail"
-                data-register-error-wrapper="true"
-                style="display:none;">
-              <div class="form_message-error">
-                <div data-register-error="true"></div>
-              </div>
-            </div>
-
-            <div class="w-layout-grid form-button-wrapper align-center">
-              <input type="submit" class="button is-full-width w-button"
-                value="Create account & Continue" id="register-submit" />
-            </div>
-
-            <div class="button-group is-center">
-              <a href="#" class="button-glide-over w-inline-block" id="back-to-login">
-                <span class="button-glide-over__container">
-                  <span class="button-glide-over__icon is-first">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" style="--index:0;" class="button-glide-over__icon-item">
-                      <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="20" d="M216 128H40M112 56L40 128l72 72"></path>
-                    </svg>
-                  </span>
-                  <span class="button-glide-over__text">Back to Login</span>
-                  <span class="button-glide-over__icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" style="--index:0;" class="button-glide-over__icon-item">
-                      <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="20" d="M216 128H40M112 56L40 128l72 72"></path>
-                    </svg>
-                  </span>
-                </span>
-                <div class="button-glide-over__background"></div>
-              </a>
-            </div>
-
-            <div class="sr-only" aria-live="polite" id="form-status"></div>
-          </form>
-        </div>
-      </div>
-    `;
-
-    // Pre-fill referral code if in URL
-    const ref      = getReferralCodeFromUrl();
-    const refInput = container.querySelector("#register-referral-code");
-    if (refInput && ref) refInput.value = ref;
-
-    console.log("[RegisterForm] HTML injected into #signup-form");
-  }
-
-  // ── Main controller ───────────────────────────────────────────────────────
+  // ── Controller ────────────────────────────────────────────────────────────
   class RegisterFormController {
     constructor(container) {
       this.container = container;
     }
 
     init() {
-      injectRegisterForm(this.container);
+      // Pre-fill referral code from URL if present
+      const refInput = this.container.querySelector("#Referral-Code");
+      const refCode  = getReferralCodeFromUrl();
+      if (refInput && refCode) refInput.value = refCode;
+
+      // Hide error wrapper on load
+      const errorWrapper = this.container.querySelector(".form_message-error-wrapper");
+      if (errorWrapper) errorWrapper.style.display = "none";
+
+      // Inject password error element after Confirm Password if not present
+      if (!this.container.querySelector("#password-error")) {
+        const confirmWrapper = this.container.querySelector("#Confirm-Password")
+          ?.closest(".form_field-wrapper");
+        if (confirmWrapper) {
+          const pwError = document.createElement("div");
+          pwError.id = "password-error";
+          pwError.style.cssText = "display:none; color:#e53e3e; font-size:0.85rem; margin-top:0.25rem;";
+          pwError.textContent = "Passwords do not match.";
+          confirmWrapper.after(pwError);
+        }
+      }
+
       this._bindEvents();
+      console.log("[RegisterForm] Initialised on #signup-form");
     }
 
-    // ── UI helpers ────────────────────────────────────────────────────────
+    // ── Show/hide helpers ─────────────────────────────────────────────────
     _showError(message) {
-      const wrapper = this.container.querySelector("[data-register-error-wrapper]");
-      const el      = this.container.querySelector("[data-register-error]");
+      const wrapper = this.container.querySelector(".form_message-error-wrapper");
+      const el      = this.container.querySelector(".error-text");
       if (el)      el.textContent = message;
       if (wrapper) { wrapper.classList.add("w-form-fail"); wrapper.style.display = "block"; }
     }
 
     _hideError() {
-      const wrapper = this.container.querySelector("[data-register-error-wrapper]");
-      if (wrapper)  { wrapper.classList.remove("w-form-fail"); wrapper.style.display = "none"; }
+      const wrapper = this.container.querySelector(".form_message-error-wrapper");
+      if (wrapper) { wrapper.classList.remove("w-form-fail"); wrapper.style.display = "none"; }
     }
 
     _setSubmitState(loading) {
-      const btn = this.container.querySelector("#register-submit");
+      const btn = this.container.querySelector("input[type='submit']");
       if (!btn) return;
       btn.disabled = loading;
       btn.value    = loading ? "Please wait..." : "Create account & Continue";
     }
 
-    // ── Survey ────────────────────────────────────────────────────────────
+    // ── Show survey ───────────────────────────────────────────────────────
     _showSurvey(userId, dashboardUrl) {
       if (userId) sessionStorage.setItem("userId", String(userId));
       this.container.style.display = "none";
@@ -325,24 +196,31 @@
       this._showSurvey(userId, dashboardUrl);
     }
 
-    // ── Register submit handler ───────────────────────────────────────────
+    // ── Submit handler ────────────────────────────────────────────────────
     async _handleSubmit(e) {
       e.preventDefault();
       e.stopPropagation();
 
-      const password = this.container.querySelector("#register-password");
-      const confirm  = this.container.querySelector("#register-confirm-password");
-      const pwError  = this.container.querySelector("#password-error");
+      const c        = this.container;
+      const password = c.querySelector("#Password");
+      const confirm  = c.querySelector("#Confirm-Password");
+      const pwError  = c.querySelector("#password-error");
 
-      if (!password || !confirm || !pwError) {
+      if (!password || !confirm) {
         this._showError("Form is missing required fields. Please refresh the page.");
         return;
       }
 
+      // Reset password error state
+      if (pwError) pwError.style.display = "none";
+      password.classList.remove("is-error");
+      confirm.classList.remove("is-error");
+
+      // Validate password match
       if (password.value !== confirm.value) {
-        pwError.style.display = "block";
-        confirm.classList.add("is-error");
+        if (pwError) pwError.style.display = "block";
         password.classList.add("is-error");
+        confirm.classList.add("is-error");
         confirm.focus();
         return;
       }
@@ -353,20 +231,20 @@
       try {
         await ensureCsrfCookie();
         const xsrfToken = getCookie("XSRF-TOKEN");
-        const email     = (this.container.querySelector("#register-email")?.value || "").trim();
+        const email = (c.querySelector("#Email")?.value || "").trim();
 
         const payload = {
-          first_name:    (this.container.querySelector("#register-first-name")?.value  || "").trim(),
-          last_name:     (this.container.querySelector("#register-last-name")?.value   || "").trim(),
+          first_name:   (c.querySelector("#First-Name")?.value   || "").trim(),
+          last_name:    (c.querySelector("#Last-Name")?.value    || "").trim(),
           email,
-          phone:         (this.container.querySelector("#register-phone")?.value       || "").trim(),
-          address:       (this.container.querySelector("#register-address")?.value     || "").trim(),
-          streetNumber:  (this.container.querySelector("#streetNumber")?.value         || "").trim(),
-          streetName:    (this.container.querySelector("#streetName")?.value           || "").trim(),
-          suburb:        (this.container.querySelector("#suburb")?.value               || "").trim(),
-          state:         (this.container.querySelector("#state")?.value                || "").trim(),
-          postcode:      (this.container.querySelector("#postcode")?.value             || "").trim(),
-          password:      password.value,
+          phone:        (c.querySelector("#Phone")?.value        || "").trim(),
+          address:      (c.querySelector("#Address")?.value      || "").trim(),
+          streetNumber: (c.querySelector("#streetNumber")?.value || "").trim(),
+          streetName:   (c.querySelector("#streetName")?.value   || "").trim(),
+          suburb:       (c.querySelector("#suburb")?.value       || "").trim(),
+          state:        (c.querySelector("#state")?.value        || "").trim(),
+          postcode:     (c.querySelector("#postcode")?.value     || "").trim(),
+          password:     password.value,
           referral_code: getReferralCodeFromUrl(),
         };
 
@@ -407,25 +285,30 @@
       this.container.style.display = "none";
 
       const loginContainer = document.querySelector("#login-form");
-      if (!loginContainer) {
+      if (loginContainer) {
+        loginContainer.style.display = "block";
+        loginContainer.querySelector("#log-in_input-form")?.focus();
+      } else {
         console.error("[RegisterForm] #login-form not found");
-        return;
       }
-
-      loginContainer.style.display = "block";
-      loginContainer.querySelector('[data-login-email="true"]')?.focus();
     }
 
     // ── Event binding ─────────────────────────────────────────────────────
     _bindEvents() {
-      const form    = this.container.querySelector("#register-form-el");
-      const confirm = this.container.querySelector("#register-confirm-password");
-      const pwError = this.container.querySelector("#password-error");
-      const backBtn = this.container.querySelector("#back-to-login");
+      const form     = this.container.querySelector("form.signup_input-form");
+      const password = this.container.querySelector("#Password");
+      const confirm  = this.container.querySelector("#Confirm-Password");
+      const pwError  = this.container.querySelector("#password-error");
 
       if (!form) {
-        console.error("[RegisterForm] #register-form-el not found, cannot bind events");
+        console.error("[RegisterForm] form.signup_input-form not found");
         return;
+      }
+
+      // Prevent Webflow's default form submission
+      if (form.dataset.registerBound !== "true") {
+        form.dataset.registerBound = "true";
+        form.addEventListener("submit", (e) => this._handleSubmit(e));
       }
 
       // Clear password mismatch error on re-type
@@ -433,16 +316,16 @@
         if (pwError?.style.display === "block") {
           pwError.style.display = "none";
           confirm.classList.remove("is-error");
-          this.container.querySelector("#register-password")?.classList.remove("is-error");
+          password?.classList.remove("is-error");
         }
       });
 
-      form.addEventListener("submit", (e) => this._handleSubmit(e));
-
-      backBtn?.addEventListener("click", (e) => {
-        e.preventDefault();
-        this._handleBackToLogin();
-      });
+      // Back to login — any link inside signup-form pointing to login
+      this.container.querySelectorAll(
+        'a[href*="sign-up-login"]:not([href*="register"]), a[href="/sign-up-login"]'
+      ).forEach(el =>
+        el.addEventListener("click", (e) => { e.preventDefault(); this._handleBackToLogin(); })
+      );
     }
   }
 
