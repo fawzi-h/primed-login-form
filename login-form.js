@@ -158,7 +158,16 @@
     if (!document.getElementById("lf-panel-style")) {
       const style = document.createElement("style");
       style.id = "lf-panel-style";
-      style.textContent = `[data-login-panel] { display: none !important; } [data-login-panel].lf-active { display: block !important; } .lf-hidden { display: none !important; }`;
+      style.textContent = [
+      /* panels */
+      "[data-login-panel] { display: none !important; }",
+      "[data-login-panel].lf-active { display: block !important; }",
+      /* login/register swap — use the container as the source of truth */
+      "#signup-login-container.show-register #login-form { display: none !important; }",
+      "#signup-login-container.show-register #signup-form { display: block !important; }",
+      "#signup-login-container.show-login #login-form { display: block !important; }",
+      "#signup-login-container.show-login #signup-form { display: none !important; }",
+    ].join(" ");
       document.head.appendChild(style);
     }
 
@@ -373,16 +382,16 @@
 
     // ── Login / Register swap ─────────────────────────────────────────────
     function showRegister() {
-      loginDiv.classList.add("lf-hidden");
-      if (registerDiv) registerDiv.classList.remove("lf-hidden");
+      var container = loginDiv.parentElement;
+      if (container) { container.classList.add("show-register"); container.classList.remove("show-login"); }
       const url = new URL(window.location.href);
       url.searchParams.set(REGISTER_PARAM_NAME, REGISTER_PARAM_VALUE);
       history.replaceState(null, "", url.toString());
     }
 
     function showLogin() {
-      loginDiv.classList.remove("lf-hidden");
-      if (registerDiv) registerDiv.classList.add("lf-hidden");
+      var container = loginDiv.parentElement;
+      if (container) { container.classList.add("show-login"); container.classList.remove("show-register"); }
       const url = new URL(window.location.href);
       url.searchParams.delete(REGISTER_PARAM_NAME);
       if (url.hash === `#${REGISTER_PARAM_VALUE}`) url.hash = "";
@@ -604,8 +613,8 @@
     if (shouldShowRegister()) {
       showRegister();
     } else {
-      loginDiv.classList.remove("lf-hidden");
-      if (registerDiv) registerDiv.classList.add("lf-hidden");
+      var container = loginDiv.parentElement;
+      if (container) { container.classList.add("show-login"); container.classList.remove("show-register"); }
     }
   }
 
