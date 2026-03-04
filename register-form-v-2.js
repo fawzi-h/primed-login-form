@@ -1,331 +1,82 @@
-/* register-form-v-2.js */
-class RegisterForm extends HTMLElement {
+/* register-form-v-2.js — works with existing Webflow div#signup-form structure */
+
+(function () {
+  "use strict";
+
   // ── Config ──────────────────────────────────────────────────────────────
-  static CSRF_TTL_SECONDS = 7200;
-  static CSRF_EXPIRY_COOKIE = "wf_csrf_expires_at";
+  const CSRF_TTL_SECONDS   = 7200;
+  const CSRF_EXPIRY_COOKIE = "wf_csrf_expires_at";
 
-  static REGISTER_ENDPOINT_MAP = {
+  const REGISTER_ENDPOINT_MAP = {
     "dev-frontend.primedclinic.com.au": "https://api.dev.primedclinic.com.au/api/register/guest",
-    "www.primedclinic.com.au": "https://app.primedclinic.com.au/api/register/guest",
+    "www.primedclinic.com.au":          "https://app.primedclinic.com.au/api/register/guest",
   };
-
-  static LOGIN_ENDPOINT_MAP = {
+  const LOGIN_ENDPOINT_MAP = {
     "dev-frontend.primedclinic.com.au": "https://api.dev.primedclinic.com.au/api/login",
-    "www.primedclinic.com.au": "https://app.primedclinic.com.au/api/login",
+    "www.primedclinic.com.au":          "https://app.primedclinic.com.au/api/login",
   };
-
-  static SANCTUM_CSRF_ENDPOINT_MAP = {
+  const SANCTUM_CSRF_ENDPOINT_MAP = {
     "dev-frontend.primedclinic.com.au": "https://api.dev.primedclinic.com.au/sanctum/csrf-cookie",
-    "www.primedclinic.com.au": "https://app.primedclinic.com.au/sanctum/csrf-cookie",
+    "www.primedclinic.com.au":          "https://app.primedclinic.com.au/sanctum/csrf-cookie",
   };
 
-  // ── Host resolver ───────────────────────────────────────────────────────
-  static _resolveEndpoint(map) {
+  // ── Endpoint resolver ────────────────────────────────────────────────────
+  function resolveEndpoint(map) {
     const hostname = window.location.hostname;
-    console.log("[RegisterForm] Resolving endpoint for hostname:", hostname);
-
     for (const [key, url] of Object.entries(map)) {
-      if (hostname === key || hostname.endsWith("." + key)) {
-        console.log("[RegisterForm] Endpoint matched for key:", key, "=>", url);
-        return url;
-      }
+      if (hostname === key || hostname.endsWith("." + key)) return url;
     }
-
-    console.error("[RegisterForm] No endpoint configured for host:", hostname);
-    throw new Error(`No endpoint configured for host: ${hostname}`);
+    return Object.values(map)[0];
   }
 
-  static get REGISTER_ENDPOINT() {
-    return this._resolveEndpoint(this.REGISTER_ENDPOINT_MAP);
-  }
-  static get LOGIN_ENDPOINT() {
-    return this._resolveEndpoint(this.LOGIN_ENDPOINT_MAP);
-  }
-  static get SANCTUM_CSRF_ENDPOINT() {
-    return this._resolveEndpoint(this.SANCTUM_CSRF_ENDPOINT_MAP);
-  }
-
-  // ── Lifecycle ───────────────────────────────────────────────────────────
-  connectedCallback() {
-    console.log("[RegisterForm] Component connected");
-
-    this.innerHTML = `
-<form
-  name="wf-form-Register-Form"
-  method="get"
-  class="sign-up-login_header_form"
-  aria-label="Register Form"
-  id="register-form-el"
-  novalidate
->
-  <div class="form_field-2col">
-    <div class="form_field-wrapper">
-      <input class="form_input w-input" maxlength="256" name="First-Name"
-        placeholder="First Name" type="text" id="register-first-name" required />
-    </div>
-    <div class="form_field-wrapper">
-      <input class="form_input w-input" maxlength="256" name="Last-Name"
-        placeholder="Last Name" type="text" id="register-last-name" required />
-    </div>
-  </div>
-
-  <div class="form_field-wrapper">
-    <input class="form_input w-input" maxlength="256" name="Register-Email"
-      placeholder="Email" type="email" id="register-email" required />
-  </div>
-
-  <div class="form_field-wrapper">
-    <input class="form_input w-input" maxlength="256" name="Phone"
-      placeholder="Phone Number" type="tel" id="register-phone" required />
-  </div>
-
-  <div class="form_field-wrapper">
-    <input class="form_input w-input" maxlength="256" name="Address"
-      placeholder="Address" type="text" id="register-address" required />
-  </div>
-
-  <div id="address-details-wrapper" style="display:none;">
-    <div class="form_field-2col">
-      <div class="form_field-wrapper">
-        <input class="form_input w-input" maxlength="256" name="streetNumber"
-          placeholder="Street Number" type="text" id="streetNumber"
-          autocomplete="address-line1" required aria-required="true">
-      </div>
-      <div class="form_field-wrapper">
-        <input class="form_input w-input" maxlength="256" name="streetName"
-          placeholder="Street Name" type="text" id="streetName" required aria-required="true">
-      </div>
-    </div>
-
-    <div class="form_field-2col">
-      <div class="form_field-wrapper">
-        <input class="form_input w-input" maxlength="256" name="suburb"
-          placeholder="Suburb" type="text" id="suburb" autocomplete="address-level2" required aria-required="true">
-      </div>
-      <div class="form_field-wrapper">
-        <input class="form_input w-input" maxlength="256" name="state"
-          placeholder="State" type="text" id="state" autocomplete="address-level1" required aria-required="true">
-      </div>
-      <div class="form_field-wrapper">
-        <input class="form_input w-input" maxlength="256" name="postcode"
-          placeholder="Postcode" type="text" id="postcode" autocomplete="postal-code"
-          inputmode="numeric" required aria-required="true">
-      </div>
-    </div>
-  </div>
-
-  <div class="form_field-2col">
-    <div class="form_field-wrapper">
-      <input class="form_input w-input" maxlength="256" name="Register-Password"
-        placeholder="Password" type="password" id="register-password" required />
-    </div>
-    <div class="form_field-wrapper">
-      <input class="form_input w-input" maxlength="256" name="Register-Confirm-Password"
-        placeholder="Confirm Password" type="password" id="register-confirm-password" required />
-    </div>
-  </div>
-
-  <div class="form_field-error" id="password-error" style="display:none">
-    Passwords do not match.
-  </div>
-
-  <div class="form_field-wrapper">
-    <input class="form_input w-input" maxlength="256" name="Referral-Code"
-      placeholder="Referral Code" type="text" id="register-referral-code" />
-  </div>
-
-  <div class="form_message-error-wrapper w-form-fail"
-       data-register-error-wrapper="true"
-       style="display:none">
-    <div class="form_message-error">
-      <div data-register-error="true"></div>
-    </div>
-  </div>
-
-  <div class="w-layout-grid form-button-wrapper">
-    <input type="submit" class="button is-full-width w-button"
-      value="Create account & Continue" id="register-submit" />
-  </div>
-
-  <div class="button-group is-center">
-    <a href="#" class="button-glide-over w-inline-block" id="back-to-login">
-      <span class="button-glide-over__container">
-        <span class="button-glide-over__text">Back to Login</span>
-      </span>
-      <div class="button-glide-over__background"></div>
-    </a>
-  </div>
-
-  <input type="hidden" name="cf-turnstile-response" id="cf-chl-widget-a8hv1_response" value="...">
-  <div class="sr-only" aria-live="polite" id="form-status"></div>
-</form>
-    `;
-
-    console.log("[RegisterForm] HTML injected. register-form-el exists?", !!this.querySelector("#register-form-el"));
-
-    const ref = this._getReferralCodeFromUrl();
-    console.log("[RegisterForm] Referral code from URL:", ref);
-
-    const refInput = this.querySelector("#register-referral-code");
-    if (refInput && ref) {
-      refInput.value = ref;
-      console.log("[RegisterForm] Referral code applied to input");
-    }
-
-    this._bindEvents();
-  }
-
-  // ── Referral code ───────────────────────────────────────────────────────
-  _getReferralCodeFromUrl() {
-    console.log("[RegisterForm] Reading referral code from URL");
-    try {
-      const code = (new URLSearchParams(window.location.search).get("referral_code") || "").trim();
-      console.log("[RegisterForm] Referral code detected:", code);
-      return code;
-    } catch (err) {
-      console.warn("[RegisterForm] Failed to read referral code", err);
-      return "";
-    }
-  }
-
-  // ── Cookie helpers ──────────────────────────────────────────────────────
-  _getCookie(name) {
+  // ── Cookie helpers ────────────────────────────────────────────────────────
+  function getCookie(name) {
     const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
-    const value = match ? decodeURIComponent(match[2]) : null;
-    console.log("[RegisterForm] Get cookie:", name, value ? "(present)" : "(missing)");
-    return value;
+    return match ? decodeURIComponent(match[2]) : null;
   }
 
-  _setCookie(name, value, maxAgeSeconds) {
-    console.log("[RegisterForm] Setting cookie:", name, "maxAgeSeconds:", maxAgeSeconds);
+  function setCookie(name, value, maxAgeSeconds) {
     const secure = location.protocol === "https:" ? "; Secure" : "";
     document.cookie = `${name}=${encodeURIComponent(value)}; Path=/; Max-Age=${maxAgeSeconds}; SameSite=Lax${secure}`;
   }
 
-  // ── CSRF ────────────────────────────────────────────────────────────────
-  _csrfIsValid() {
-    console.log("[RegisterForm] Checking CSRF validity");
-    const xsrfToken = this._getCookie("XSRF-TOKEN");
-    const expiresAt = parseInt(this._getCookie(RegisterForm.CSRF_EXPIRY_COOKIE) || "", 10);
-
-    if (!xsrfToken || !Number.isFinite(expiresAt)) {
-      console.log("[RegisterForm] CSRF invalid: missing token or expiry");
-      return false;
-    }
-
-    const now = Math.floor(Date.now() / 1000);
-    const valid = now < expiresAt;
-
-    console.log("[RegisterForm] CSRF expiry check:", { now, expiresAt, valid });
-    return valid;
+  // ── CSRF ──────────────────────────────────────────────────────────────────
+  function csrfIsValid() {
+    const xsrfToken = getCookie("XSRF-TOKEN");
+    const expiresAt = parseInt(getCookie(CSRF_EXPIRY_COOKIE) || "", 10);
+    if (!xsrfToken || !Number.isFinite(expiresAt)) return false;
+    return Math.floor(Date.now() / 1000) < expiresAt;
   }
 
-  async _ensureCsrfCookie() {
-    console.log("[RegisterForm] Ensuring CSRF cookie");
-    if (this._csrfIsValid()) {
-      console.log("[RegisterForm] CSRF already valid, skipping fetch");
-      return;
-    }
-
-    const endpoint = RegisterForm.SANCTUM_CSRF_ENDPOINT;
-    console.log("[RegisterForm] Fetching CSRF cookie from:", endpoint);
-
-    await fetch(endpoint, { method: "GET", credentials: "include" });
-
-    const expiresAt = Math.floor(Date.now() / 1000) + RegisterForm.CSRF_TTL_SECONDS;
-    this._setCookie(RegisterForm.CSRF_EXPIRY_COOKIE, String(expiresAt), RegisterForm.CSRF_TTL_SECONDS);
-
-    console.log("[RegisterForm] CSRF refreshed. ExpiresAt:", expiresAt);
+  async function ensureCsrfCookie() {
+    if (csrfIsValid()) return;
+    await fetch(resolveEndpoint(SANCTUM_CSRF_ENDPOINT_MAP), { method: "GET", credentials: "include" });
+    const expiresAt = Math.floor(Date.now() / 1000) + CSRF_TTL_SECONDS;
+    setCookie(CSRF_EXPIRY_COOKIE, String(expiresAt), CSRF_TTL_SECONDS);
   }
 
-  // ── UI helpers ──────────────────────────────────────────────────────────
-  _showError(message) {
-    console.warn("[RegisterForm] Showing error:", message);
-
-    const wrapper = this.querySelector("[data-register-error-wrapper]");
-    const el = this.querySelector("[data-register-error]");
-
-    if (el) el.textContent = message;
-
-    if (wrapper) {
-      wrapper.classList.add("w-form-fail");
-      wrapper.style.display = "block";
-    }
-  }
-
-  _hideError() {
-    console.log("[RegisterForm] Hiding error");
-    const wrapper = this.querySelector("[data-register-error-wrapper]");
-    if (wrapper) {
-      wrapper.classList.remove("w-form-fail");
-      wrapper.style.display = "none";
-    }
-  }
-
-  _setSubmitState(submitBtn, loading) {
-    console.log("[RegisterForm] Submit state:", loading ? "loading" : "idle");
-    if (!submitBtn) return;
-    submitBtn.disabled = loading;
-    submitBtn.value = loading ? "Please wait..." : "Create account & Continue";
-  }
-
-  // ── JWT / session cookie ────────────────────────────────────────────────
-  async _generateUserToken() {
-    console.log("[RegisterForm] Generating user token");
-
+  // ── JWT / session cookie ──────────────────────────────────────────────────
+  async function generateUserToken() {
     const b64url = (buf) =>
       btoa(String.fromCharCode(...new Uint8Array(buf)))
-        .replace(/\+/g, "-")
-        .replace(/\//g, "_")
-        .replace(/=+$/, "");
-
+        .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
     const encode = (obj) => b64url(new TextEncoder().encode(JSON.stringify(obj)));
-
-    const header = encode({ alg: "HS256", typ: "JWT" });
-    const payload = encode({
-      iat: Math.floor(Date.now() / 1000),
-      jti: crypto.randomUUID(),
-      session: true,
-    });
-
-    console.log("[RegisterForm] Token header/payload ready");
-
-    const signingKey = await crypto.subtle.generateKey(
-      { name: "HMAC", hash: "SHA-256" },
-      false,
-      ["sign"]
-    );
-
-    console.log("[RegisterForm] Signing key generated");
-
-    const sigBuf = await crypto.subtle.sign(
-      "HMAC",
-      signingKey,
-      new TextEncoder().encode(`${header}.${payload}`)
-    );
-
-    console.log("[RegisterForm] Token signature created");
-
+    const header  = encode({ alg: "HS256", typ: "JWT" });
+    const payload = encode({ iat: Math.floor(Date.now() / 1000), jti: crypto.randomUUID(), session: true });
+    const signingKey = await crypto.subtle.generateKey({ name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+    const sigBuf = await crypto.subtle.sign("HMAC", signingKey, new TextEncoder().encode(`${header}.${payload}`));
     return `${header}.${payload}.${b64url(sigBuf)}`;
   }
 
-  async _setUserSessionCookie() {
-    console.log("[RegisterForm] Setting __user session cookie");
-
-    const token = await this._generateUserToken();
+  async function setUserSessionCookie() {
+    const token  = await generateUserToken();
     const secure = location.protocol === "https:" ? "; Secure" : "";
-
     document.cookie = `__user=${encodeURIComponent(token)}; Path=/; SameSite=Lax${secure}`;
-
-    console.log("[RegisterForm] __user cookie set");
   }
 
-  // ── Safe redirect validator ─────────────────────────────────────────────
-  _safeRedirectUrl(rawUrl) {
-    console.log("[RegisterForm] Validating redirect URL:", rawUrl);
-
+  // ── Safe redirect validator ───────────────────────────────────────────────
+  function safeRedirectUrl(rawUrl) {
     if (!rawUrl) return null;
-
     try {
       const u = new URL(rawUrl, window.location.origin);
       const allowedHosts = new Set([
@@ -335,268 +86,381 @@ class RegisterForm extends HTMLElement {
         "dev-frontend.primedclinic.com.au",
         "api.dev.primedclinic.com.au",
       ]);
-
-      if (!allowedHosts.has(u.hostname)) {
-        console.warn("[RegisterForm] Redirect blocked due to host:", u.hostname);
-        return null;
-      }
-
-      console.log("[RegisterForm] Redirect allowed:", u.toString());
+      if (!allowedHosts.has(u.hostname)) return null;
       return u.toString();
-    } catch (err) {
-      console.warn("[RegisterForm] Redirect URL invalid:", err);
+    } catch {
       return null;
     }
   }
 
-  // ── Show survey widget ───────────────────────────────────────────────────
-  _showSurvey(userId, dashboardUrl) {
-    console.log("[RegisterForm] Showing survey:", { userId, dashboardUrl });
-
-    if (userId) {
-      sessionStorage.setItem("userId", String(userId));
-      console.log("[RegisterForm] userId saved to sessionStorage");
-    } else {
-      console.warn("[RegisterForm] userId missing, survey will still show");
-    }
-
-    this.style.display = "none";
-    console.log("[RegisterForm] Register form hidden");
-
-    const surveyDiv = document.querySelector("#primed-survey");
-    if (surveyDiv) {
-      if (dashboardUrl) {
-        surveyDiv.setAttribute("data-dashboard-url", dashboardUrl);
-        console.log("[RegisterForm] Survey data-dashboard-url set:", dashboardUrl);
-      }
-      surveyDiv.style.display = "block";
-      console.log("[RegisterForm] Survey shown");
-    } else {
-      console.warn("[RegisterForm] Survey container #primed-survey not found");
+  // ── Referral code from URL ────────────────────────────────────────────────
+  function getReferralCodeFromUrl() {
+    try {
+      return (new URLSearchParams(window.location.search).get("referral_code") || "").trim();
+    } catch {
+      return "";
     }
   }
 
-  // ── Auto-login ──────────────────────────────────────────────────────────
-  async _autoLogin(email, password, userId) {
-    console.log("[RegisterForm] Auto-login started:", { email, userId });
+  // ── DOM injection ─────────────────────────────────────────────────────────
+  // Replaces the existing Webflow signup form content with the controlled markup.
+  function injectRegisterForm(container) {
+    container.innerHTML = `
+      <div id="get-started" class="margin-bottom margin-medium get-started">
+        <div class="text-align-center">
+          <div class="max-width-large align-center">
+            <div class="margin-bottom margin-small">
+              <h1 class="heading-style-h1 text-align-center margin-bottom margin-small">Get Started</h1>
+            </div>
+            <p class="text-size-medium">Your health data stays private. Create an account to get started.</p>
+          </div>
+        </div>
+      </div>
 
-    let dashboardUrl = null;
+      <div class="max-width-small align-center">
+        <div class="sign-up-login_header_form-block w-form">
+          <form
+            name="wf-form-Register-Form"
+            method="get"
+            class="sign-up-login_header_form"
+            aria-label="Register Form"
+            id="register-form-el"
+            novalidate
+          >
+            <div class="form_field-2col">
+              <div class="form_field-wrapper">
+                <input class="form_input w-input" maxlength="256" name="First-Name"
+                  placeholder="First Name" type="text" id="register-first-name" required />
+              </div>
+              <div class="form_field-wrapper">
+                <input class="form_input w-input" maxlength="256" name="Last-Name"
+                  placeholder="Last Name" type="text" id="register-last-name" required />
+              </div>
+            </div>
 
-    try {
-      await this._ensureCsrfCookie();
+            <div class="form_field-wrapper">
+              <input class="form_input w-input" maxlength="256" name="Register-Email"
+                placeholder="Email" type="email" id="register-email" required />
+            </div>
 
-      const xsrfToken = this._getCookie("XSRF-TOKEN");
-      const endpoint = RegisterForm.LOGIN_ENDPOINT;
+            <div class="form_field-wrapper">
+              <input class="form_input w-input" maxlength="256" name="Phone"
+                placeholder="Phone Number" type="tel" id="register-phone" required />
+            </div>
 
-      console.log("[RegisterForm] Sending login request to:", endpoint);
+            <div class="form_field-wrapper">
+              <input class="form_input w-input" maxlength="256" name="Address"
+                placeholder="Address" type="text" id="register-address" required />
+            </div>
 
-      const res = await fetch(endpoint, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          ...(xsrfToken ? { "X-XSRF-TOKEN": xsrfToken } : {}),
-        },
-        body: JSON.stringify({ email, password }),
-      });
+            <div id="address-details-wrapper" style="display:none;">
+              <div class="form_field-2col">
+                <div class="form_field-wrapper">
+                  <input class="form_input w-input" maxlength="256" name="streetNumber"
+                    placeholder="Street Number" type="text" id="streetNumber"
+                    autocomplete="address-line1" required aria-required="true" />
+                </div>
+                <div class="form_field-wrapper">
+                  <input class="form_input w-input" maxlength="256" name="streetName"
+                    placeholder="Street Name" type="text" id="streetName"
+                    required aria-required="true" />
+                </div>
+              </div>
+              <div class="form_field-2col">
+                <div class="form_field-wrapper">
+                  <input class="form_input w-input" maxlength="256" name="suburb"
+                    placeholder="Suburb" type="text" id="suburb"
+                    autocomplete="address-level2" required aria-required="true" />
+                </div>
+                <div class="form_field-wrapper">
+                  <input class="form_input w-input" maxlength="256" name="state"
+                    placeholder="State" type="text" id="state"
+                    autocomplete="address-level1" required aria-required="true" />
+                </div>
+                <div class="form_field-wrapper">
+                  <input class="form_input w-input" maxlength="256" name="postcode"
+                    placeholder="Postcode" type="text" id="postcode"
+                    autocomplete="postal-code" inputmode="numeric"
+                    required aria-required="true" />
+                </div>
+              </div>
+            </div>
 
-      console.log("[RegisterForm] Login response status:", res.status);
+            <div class="form_field-2col">
+              <div class="form_field-wrapper">
+                <input class="form_input w-input" maxlength="256" name="Register-Password"
+                  placeholder="Password" type="password" id="register-password" required />
+              </div>
+              <div class="form_field-wrapper">
+                <input class="form_input w-input" maxlength="256" name="Register-Confirm-Password"
+                  placeholder="Confirm Password" type="password"
+                  id="register-confirm-password" required />
+              </div>
+            </div>
 
-      const data = await res.json().catch(() => ({}));
-      console.log("[RegisterForm] Login response body:", data);
+            <div class="form_field-error" id="password-error" style="display:none;">
+              Passwords do not match.
+            </div>
 
-      if (res.ok) {
-        await this._setUserSessionCookie();
-        dashboardUrl = this._safeRedirectUrl(data?.panel?.url);
-        console.log("[RegisterForm] Auto-login successful. dashboardUrl:", dashboardUrl);
+            <div class="form_field-wrapper">
+              <input class="form_input w-input" maxlength="256" name="Referral-Code"
+                placeholder="Referral Code" type="text" id="register-referral-code" />
+            </div>
+
+            <div class="form_message-error-wrapper w-form-fail"
+                data-register-error-wrapper="true"
+                style="display:none;">
+              <div class="form_message-error">
+                <div data-register-error="true"></div>
+              </div>
+            </div>
+
+            <div class="w-layout-grid form-button-wrapper align-center">
+              <input type="submit" class="button is-full-width w-button"
+                value="Create account & Continue" id="register-submit" />
+            </div>
+
+            <div class="button-group is-center">
+              <a href="#" class="button-glide-over w-inline-block" id="back-to-login">
+                <span class="button-glide-over__container">
+                  <span class="button-glide-over__icon is-first">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" style="--index:0;" class="button-glide-over__icon-item">
+                      <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="20" d="M216 128H40M112 56L40 128l72 72"></path>
+                    </svg>
+                  </span>
+                  <span class="button-glide-over__text">Back to Login</span>
+                  <span class="button-glide-over__icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" style="--index:0;" class="button-glide-over__icon-item">
+                      <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="20" d="M216 128H40M112 56L40 128l72 72"></path>
+                    </svg>
+                  </span>
+                </span>
+                <div class="button-glide-over__background"></div>
+              </a>
+            </div>
+
+            <div class="sr-only" aria-live="polite" id="form-status"></div>
+          </form>
+        </div>
+      </div>
+    `;
+
+    // Pre-fill referral code if in URL
+    const ref      = getReferralCodeFromUrl();
+    const refInput = container.querySelector("#register-referral-code");
+    if (refInput && ref) refInput.value = ref;
+
+    console.log("[RegisterForm] HTML injected into #signup-form");
+  }
+
+  // ── Main controller ───────────────────────────────────────────────────────
+  class RegisterFormController {
+    constructor(container) {
+      this.container = container;
+    }
+
+    init() {
+      injectRegisterForm(this.container);
+      this._bindEvents();
+    }
+
+    // ── UI helpers ────────────────────────────────────────────────────────
+    _showError(message) {
+      const wrapper = this.container.querySelector("[data-register-error-wrapper]");
+      const el      = this.container.querySelector("[data-register-error]");
+      if (el)      el.textContent = message;
+      if (wrapper) { wrapper.classList.add("w-form-fail"); wrapper.style.display = "block"; }
+    }
+
+    _hideError() {
+      const wrapper = this.container.querySelector("[data-register-error-wrapper]");
+      if (wrapper)  { wrapper.classList.remove("w-form-fail"); wrapper.style.display = "none"; }
+    }
+
+    _setSubmitState(loading) {
+      const btn = this.container.querySelector("#register-submit");
+      if (!btn) return;
+      btn.disabled = loading;
+      btn.value    = loading ? "Please wait..." : "Create account & Continue";
+    }
+
+    // ── Survey ────────────────────────────────────────────────────────────
+    _showSurvey(userId, dashboardUrl) {
+      if (userId) sessionStorage.setItem("userId", String(userId));
+      this.container.style.display = "none";
+      const surveyDiv = document.querySelector("#primed-survey");
+      if (surveyDiv) {
+        if (dashboardUrl) surveyDiv.setAttribute("data-dashboard-url", dashboardUrl);
+        surveyDiv.style.display = "block";
       } else {
-        console.warn("[RegisterForm] Auto-login failed, continuing without session");
+        console.warn("[RegisterForm] #primed-survey not found");
       }
-    } catch (err) {
-      console.warn("[RegisterForm] Auto-login error, continuing without session", err);
     }
 
-    this._showSurvey(userId, dashboardUrl);
-  }
-
-  // ── Register handler ────────────────────────────────────────────────────
-  async _handleSubmit(e) {
-    console.log("[RegisterForm] Submit handler triggered");
-
-    e.preventDefault();
-    e.stopPropagation();
-
-    const form = e.currentTarget;
-    const password = this.querySelector("#register-password");
-    const confirm = this.querySelector("#register-confirm-password");
-    const pwError = this.querySelector("#password-error");
-    const submitBtn = form.querySelector('input[type="submit"]');
-
-    console.log("[RegisterForm] Submit elements:", {
-      form: !!form,
-      password: !!password,
-      confirm: !!confirm,
-      pwError: !!pwError,
-      submitBtn: !!submitBtn,
-    });
-
-    if (!password || !confirm || !pwError) {
-      this._showError("Form is missing required fields. Please refresh the page.");
-      console.error("[RegisterForm] Missing password/confirm/pwError elements");
-      return;
+    // ── Auto-login after registration ─────────────────────────────────────
+    async _autoLogin(email, password, userId) {
+      let dashboardUrl = null;
+      try {
+        await ensureCsrfCookie();
+        const xsrfToken = getCookie("XSRF-TOKEN");
+        const res  = await fetch(resolveEndpoint(LOGIN_ENDPOINT_MAP), {
+          method: "POST", credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            ...(xsrfToken ? { "X-XSRF-TOKEN": xsrfToken } : {})
+          },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok) {
+          await setUserSessionCookie();
+          dashboardUrl = safeRedirectUrl(data?.panel?.url);
+        } else {
+          console.warn("[RegisterForm] Auto-login failed, continuing without session");
+        }
+      } catch (err) {
+        console.warn("[RegisterForm] Auto-login error, continuing without session", err);
+      }
+      this._showSurvey(userId, dashboardUrl);
     }
 
-    if (password.value !== confirm.value) {
-      console.warn("[RegisterForm] Passwords do not match");
-      pwError.style.display = "block";
-      confirm.classList.add("is-error");
-      password.classList.add("is-error");
-      confirm.focus();
-      return;
-    }
+    // ── Register submit handler ───────────────────────────────────────────
+    async _handleSubmit(e) {
+      e.preventDefault();
+      e.stopPropagation();
 
-    this._hideError();
-    this._setSubmitState(submitBtn, true);
+      const password = this.container.querySelector("#register-password");
+      const confirm  = this.container.querySelector("#register-confirm-password");
+      const pwError  = this.container.querySelector("#password-error");
 
-    try {
-      await this._ensureCsrfCookie();
-
-      const xsrfToken = this._getCookie("XSRF-TOKEN");
-      const email = (this.querySelector("#register-email")?.value || "").trim();
-
-      const payload = {
-        first_name: (this.querySelector("#register-first-name")?.value || "").trim(),
-        last_name: (this.querySelector("#register-last-name")?.value || "").trim(),
-        email,
-        phone: (this.querySelector("#register-phone")?.value || "").trim(),
-        address: (this.querySelector("#register-address")?.value || "").trim(),
-        streetNumber: "",
-        streetName: "",
-        suburb: "",
-        state: "",
-        postcode: "",
-        password: password.value,
-        referral_code: this._getReferralCodeFromUrl(),
-      };
-
-      const endpoint = RegisterForm.REGISTER_ENDPOINT;
-      console.log("[RegisterForm] Sending register request to:", endpoint);
-      console.log("[RegisterForm] Register payload:", payload);
-
-      const res = await fetch(endpoint, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          ...(xsrfToken ? { "X-XSRF-TOKEN": xsrfToken } : {}),
-        },
-        body: JSON.stringify(payload),
-      });
-
-      console.log("[RegisterForm] Register response status:", res.status);
-
-      const data = await res.json().catch(() => ({}));
-      console.log("[RegisterForm] Register response body:", data);
-
-      if (!res.ok) {
-        const msg =
-          data?.message ||
-          data?.error ||
-          "Registration failed. Please check your details and try again.";
-        this._showError(msg);
-        console.warn("[RegisterForm] Registration failed with message:", msg);
+      if (!password || !confirm || !pwError) {
+        this._showError("Form is missing required fields. Please refresh the page.");
         return;
       }
 
-      console.log("[RegisterForm] Registration successful. user_id:", data.user_id);
+      if (password.value !== confirm.value) {
+        pwError.style.display = "block";
+        confirm.classList.add("is-error");
+        password.classList.add("is-error");
+        confirm.focus();
+        return;
+      }
 
-      await this._autoLogin(email, password.value, data.user_id);
-    } catch (err) {
-      this._showError(err?.message || "Registration failed due to a network error.");
-      console.error("[RegisterForm] Register error:", err);
-    } finally {
-      this._setSubmitState(submitBtn, false);
+      this._hideError();
+      this._setSubmitState(true);
+
+      try {
+        await ensureCsrfCookie();
+        const xsrfToken = getCookie("XSRF-TOKEN");
+        const email     = (this.container.querySelector("#register-email")?.value || "").trim();
+
+        const payload = {
+          first_name:    (this.container.querySelector("#register-first-name")?.value  || "").trim(),
+          last_name:     (this.container.querySelector("#register-last-name")?.value   || "").trim(),
+          email,
+          phone:         (this.container.querySelector("#register-phone")?.value       || "").trim(),
+          address:       (this.container.querySelector("#register-address")?.value     || "").trim(),
+          streetNumber:  (this.container.querySelector("#streetNumber")?.value         || "").trim(),
+          streetName:    (this.container.querySelector("#streetName")?.value           || "").trim(),
+          suburb:        (this.container.querySelector("#suburb")?.value               || "").trim(),
+          state:         (this.container.querySelector("#state")?.value                || "").trim(),
+          postcode:      (this.container.querySelector("#postcode")?.value             || "").trim(),
+          password:      password.value,
+          referral_code: getReferralCodeFromUrl(),
+        };
+
+        const res  = await fetch(resolveEndpoint(REGISTER_ENDPOINT_MAP), {
+          method: "POST", credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            ...(xsrfToken ? { "X-XSRF-TOKEN": xsrfToken } : {})
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok) {
+          this._showError(data?.message || data?.error || "Registration failed. Please check your details and try again.");
+          return;
+        }
+
+        await this._autoLogin(email, password.value, data.user_id);
+
+      } catch (err) {
+        this._showError(err?.message || "Registration failed due to a network error.");
+        console.error("[RegisterForm] Register error:", err);
+      } finally {
+        this._setSubmitState(false);
+      }
+    }
+
+    // ── Back to login ─────────────────────────────────────────────────────
+    _handleBackToLogin() {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("view");
+      if (url.hash === "#register") url.hash = "";
+      history.replaceState(null, "", url.toString());
+
+      this.container.style.display = "none";
+
+      const loginContainer = document.querySelector("#login-form");
+      if (!loginContainer) {
+        console.error("[RegisterForm] #login-form not found");
+        return;
+      }
+
+      loginContainer.style.display = "block";
+      loginContainer.querySelector('[data-login-email="true"]')?.focus();
+    }
+
+    // ── Event binding ─────────────────────────────────────────────────────
+    _bindEvents() {
+      const form    = this.container.querySelector("#register-form-el");
+      const confirm = this.container.querySelector("#register-confirm-password");
+      const pwError = this.container.querySelector("#password-error");
+      const backBtn = this.container.querySelector("#back-to-login");
+
+      if (!form) {
+        console.error("[RegisterForm] #register-form-el not found, cannot bind events");
+        return;
+      }
+
+      // Clear password mismatch error on re-type
+      confirm?.addEventListener("input", () => {
+        if (pwError?.style.display === "block") {
+          pwError.style.display = "none";
+          confirm.classList.remove("is-error");
+          this.container.querySelector("#register-password")?.classList.remove("is-error");
+        }
+      });
+
+      form.addEventListener("submit", (e) => this._handleSubmit(e));
+
+      backBtn?.addEventListener("click", (e) => {
+        e.preventDefault();
+        this._handleBackToLogin();
+      });
     }
   }
 
-  // ── Event binding ───────────────────────────────────────────────────────
-  _bindEvents() {
-    console.log("[RegisterForm] Binding form events");
-
-    const form = this.querySelector("#register-form-el");
-    const password = this.querySelector("#register-password");
-    const confirm = this.querySelector("#register-confirm-password");
-    const pwError = this.querySelector("#password-error");
-    const backBtn = this.querySelector("#back-to-login");
-
-    console.log("[RegisterForm] Elements found:", {
-      form: !!form,
-      password: !!password,
-      confirm: !!confirm,
-      pwError: !!pwError,
-      backBtn: !!backBtn,
-    });
-
-    const missing = [];
-    if (!form) missing.push("#register-form-el");
-    if (!password) missing.push("#register-password");
-    if (!confirm) missing.push("#register-confirm-password");
-    if (!pwError) missing.push("#password-error");
-    if (!backBtn) missing.push("#back-to-login");
-
-    if (missing.length) {
-      console.error("[RegisterForm] Cannot bind events. Missing elements:", missing);
+  // ── Bootstrap ─────────────────────────────────────────────────────────────
+  function init() {
+    const container = document.querySelector("#signup-form");
+    if (!container) {
+      console.warn("[RegisterForm] #signup-form not found in DOM.");
       return;
     }
-
-    confirm.addEventListener("input", () => {
-      if (pwError.style.display === "block") {
-        console.log("[RegisterForm] Password mismatch cleared");
-        pwError.style.display = "none";
-        confirm.classList.remove("is-error");
-        password.classList.remove("is-error");
-      }
-    });
-
-    form.addEventListener("submit", (e) => {
-      console.log("[RegisterForm] Submit event fired");
-      this._handleSubmit(e);
-    });
-
-backBtn.addEventListener("click", (e) => {
-  console.log("[RegisterForm] Back to login clicked");
-  e.preventDefault();
-
-  // Optional: clean the URL
-  const url = new URL(window.location.href);
-  url.searchParams.delete("view");
-  if (url.hash === "#register") url.hash = "";
-  history.replaceState(null, "", url.toString());
-
-  // Toggle visibility instead of replacing DOM
-  const registerEl = this; // <register-form>
-  const container = registerEl.parentElement || document;
-
-  const loginEl =
-    container.querySelector("login-form") || document.querySelector("login-form");
-
-  if (!loginEl) {
-    console.error("[RegisterForm] login-form not found in DOM");
-    return;
+    const ctrl = new RegisterFormController(container);
+    ctrl.init();
   }
 
-  registerEl.style.display = "none";
-  loginEl.style.display = "block";
-
-  // Optional: set focus to first login input if you have one
-  const loginEmail = loginEl.querySelector('input[type="email"], input[name="email"]');
-  if (loginEmail) loginEmail.focus();
-});
-
-    console.log("[RegisterForm] Event binding complete");
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
   }
-}
 
-customElements.define("register-form", RegisterForm);
+})();
