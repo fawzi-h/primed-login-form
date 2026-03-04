@@ -138,6 +138,14 @@
     // Fix password input type (Webflow had it as "text")
     passInput.type = "password";
 
+    // Inject a style rule so [data-login-panel] hidden state can't be overridden by Webflow CSS
+    if (!document.getElementById("lf-panel-style")) {
+      const style = document.createElement("style");
+      style.id = "lf-panel-style";
+      style.textContent = `[data-login-panel] { display: none !important; } [data-login-panel].lf-active { display: block !important; }`;
+      document.head.appendChild(style);
+    }
+
     // Wrap existing email + password field-wrappers in a password panel div
     const passwordPanel = document.createElement("div");
     passwordPanel.setAttribute("data-login-panel", "password");
@@ -306,7 +314,7 @@
       activePanel = panel;
 
       loginDiv.querySelectorAll("[data-login-panel]").forEach(el => {
-        el.style.display = el.dataset.loginPanel === panel ? "block" : "none";
+        el.classList.toggle("lf-active", el.dataset.loginPanel === panel);
       });
 
       const toggleWrapper      = loginDiv.querySelector("[data-login-toggle-wrapper]");
