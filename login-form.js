@@ -217,13 +217,13 @@
       </div>`;
     codePanel.after(resetPanel);
 
-    // Wrap the register CTA elements in a wrapper so it can be hidden on reset panel
+    // Wrap the register CTA elements — exclude anything inside injected panels
     const registerBtnWrapper = document.createElement("div");
     registerBtnWrapper.setAttribute("data-login-register-btn-wrapper", "");
     const submitGrid   = submitBtn.closest(".w-layout-grid") || submitBtn.parentNode;
-    const newHeraPara  = form.querySelector("p.text-size-small");
-    const marginBottom = newHeraPara?.closest(".margin-bottom");
-    const buttonGroup  = form.querySelector(".button-group");
+    const wfParagraph  = Array.from(form.querySelectorAll("p.text-size-small")).find(el => !el.closest("[data-login-panel]"));
+    const marginBottom = wfParagraph?.closest(".margin-bottom");
+    const buttonGroup  = Array.from(form.querySelectorAll(".button-group")).find(el => !el.closest("[data-login-panel]"));
     submitGrid.after(registerBtnWrapper);
     if (marginBottom) registerBtnWrapper.appendChild(marginBottom);
     if (buttonGroup)  registerBtnWrapper.appendChild(buttonGroup);
