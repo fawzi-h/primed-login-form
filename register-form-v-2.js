@@ -174,11 +174,11 @@
     // ── Show survey ───────────────────────────────────────────────────────
     _showSurvey(userId, dashboardUrl) {
       if (userId) sessionStorage.setItem("userId", String(userId));
-      this.container.classList.add("lf-hidden");
+      this.container.style.display = "none";
       const surveyDiv = document.querySelector("#primed-survey");
       if (surveyDiv) {
         if (dashboardUrl) surveyDiv.setAttribute("data-dashboard-url", dashboardUrl);
-        surveyDiv.classList.remove("lf-hidden");
+        surveyDiv.style.display = "block";
       } else {
         console.warn("[RegisterForm] #primed-survey not found");
       }
@@ -298,11 +298,10 @@
       if (url.hash === "#register") url.hash = "";
       history.replaceState(null, "", url.toString());
 
-      this.container.classList.add("lf-hidden");
-
       const loginContainer = document.querySelector("#login-form");
       if (loginContainer) {
-        loginContainer.classList.remove("lf-hidden");
+        var container = loginContainer.parentElement;
+        if (container) { container.classList.add("show-login"); container.classList.remove("show-register"); }
         var _lf = loginContainer.querySelector("#log-in_input-form"); if (_lf) _lf.focus();
       } else {
         console.error("[RegisterForm] #login-form not found");
