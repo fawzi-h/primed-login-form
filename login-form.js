@@ -77,6 +77,18 @@ class LoginForm extends HTMLElement {
   }
 
   // ── Lifecycle ────────────────────────────────────────────────────────────
+  connectedCallback() {
+    this._activePanel = "password";
+    this._codeStep    = "identifier";
+    this._bindEvents();
+    this._switchPanel("password");
+
+    // If the URL contains the register param or hash, swap to the register form immediately
+    if (this._shouldShowRegister()) {
+      this._showRegister();
+    }
+  }
+
   // ── Swap helpers (no DOM replacement) ───────────────────────────────────
   _getAuthContainer() {
     // Prefer same parent so multiple instances don't clash
@@ -125,13 +137,6 @@ class LoginForm extends HTMLElement {
 
     const email = loginEl.querySelector('[data-login-email="true"]');
     if (email) email.focus();
-  }
-  
-
-    // If the URL contains the register param or hash, swap to the register form immediately
-    if (this._shouldShowRegister()) {
-      this._showRegister();
-    }
   }
 
   // ── Register redirect detection ──────────────────────────────────────────
