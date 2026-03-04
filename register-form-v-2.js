@@ -300,8 +300,8 @@
 
       const loginContainer = document.querySelector("#login-form");
       if (loginContainer) {
-        var container = loginContainer.parentElement;
-        if (container) { container.classList.add("show-login"); container.classList.remove("show-register"); }
+        this.container.style.display = "none";
+        loginContainer.style.display = "block";
         var _lf = loginContainer.querySelector("#log-in_input-form"); if (_lf) _lf.focus();
       } else {
         console.error("[RegisterForm] #login-form not found");
