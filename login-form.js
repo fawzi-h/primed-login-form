@@ -256,7 +256,7 @@
       return;
     }
 
-    const form       = loginDiv.querySelector("form.login_finput-form");
+    const form       = loginDiv.querySelector("form.login_input-form");
     const emailInput = loginDiv.querySelector("input#log-in_input-form");
     const passInput  = loginDiv.querySelector("input#Log-In-Form-7-Password");
     const submitBtn  = loginDiv.querySelector("input[type='submit']");
