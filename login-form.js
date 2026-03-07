@@ -257,8 +257,8 @@
     }
 
     const form       = loginDiv.querySelector("form.login_input-form");
-    const emailInput = loginDiv.querySelector("input#log-in_input-form");
-    const passInput  = loginDiv.querySelector("input#Log-In-Form-7-Password");
+    const emailInput = loginDiv.querySelector("input#login-form_email");
+    const passInput  = loginDiv.querySelector("input#login-form_password");
     const submitBtn  = loginDiv.querySelector("input[type='submit']");
     const resetLink  = loginDiv.querySelector(".field-label-wrapper .text-style-link");
 
