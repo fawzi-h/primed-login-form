@@ -19,23 +19,34 @@
         position: relative;
       }
 
+      .form_field-wrapper.has-error,
+      .field-wrapper.has-error,
+      .input-wrapper.has-error {
+        padding-bottom: 2.25rem;
+      }
+
       .field-error {
         position: absolute;
         left: 0;
-        top: calc(100% + 6px);
+        top: calc(100% + 0.35rem);
         z-index: 20;
         display: none;
         background: #fff;
         color: #d93025;
         border: 1px solid #f1b5b0;
-        border-radius: 6px;
-        padding: 6px 10px;
-        font-size: 0.8125rem;
-        line-height: 1.3;
+        border-radius: 0.375rem;
+        padding: 0.35rem 0.6rem;
+
+        font-family: inherit;
+        font-size: inherit;
+        font-weight: inherit;
+        line-height: inherit;
+        letter-spacing: inherit;
+
         white-space: normal;
-        box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+        box-shadow: 0 0.375rem 1.125rem rgba(0,0,0,0.08);
         max-width: 100%;
-        min-width: 220px;
+        min-width: 14rem;
         pointer-events: none;
       }
 
@@ -46,10 +57,10 @@
       .field-error::before {
         content: "";
         position: absolute;
-        top: -6px;
-        left: 12px;
-        width: 10px;
-        height: 10px;
+        top: -0.35rem;
+        left: 0.75rem;
+        width: 0.6rem;
+        height: 0.6rem;
         background: #fff;
         border-top: 1px solid #f1b5b0;
         border-left: 1px solid #f1b5b0;
@@ -59,7 +70,6 @@
     document.head.appendChild(style);
   }
 
-  // ---------- helpers ----------
   const AU_STATES = new Set(["NSW", "VIC", "QLD", "WA", "SA", "TAS", "ACT", "NT"]);
 
   function digitsOnly(s) {
@@ -106,7 +116,7 @@
     const wrapper = getWrapper(input);
     if (!wrapper) return;
 
-    wrapper.style.position = "relative";
+    wrapper.classList.add("has-error");
 
     let err = wrapper.querySelector(".field-error");
     if (!err) {
@@ -128,6 +138,8 @@
 
     const wrapper = getWrapper(input);
     if (!wrapper) return;
+
+    wrapper.classList.remove("has-error");
 
     const err = wrapper.querySelector(".field-error");
     if (err) err.classList.remove("is-visible");
@@ -264,13 +276,6 @@
     return true;
   }
 
-  function attachLiveValidation(input, fn) {
-    if (!input) return;
-    ["input", "blur", "change"].forEach(function (evt) {
-      input.addEventListener(evt, fn);
-    });
-  }
-
   function findField(form, options) {
     for (const sel of options) {
       const el = form.querySelector(sel);
@@ -298,39 +303,12 @@
     const password = findField(form, ['#register-password', 'input[name="Register-Password"]', 'input[name="Password"]']);
     const confirmPassword = findField(form, ['#register-confirm-password', 'input[name="Register-Confirm-Password"]', 'input[name="Confirm-Password"]']);
 
-    const referral = findField(form, ['#register-referral-code', 'input[name="Referral-Code"]']);
-
     const hasRegisterSignals = !!(firstName || lastName || streetNumber || confirmPassword);
     if (!hasRegisterSignals) return;
 
-    attachLiveValidation(firstName, function () { requireValue(firstName, "First name is required."); });
-    attachLiveValidation(lastName, function () { requireValue(lastName, "Last name is required."); });
-    attachLiveValidation(email, function () { validateEmail(email); });
-    attachLiveValidation(phone, function () { validatePhone(phone); });
-    attachLiveValidation(streetNumber, function () { validateStreetNumber(streetNumber); });
-    attachLiveValidation(streetName, function () { validateStreetName(streetName); });
-    attachLiveValidation(suburb, function () { validateSuburb(suburb); });
-    attachLiveValidation(state, function () { validateState(state); });
-    attachLiveValidation(postcode, function () { validatePostcode(postcode); });
-
-    attachLiveValidation(password, function () {
-      validatePassword(password);
-      if (confirmPassword && (confirmPassword.value || "").length) {
-        validateConfirmPassword(password, confirmPassword);
-      }
-    });
-
-    attachLiveValidation(confirmPassword, function () {
-      validateConfirmPassword(password, confirmPassword);
-    });
-
-    attachLiveValidation(referral, function () {
-      if (!referral) return;
-      const v = (referral.value || "").trim();
-      if (!v) clearError(referral);
-    });
-
     form.addEventListener("submit", function (e) {
+      form.querySelectorAll(".is-invalid").forEach(clearError);
+
       let ok = true;
 
       ok = requireValue(firstName, "First name is required.") && ok;
