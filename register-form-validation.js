@@ -4,12 +4,57 @@
   // ---------- CSS injection ----------
   function injectStyles() {
     if (document.getElementById("primed-validation-styles")) return;
+
     const style = document.createElement("style");
     style.id = "primed-validation-styles";
     style.textContent = `
-      .is-invalid { border-color: #d93025 !important; }
-      .field-error { color: #d93025; font-size: 0.875rem; margin-top: 6px; display: none; }
-      .field-error.is-visible { display: block; }
+      .is-invalid {
+        border-color: #d93025 !important;
+        box-shadow: 0 0 0 1px #d93025 inset;
+      }
+
+      .form_field-wrapper,
+      .field-wrapper,
+      .input-wrapper {
+        position: relative;
+      }
+
+      .field-error {
+        position: absolute;
+        left: 0;
+        top: calc(100% + 6px);
+        z-index: 20;
+        display: none;
+        background: #fff;
+        color: #d93025;
+        border: 1px solid #f1b5b0;
+        border-radius: 6px;
+        padding: 6px 10px;
+        font-size: 0.8125rem;
+        line-height: 1.3;
+        white-space: normal;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+        max-width: 100%;
+        min-width: 220px;
+        pointer-events: none;
+      }
+
+      .field-error.is-visible {
+        display: block;
+      }
+
+      .field-error::before {
+        content: "";
+        position: absolute;
+        top: -6px;
+        left: 12px;
+        width: 10px;
+        height: 10px;
+        background: #fff;
+        border-top: 1px solid #f1b5b0;
+        border-left: 1px solid #f1b5b0;
+        transform: rotate(45deg);
+      }
     `;
     document.head.appendChild(style);
   }
@@ -21,7 +66,6 @@
     return (s || "").replace(/\D/g, "");
   }
 
-  // Accept: 04XXXXXXXX (10), 614XXXXXXXX (11), +614XXXXXXXX (11 after digitsOnly)
   function isAustralianMobile(value) {
     const d = digitsOnly((value || "").trim());
     if (d.length === 10 && d.startsWith("04")) return true;
@@ -44,31 +88,45 @@
     return true;
   }
 
+  function getWrapper(input) {
+    return (
+      input.closest(".form_field-wrapper") ||
+      input.closest(".field-wrapper") ||
+      input.closest(".input-wrapper") ||
+      input.parentElement
+    );
+  }
+
   function setError(input, message) {
     if (!input) return;
+
     input.classList.add("is-invalid");
     input.setAttribute("aria-invalid", "true");
 
-    // Error container lives inside the same wrapper as the input in your markup
-    const wrapper = input.closest(".form_field-wrapper") || input.parentElement;
+    const wrapper = getWrapper(input);
     if (!wrapper) return;
+
+    wrapper.style.position = "relative";
 
     let err = wrapper.querySelector(".field-error");
     if (!err) {
       err = document.createElement("div");
       err.className = "field-error";
+      err.setAttribute("role", "alert");
       wrapper.appendChild(err);
     }
+
     err.textContent = message;
     err.classList.add("is-visible");
   }
 
   function clearError(input) {
     if (!input) return;
+
     input.classList.remove("is-invalid");
     input.removeAttribute("aria-invalid");
 
-    const wrapper = input.closest(".form_field-wrapper") || input.parentElement;
+    const wrapper = getWrapper(input);
     if (!wrapper) return;
 
     const err = wrapper.querySelector(".field-error");
@@ -76,6 +134,7 @@
   }
 
   function requireValue(input, msg) {
+    if (!input) return true;
     const v = (input.value || "").trim();
     if (!v) {
       setError(input, msg);
@@ -86,6 +145,7 @@
   }
 
   function validateEmail(input) {
+    if (!input) return true;
     if (!requireValue(input, "Email is required.")) return false;
     const v = (input.value || "").trim();
     const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
@@ -98,6 +158,7 @@
   }
 
   function validatePhone(input) {
+    if (!input) return true;
     if (!requireValue(input, "Phone number is required.")) return false;
     if (!isAustralianMobile(input.value)) {
       setError(input, "Enter a valid Australian mobile (starts with 04, 10 digits).");
@@ -109,6 +170,7 @@
   }
 
   function validateStreetNumber(input) {
+    if (!input) return true;
     if (!requireValue(input, "Street number is required.")) return false;
     const v = (input.value || "").trim();
     if (!/^[0-9]{1,6}[A-Za-z]?$/.test(v)) {
@@ -120,6 +182,7 @@
   }
 
   function validateStreetName(input) {
+    if (!input) return true;
     if (!requireValue(input, "Street name is required.")) return false;
     const v = (input.value || "").trim();
     if (!/^[A-Za-z0-9 .'\-]{2,}$/.test(v)) {
@@ -131,6 +194,7 @@
   }
 
   function validateSuburb(input) {
+    if (!input) return true;
     if (!requireValue(input, "Suburb is required.")) return false;
     const v = (input.value || "").trim();
     if (!/^[A-Za-z .'\-]{2,}$/.test(v)) {
@@ -142,6 +206,7 @@
   }
 
   function validateState(input) {
+    if (!input) return true;
     if (!requireValue(input, "State is required.")) return false;
     const v = (input.value || "").trim().toUpperCase();
     if (!AU_STATES.has(v)) {
@@ -154,6 +219,7 @@
   }
 
   function validatePostcode(input) {
+    if (!input) return true;
     if (!requireValue(input, "Postcode is required.")) return false;
     const v = (input.value || "").trim();
     if (!/^\d{4}$/.test(v)) {
@@ -165,6 +231,7 @@
   }
 
   function validateAddressLine(input) {
+    if (!input) return true;
     if (!requireValue(input, "Address is required.")) return false;
     const v = (input.value || "").trim();
     if (v.length < 6) {
@@ -176,6 +243,7 @@
   }
 
   function validatePassword(input) {
+    if (!input) return true;
     if (!requireValue(input, "Password is required.")) return false;
     if (!isStrongPassword(input.value || "")) {
       setError(input, "Minimum 8 characters with at least 1 capital letter and 1 number.");
@@ -186,8 +254,9 @@
   }
 
   function validateConfirmPassword(pwInput, confirmInput) {
+    if (!confirmInput) return true;
     if (!requireValue(confirmInput, "Please confirm your password.")) return false;
-    if ((pwInput.value || "") !== (confirmInput.value || "")) {
+    if ((pwInput?.value || "") !== (confirmInput.value || "")) {
       setError(confirmInput, "Passwords do not match.");
       return false;
     }
@@ -202,7 +271,6 @@
     });
   }
 
-  // ---------- element finder (works even if IDs change) ----------
   function findField(form, options) {
     for (const sel of options) {
       const el = form.querySelector(sel);
@@ -215,7 +283,6 @@
     if (!form || form.__primedValidationBound) return;
     form.__primedValidationBound = true;
 
-    // Grab fields by id OR name (handles Webflow changes)
     const firstName = findField(form, ['#register-first-name', 'input[name="First-Name"]']);
     const lastName = findField(form, ['#register-last-name', 'input[name="Last-Name"]']);
     const email = findField(form, ['#register-email', 'input[name="Register-Email"]', 'input[name="Email"]']);
@@ -231,19 +298,15 @@
     const password = findField(form, ['#register-password', 'input[name="Register-Password"]', 'input[name="Password"]']);
     const confirmPassword = findField(form, ['#register-confirm-password', 'input[name="Register-Confirm-Password"]', 'input[name="Confirm-Password"]']);
 
-    const referral = findField(form, ['#register-referral-code', 'input[name="Referral-Code"]']); // optional
+    const referral = findField(form, ['#register-referral-code', 'input[name="Referral-Code"]']);
 
-    // If you are on the login form, we do nothing
     const hasRegisterSignals = !!(firstName || lastName || streetNumber || confirmPassword);
     if (!hasRegisterSignals) return;
 
-    // Live validation
     attachLiveValidation(firstName, function () { requireValue(firstName, "First name is required."); });
     attachLiveValidation(lastName, function () { requireValue(lastName, "Last name is required."); });
     attachLiveValidation(email, function () { validateEmail(email); });
     attachLiveValidation(phone, function () { validatePhone(phone); });
-    //skip address field validation
-    // attachLiveValidation(address, function () { validateAddressLine(address); });
     attachLiveValidation(streetNumber, function () { validateStreetNumber(streetNumber); });
     attachLiveValidation(streetName, function () { validateStreetName(streetName); });
     attachLiveValidation(suburb, function () { validateSuburb(suburb); });
@@ -261,16 +324,12 @@
       validateConfirmPassword(password, confirmPassword);
     });
 
-    // Referral is optional: if empty, no error
     attachLiveValidation(referral, function () {
       if (!referral) return;
       const v = (referral.value || "").trim();
-      if (!v) {
-        clearError(referral);
-      }
+      if (!v) clearError(referral);
     });
 
-    // Submit validation
     form.addEventListener("submit", function (e) {
       let ok = true;
 
@@ -298,11 +357,9 @@
   }
 
   function tryInit() {
-    // Try common selectors
     const forms = Array.from(document.querySelectorAll("form"));
     forms.forEach(initOnForm);
 
-    // Also try a direct guess if you still use this id
     const f = document.getElementById("register-form-el");
     if (f) initOnForm(f);
   }
@@ -310,20 +367,17 @@
   function waitForRegisterForm() {
     tryInit();
 
-    // Observe DOM changes because Webflow may swap forms on click
     const obs = new MutationObserver(function () {
       tryInit();
     });
 
     obs.observe(document.documentElement, { childList: true, subtree: true });
 
-    // Safety stop after 20 seconds
     setTimeout(function () {
       obs.disconnect();
     }, 20000);
   }
 
-  // ---------- boot ----------
   injectStyles();
 
   if (document.readyState === "loading") {
