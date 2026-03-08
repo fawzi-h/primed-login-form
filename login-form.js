@@ -1,4 +1,4 @@
-/* login-form.js — works with existing Webflow HTML (no custom elements required) */
+/* login-form.js — signup shown by default */
 
 (function () {
   "use strict";
@@ -17,7 +17,6 @@
       return v.toString(16);
     });
   }
-
 
   // ── Config ──────────────────────────────────────────────────────────────
   const CSRF_TTL_SECONDS   = 7200;
@@ -601,12 +600,8 @@
     // ── Initial state ─────────────────────────────────────────────────────
     switchPanel("password");
 
-    if (shouldShowRegister()) {
-      showRegister();
-    } else {
-      loginDiv.style.display = "block";
-      if (registerDiv) registerDiv.style.display = "none";
-    }
+    // Show signup by default
+    showRegister();
   }
 
   // ── Boot ──────────────────────────────────────────────────────────────────
