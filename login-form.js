@@ -1,4 +1,5 @@
-/* login-form.js — signup shown by default */
+/* login-form.js — signup shown by default, but ?view=login loads login */
+/* login-form.js — works with existing Webflow HTML (no custom elements required) */
 
 (function () {
   "use strict";
@@ -18,12 +19,14 @@
     });
   }
 
+
   // ── Config ──────────────────────────────────────────────────────────────
   const CSRF_TTL_SECONDS   = 7200;
   const CSRF_EXPIRY_COOKIE = "wf_csrf_expires_at";
 
   const REGISTER_PARAM_NAME  = "view";
   const REGISTER_PARAM_VALUE = "register";
+  const LOGIN_PARAM_VALUE    = "login";
 
   const LOGIN_ENDPOINT_MAP = {
     "dev-frontend.primedclinic.com.au": "https://api.dev.primedclinic.com.au/api/login",
@@ -371,21 +374,25 @@
     }
 
     // ── Login / Register swap ─────────────────────────────────────────────
-    function showRegister() {
+    function showRegister(updateUrl = true) {
       loginDiv.style.display = "none";
       if (registerDiv) registerDiv.style.display = "block";
-      const url = new URL(window.location.href);
-      url.searchParams.set(REGISTER_PARAM_NAME, REGISTER_PARAM_VALUE);
-      history.replaceState(null, "", url.toString());
+      if (updateUrl) {
+        const url = new URL(window.location.href);
+        url.searchParams.set(REGISTER_PARAM_NAME, REGISTER_PARAM_VALUE);
+        history.replaceState(null, "", url.toString());
+      }
     }
 
-    function showLogin() {
+    function showLogin(updateUrl = true) {
       loginDiv.style.display = "block";
       if (registerDiv) registerDiv.style.display = "none";
-      const url = new URL(window.location.href);
-      url.searchParams.delete(REGISTER_PARAM_NAME);
-      if (url.hash === `#${REGISTER_PARAM_VALUE}`) url.hash = "";
-      history.replaceState(null, "", url.toString());
+      if (updateUrl) {
+        const url = new URL(window.location.href);
+        url.searchParams.set(REGISTER_PARAM_NAME, LOGIN_PARAM_VALUE);
+        if (url.hash === `#${REGISTER_PARAM_VALUE}`) url.hash = "";
+        history.replaceState(null, "", url.toString());
+      }
       emailInput.focus();
     }
 
@@ -394,6 +401,11 @@
       if (params.get(REGISTER_PARAM_NAME) === REGISTER_PARAM_VALUE) return true;
       if (window.location.hash === `#${REGISTER_PARAM_VALUE}`) return true;
       return false;
+    }
+
+    function shouldShowLogin() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(REGISTER_PARAM_NAME) === LOGIN_PARAM_VALUE;
     }
 
     // ── Submit handlers ───────────────────────────────────────────────────
@@ -600,8 +612,13 @@
     // ── Initial state ─────────────────────────────────────────────────────
     switchPanel("password");
 
-    // Show signup by default
-    showRegister();
+    if (shouldShowLogin()) {
+      showLogin(false);
+    } else if (shouldShowRegister()) {
+      showRegister(false);
+    } else {
+      showRegister(false);
+    }
   }
 
   // ── Boot ──────────────────────────────────────────────────────────────────
