@@ -558,15 +558,33 @@
     // ── Events ────────────────────────────────────────────────────────────
 
     // Form submit
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      hideMessages();
-      if      (activePanel === "password")          await handlePasswordSubmit();
-      else if (activePanel === "reset")             await handleForgotPassword();
-      else if (codeStep    === "identifier")        await handleSendCode();
-      else                                          await handleValidateCode();
-    });
+form.setAttribute("novalidate", "novalidate");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  e.stopImmediatePropagation();
+
+  hideMessages();
+
+  try {
+    if (activePanel === "password") {
+      await handlePasswordSubmit();
+    } else if (activePanel === "reset") {
+      await handleForgotPassword();
+    } else if (codeStep === "identifier") {
+      await handleSendCode();
+    } else {
+      await handleValidateCode();
+    }
+  } catch (err) {
+    console.error(err);
+    showMessage("error", "Something went wrong. Please try again.");
+    setSubmitState(false);
+    }
+
+  return false;
+  }, true);
 
     // Toggle buttons (Password / Code)
     loginDiv.querySelectorAll(".form_toggle-btn").forEach(btn => {
