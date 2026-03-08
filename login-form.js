@@ -1,12 +1,15 @@
 /* login-form.js — signup shown by default, but ?view=login loads login */
+/* login-form.js — works with existing Webflow HTML (no custom elements required) */
 
 (function () {
   "use strict";
 
+  // ── UUID fallback (Safari iOS < 15.4 does not support crypto.randomUUID) ──
   function generateUUID() {
     if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
       return crypto.randomUUID();
     }
+    // Manual fallback using crypto.getRandomValues
     return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
       var r = (typeof crypto !== "undefined" && crypto.getRandomValues)
         ? (crypto.getRandomValues(new Uint8Array(1))[0] & 15)
@@ -16,11 +19,14 @@
     });
   }
 
+
+  // ── Config ──────────────────────────────────────────────────────────────
   const CSRF_TTL_SECONDS   = 7200;
   const CSRF_EXPIRY_COOKIE = "wf_csrf_expires_at";
 
   const REGISTER_PARAM_NAME  = "view";
   const REGISTER_PARAM_VALUE = "register";
+  const LOGIN_PARAM_VALUE    = "login";
 
   const LOGIN_ENDPOINT_MAP = {
     "dev-frontend.primedclinic.com.au": "https://api.dev.primedclinic.com.au/api/login",
@@ -47,14 +53,16 @@
     "www.primedclinic.com.au":          "https://app.primedclinic.com.au/patient",
   };
 
+  // ── Endpoint resolver ────────────────────────────────────────────────────
   function resolveEndpoint(map) {
     const hostname = window.location.hostname;
     for (const [key, url] of Object.entries(map)) {
       if (hostname === key || hostname.endsWith("." + key)) return url;
     }
-    return Object.values(map)[0];
+    return Object.values(map)[0]; // fallback for local dev / preview
   }
 
+  // ── Redirect helpers ─────────────────────────────────────────────────────
   function getLoginRedirectUrl() {
     const hostname = window.location.hostname;
     for (const [key, url] of Object.entries(LOGIN_REDIRECT_MAP)) {
@@ -80,6 +88,7 @@
     }
   }
 
+  // ── Cookie helpers ────────────────────────────────────────────────────────
   function getCookie(name) {
     const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
     return match ? decodeURIComponent(match[2]) : null;
@@ -90,6 +99,7 @@
     document.cookie = `${name}=${encodeURIComponent(value)}; Path=/; Max-Age=${maxAgeSeconds}; SameSite=Lax${secure}`;
   }
 
+  // ── JWT / session cookie ──────────────────────────────────────────────────
   async function generateUserToken() {
     const b64url = (buf) =>
       btoa(String.fromCharCode(...new Uint8Array(buf)))
@@ -108,6 +118,7 @@
     document.cookie = `__user=${encodeURIComponent(token)}; Path=/; SameSite=Lax${secure}`;
   }
 
+  // ── CSRF ──────────────────────────────────────────────────────────────────
   function csrfIsValid() {
     const token     = getCookie("XSRF-TOKEN");
     const expiresAt = parseInt(getCookie(CSRF_EXPIRY_COOKIE) || "", 10);
@@ -130,15 +141,22 @@
     };
   }
 
+  // ── Identifier detection ──────────────────────────────────────────────────
   function detectIdentifierType(value) {
     if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return "email";
     if (/^\+?[\d\s\-().]{7,15}$/.test(value)) return "phone";
     return null;
   }
 
+  // ── DOM injection ─────────────────────────────────────────────────────────
+  // Dynamically adds toggle buttons + code panel + reset panel into the
+  // existing Webflow form so no HTML changes are needed in Webflow.
   function injectPanels(form, emailInput, passInput, submitBtn) {
+
+    // Fix password input type (Webflow had it as "text")
     passInput.type = "password";
 
+    // Inject a style rule so [data-login-panel] hidden state can't be overridden by Webflow CSS
     if (!document.getElementById("lf-panel-style")) {
       const style = document.createElement("style");
       style.id = "lf-panel-style";
@@ -146,6 +164,7 @@
       document.head.appendChild(style);
     }
 
+    // Wrap existing email + password field-wrappers in a password panel div
     const passwordPanel = document.createElement("div");
     passwordPanel.setAttribute("data-login-panel", "password");
     passwordPanel.style.display = "none";
@@ -155,6 +174,7 @@
     passwordPanel.appendChild(emailWrapper);
     passwordPanel.appendChild(passWrapper);
 
+    // Insert toggle buttons before the password panel
     const toggleWrapper = document.createElement("div");
     toggleWrapper.setAttribute("data-login-toggle-wrapper", "");
     toggleWrapper.innerHTML = `
@@ -164,6 +184,7 @@
       </div>`;
     passwordPanel.parentNode.insertBefore(toggleWrapper, passwordPanel);
 
+    // Build and insert code panel after password panel
     const codePanel = document.createElement("div");
     codePanel.setAttribute("data-login-panel", "code");
     codePanel.style.display = "none";
@@ -192,6 +213,7 @@
       </div>`;
     passwordPanel.after(codePanel);
 
+    // Build and insert reset panel after code panel
     const resetPanel = document.createElement("div");
     resetPanel.setAttribute("data-login-panel", "reset");
     resetPanel.style.display = "none";
@@ -213,6 +235,7 @@
       </div>`;
     codePanel.after(resetPanel);
 
+    // Wrap the register CTA elements — exclude anything inside injected panels
     const registerBtnWrapper = document.createElement("div");
     registerBtnWrapper.setAttribute("data-login-register-btn-wrapper", "");
     const submitGrid   = submitBtn.closest(".w-layout-grid") || submitBtn.parentNode;
@@ -224,7 +247,9 @@
     if (buttonGroup)  registerBtnWrapper.appendChild(buttonGroup);
   }
 
+  // ── Main init ─────────────────────────────────────────────────────────────
   function init() {
+
     const loginDiv    = document.getElementById("login-form");
     const registerDiv = document.getElementById("signup-form");
 
@@ -244,13 +269,16 @@
       return;
     }
 
+    // Inject missing panels into the DOM
     injectPanels(form, emailInput, passInput, submitBtn);
 
+    // State
     let activePanel    = "password";
     let codeStep       = "identifier";
     let codeIdentifier = "";
     let codeType       = "";
 
+    // Grab existing Webflow success/error wrappers and prep them
     const successWrapper = loginDiv.querySelector(".form_message-success-wrapper");
     const errorWrapper   = loginDiv.querySelector(".form_message-error-wrapper");
     const successText    = loginDiv.querySelector(".success-text");
@@ -259,6 +287,7 @@
     if (successWrapper) { successWrapper.style.display = "none"; successWrapper.classList.remove("w-form-done"); }
     if (errorWrapper)   { errorWrapper.style.display   = "none"; errorWrapper.classList.remove("w-form-fail"); }
 
+    // ── UI helpers ────────────────────────────────────────────────────────
     function showMessage(type, text) {
       if (type === "success") {
         if (errorWrapper)   { errorWrapper.style.display   = "none";  errorWrapper.classList.remove("w-form-fail"); }
@@ -276,19 +305,19 @@
       if (errorWrapper)   { errorWrapper.style.display   = "none"; errorWrapper.classList.remove("w-form-fail"); }
     }
 
-    function updateSubmitLabel(loading) {
+    function updateSubmitLabel(loading = false) {
       if (!submitBtn) return;
       if (loading) {
         submitBtn.value =
-          activePanel === "password"    ? "Logging in..."
-          : activePanel === "reset"     ? "Sending..."
-          : codeStep === "identifier"   ? "Sending..."
+          activePanel === "password"   ? "Logging in..."
+          : activePanel === "reset"    ? "Sending..."
+          : codeStep   === "identifier" ? "Sending..."
           : "Verifying...";
       } else {
         submitBtn.value =
-          activePanel === "password"    ? "Login"
-          : activePanel === "reset"     ? "Send Reset Link"
-          : codeStep === "identifier"   ? "Send Code"
+          activePanel === "password"   ? "Login"
+          : activePanel === "reset"    ? "Send Reset Link"
+          : codeStep   === "identifier" ? "Send Code"
           : "Verify Code";
       }
     }
@@ -298,13 +327,14 @@
       updateSubmitLabel(loading);
     }
 
+    // ── Panel switching ───────────────────────────────────────────────────
     function switchPanel(panel) {
       activePanel = panel;
 
       loginDiv.querySelectorAll("[data-login-panel]").forEach(el => {
         const isActive = el.dataset.loginPanel === panel;
         el.classList.toggle("lf-active", isActive);
-
+        // Disable required on hidden panel inputs to prevent browser validation errors
         el.querySelectorAll("input, select, textarea").forEach(input => {
           if (isActive) {
             if (input.dataset.wasRequired === "true") input.required = true;
@@ -322,11 +352,8 @@
       if (toggleWrapper)      toggleWrapper.style.display      = isReset ? "none" : "";
       if (registerBtnWrapper) registerBtnWrapper.style.display = isReset ? "none" : "";
 
-      if (panel === "code") switchCodeStep("identifier");
-      if (panel === "reset") {
-        var _re = form.querySelector("[data-reset-email]");
-        if (_re) _re.focus();
-      }
+      if (panel === "code")  switchCodeStep("identifier");
+      if (panel === "reset") { var _re = form.querySelector("[data-reset-email]"); if (_re) _re.focus(); }
 
       loginDiv.querySelectorAll(".form_toggle-btn").forEach(btn => {
         btn.classList.toggle("is-active", btn.dataset.toggle === panel);
@@ -341,36 +368,31 @@
       const identifierStep = form.querySelector('[data-code-step="identifier"]');
       const otpStep        = form.querySelector('[data-code-step="otp"]');
       if (identifierStep) identifierStep.style.display = step === "identifier" ? "" : "none";
-      if (otpStep)        otpStep.style.display        = step === "otp" ? "" : "none";
-      if (step === "otp") {
-        var _oi = form.querySelector("[data-login-otp]");
-        if (_oi) _oi.focus();
-      }
+      if (otpStep)        otpStep.style.display        = step === "otp"        ? "" : "none";
+      if (step === "otp") { var _oi = form.querySelector("[data-login-otp]"); if (_oi) _oi.focus(); }
       updateSubmitLabel();
     }
 
-    function showRegister(updateUrl) {
+    // ── Login / Register swap ─────────────────────────────────────────────
+    function showRegister(updateUrl = true) {
       loginDiv.style.display = "none";
       if (registerDiv) registerDiv.style.display = "block";
-
-      if (updateUrl !== false) {
+      if (updateUrl) {
         const url = new URL(window.location.href);
         url.searchParams.set(REGISTER_PARAM_NAME, REGISTER_PARAM_VALUE);
         history.replaceState(null, "", url.toString());
       }
     }
 
-    function showLogin(updateUrl) {
+    function showLogin(updateUrl = true) {
       loginDiv.style.display = "block";
       if (registerDiv) registerDiv.style.display = "none";
-
-      if (updateUrl !== false) {
+      if (updateUrl) {
         const url = new URL(window.location.href);
-        url.searchParams.set("view", "login");
+        url.searchParams.set(REGISTER_PARAM_NAME, LOGIN_PARAM_VALUE);
         if (url.hash === `#${REGISTER_PARAM_VALUE}`) url.hash = "";
         history.replaceState(null, "", url.toString());
       }
-
       emailInput.focus();
     }
 
@@ -383,32 +405,26 @@
 
     function shouldShowLogin() {
       const params = new URLSearchParams(window.location.search);
-      return params.get("view") === "login";
+      return params.get(REGISTER_PARAM_NAME) === LOGIN_PARAM_VALUE;
     }
 
+    // ── Submit handlers ───────────────────────────────────────────────────
     async function handlePasswordSubmit() {
       const email    = (emailInput.value || "").trim();
       const password = passInput.value || "";
-      if (!email || !password) {
-        showMessage("error", "Please enter your email and password.");
-        return;
-      }
+      if (!email || !password) { showMessage("error", "Please enter your email and password."); return; }
 
       setSubmitState(true);
       try {
         await ensureCsrfCookie();
         const xsrf = getCookie("XSRF-TOKEN");
         const res  = await fetch(resolveEndpoint(LOGIN_ENDPOINT_MAP), {
-          method: "POST",
-          credentials: "include",
+          method: "POST", credentials: "include",
           headers: buildHeaders(xsrf),
           body: JSON.stringify({ email, password })
         });
         const data = await res.json().catch(() => ({}));
-        if (!res.ok) {
-          showMessage("error", data && data.message || data && data.error || "Login failed. Please check your details and try again.");
-          return;
-        }
+        if (!res.ok) { showMessage("error", data && data.message || data && data.error || "Login failed. Please check your details and try again."); return; }
         await setUserSessionCookie();
         showMessage("success", "Logged in successfully.");
         window.location.href = safeRedirectUrl(data && data.panel && data.panel.url) || getLoginRedirectUrl();
@@ -425,22 +441,14 @@
       const identifierError = form.querySelector("[data-login-identifier-error]");
       const raw = (identifierInput ? identifierInput.value : "").trim();
 
-      if (identifierError) {
-        identifierError.style.display = "none";
-        identifierError.textContent = "";
-      }
-      if (identifierInput) identifierInput.classList.remove("is-error");
+      if (identifierError) { identifierError.style.display = "none"; identifierError.textContent = ""; }
+      identifierInput && identifierInput.classList.remove("is-error");
 
       const type = detectIdentifierType(raw);
       if (!type) {
-        if (identifierError) {
-          identifierError.textContent = "Please enter a valid email address or phone number.";
-          identifierError.style.display = "block";
-        }
-        if (identifierInput) {
-          identifierInput.classList.add("is-error");
-          identifierInput.focus();
-        }
+        if (identifierError) { identifierError.textContent = "Please enter a valid email address or phone number."; identifierError.style.display = "block"; }
+        identifierInput && identifierInput.classList.add("is-error");
+        identifierInput && identifierInput.focus();
         return;
       }
 
@@ -449,18 +457,14 @@
         await ensureCsrfCookie();
         const xsrf = getCookie("XSRF-TOKEN");
         const res  = await fetch(resolveEndpoint(SEND_CODE_ENDPOINT_MAP), {
-          method: "POST",
-          credentials: "include",
+          method: "POST", credentials: "include",
           headers: buildHeaders(xsrf),
           body: JSON.stringify({ email: type === "email" ? raw : "", phone: type === "phone" ? raw : "" })
         });
         const data = await res.json().catch(() => ({}));
-        if (!res.ok) {
-          showMessage("error", data && data.message || data && data.error || "Failed to send code. Please try again.");
-          return;
-        }
+        if (!res.ok) { showMessage("error", data && data.message || data && data.error || "Failed to send code. Please try again."); return; }
         codeIdentifier = raw;
-        codeType = type;
+        codeType       = type;
         hideMessages();
         switchCodeStep("otp");
       } catch (err) {
@@ -476,21 +480,13 @@
       const otpError = form.querySelector("[data-login-otp-error]");
       const code     = (otpInput ? otpInput.value : "").trim();
 
-      if (otpError) {
-        otpError.style.display = "none";
-        otpError.textContent = "";
-      }
-      if (otpInput) otpInput.classList.remove("is-error");
+      if (otpError) { otpError.style.display = "none"; otpError.textContent = ""; }
+      otpInput && otpInput.classList.remove("is-error");
 
       if (!code) {
-        if (otpError) {
-          otpError.textContent = "Please enter the code sent to you.";
-          otpError.style.display = "block";
-        }
-        if (otpInput) {
-          otpInput.classList.add("is-error");
-          otpInput.focus();
-        }
+        if (otpError) { otpError.textContent = "Please enter the code sent to you."; otpError.style.display = "block"; }
+        otpInput && otpInput.classList.add("is-error");
+        otpInput && otpInput.focus();
         return;
       }
 
@@ -499,8 +495,7 @@
         await ensureCsrfCookie();
         const xsrf = getCookie("XSRF-TOKEN");
         const res  = await fetch(resolveEndpoint(VALIDATE_CODE_ENDPOINT_MAP), {
-          method: "POST",
-          credentials: "include",
+          method: "POST", credentials: "include",
           headers: buildHeaders(xsrf),
           body: JSON.stringify({
             email: codeType === "email" ? codeIdentifier : "",
@@ -510,11 +505,8 @@
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) {
-          if (otpError) {
-            otpError.textContent = data && data.message || data && data.error || "Invalid code. Please try again.";
-            otpError.style.display = "block";
-          }
-          if (otpInput) otpInput.classList.add("is-error");
+          if (otpError) { otpError.textContent = data && data.message || data && data.error || "Invalid code. Please try again."; otpError.style.display = "block"; }
+          otpInput && otpInput.classList.add("is-error");
           return;
         }
         await setUserSessionCookie();
@@ -533,21 +525,13 @@
       const emailErr = form.querySelector("[data-reset-email-error]");
       const email    = (emailEl ? emailEl.value : "").trim();
 
-      if (emailErr) {
-        emailErr.style.display = "none";
-        emailErr.textContent = "";
-      }
-      if (emailEl) emailEl.classList.remove("is-error");
+      if (emailErr) { emailErr.style.display = "none"; emailErr.textContent = ""; }
+      emailEl && emailEl.classList.remove("is-error");
 
       if (!email) {
-        if (emailErr) {
-          emailErr.textContent = "Please enter your email address.";
-          emailErr.style.display = "block";
-        }
-        if (emailEl) {
-          emailEl.classList.add("is-error");
-          emailEl.focus();
-        }
+        if (emailErr) { emailErr.textContent = "Please enter your email address."; emailErr.style.display = "block"; }
+        emailEl && emailEl.classList.add("is-error");
+        emailEl && emailEl.focus();
         return;
       }
 
@@ -556,16 +540,12 @@
         await ensureCsrfCookie();
         const xsrf = getCookie("XSRF-TOKEN");
         const res  = await fetch(resolveEndpoint(FORGOT_PASSWORD_ENDPOINT_MAP), {
-          method: "POST",
-          credentials: "include",
+          method: "POST", credentials: "include",
           headers: buildHeaders(xsrf),
           body: JSON.stringify({ email })
         });
         const data = await res.json().catch(() => ({}));
-        if (!res.ok) {
-          showMessage("error", data && data.message || data && data.error || "Failed to send reset link. Please try again.");
-          return;
-        }
+        if (!res.ok) { showMessage("error", data && data.message || data && data.error || "Failed to send reset link. Please try again."); return; }
         showMessage("success", "If an account exists for that email, a password reset link has been sent.");
       } catch (err) {
         showMessage("error", err.message || "Failed to send reset link due to a network error.");
@@ -575,35 +555,39 @@
       }
     }
 
+    // ── Events ────────────────────────────────────────────────────────────
+
+    // Form submit
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       e.stopPropagation();
       hideMessages();
-      if (activePanel === "password") await handlePasswordSubmit();
-      else if (activePanel === "reset") await handleForgotPassword();
-      else if (codeStep === "identifier") await handleSendCode();
-      else await handleValidateCode();
+      if      (activePanel === "password")          await handlePasswordSubmit();
+      else if (activePanel === "reset")             await handleForgotPassword();
+      else if (codeStep    === "identifier")        await handleSendCode();
+      else                                          await handleValidateCode();
     });
 
+    // Toggle buttons (Password / Code)
     loginDiv.querySelectorAll(".form_toggle-btn").forEach(btn => {
       btn.addEventListener("click", () => switchPanel(btn.dataset.toggle));
     });
 
+    // Reset password link (the "Reset your password" anchor in field-label-wrapper)
     if (resetLink) {
-      resetLink.addEventListener("click", function (e) {
-        e.preventDefault();
-        switchPanel("reset");
-      });
+      resetLink.addEventListener("click", (e) => { e.preventDefault(); switchPanel("reset"); });
     }
 
-    form.addEventListener("click", function (e) {
+    // Back to login (delegated — injected dynamically)
+    form.addEventListener("click", (e) => {
       if (e.target.closest("[data-back-to-login]")) {
         e.preventDefault();
         switchPanel("password");
       }
     });
 
-    form.addEventListener("click", async function (e) {
+    // Resend code (delegated — injected dynamically)
+    form.addEventListener("click", async (e) => {
       if (!e.target.closest("[data-resend-code]")) return;
       e.preventDefault();
       if (codeStep !== "otp" || !codeIdentifier) return;
@@ -613,22 +597,19 @@
       await handleSendCode();
     });
 
+    // "Create an account" / register links inside login div
     loginDiv.querySelectorAll('a[href*="register"]').forEach(link => {
-      link.addEventListener("click", function (e) {
-        e.preventDefault();
-        showRegister(true);
-      });
+      link.addEventListener("click", (e) => { e.preventDefault(); showRegister(); });
     });
 
+    // "Login" / back links inside register div
     if (registerDiv) {
       registerDiv.querySelectorAll('a[href*="sign-up-login"]:not([href*="register"]), a[href="/sign-up-login"]').forEach(link => {
-        link.addEventListener("click", function (e) {
-          e.preventDefault();
-          showLogin(true);
-        });
+        link.addEventListener("click", (e) => { e.preventDefault(); showLogin(); });
       });
     }
 
+    // ── Initial state ─────────────────────────────────────────────────────
     switchPanel("password");
 
     if (shouldShowLogin()) {
@@ -640,6 +621,7 @@
     }
   }
 
+  // ── Boot ──────────────────────────────────────────────────────────────────
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);
   } else {
