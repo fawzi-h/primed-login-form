@@ -1,7 +1,6 @@
 (function () {
   "use strict";
 
-  // ---------- CSS injection ----------
   function injectStyles() {
     if (document.getElementById("primed-validation-styles")) return;
 
@@ -22,7 +21,7 @@
       .form_field-wrapper.has-error,
       .field-wrapper.has-error,
       .input-wrapper.has-error {
-        padding-bottom: 2.25rem;
+        margin-bottom: 2.75rem;
       }
 
       .field-error {
@@ -36,13 +35,11 @@
         border: 1px solid #f1b5b0;
         border-radius: 0.375rem;
         padding: 0.35rem 0.6rem;
-
         font-family: inherit;
         font-size: inherit;
         font-weight: inherit;
         line-height: inherit;
         letter-spacing: inherit;
-
         white-space: normal;
         box-shadow: 0 0.375rem 1.125rem rgba(0,0,0,0.08);
         max-width: 100%;
