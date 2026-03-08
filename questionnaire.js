@@ -1415,7 +1415,7 @@ h2.react-datepicker__current-month {
 }\r
 \r
 .sq-content-area {\r
-  flex: 1;\r
+  width: 100%;\r
   display: flex;\r
   align-items: center;\r
   justify-content: center;\r
