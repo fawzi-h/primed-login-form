@@ -1,6 +1,7 @@
 (function () {
   "use strict";
 
+  // ---------- CSS injection ----------
   function injectStyles() {
     if (document.getElementById("primed-validation-styles")) return;
 
@@ -21,7 +22,7 @@
       .form_field-wrapper.has-error,
       .field-wrapper.has-error,
       .input-wrapper.has-error {
-        margin-bottom: 2.75rem;
+        margin-bottom: 3rem;
       }
 
       .field-error {
@@ -35,11 +36,13 @@
         border: 1px solid #f1b5b0;
         border-radius: 0.375rem;
         padding: 0.35rem 0.6rem;
+
         font-family: inherit;
         font-size: inherit;
         font-weight: inherit;
         line-height: inherit;
         letter-spacing: inherit;
+
         white-space: normal;
         box-shadow: 0 0.375rem 1.125rem rgba(0,0,0,0.08);
         max-width: 100%;
@@ -67,6 +70,7 @@
     document.head.appendChild(style);
   }
 
+  // ---------- helpers ----------
   const AU_STATES = new Set(["NSW", "VIC", "QLD", "WA", "SA", "TAS", "ACT", "NT"]);
 
   function digitsOnly(s) {
@@ -96,12 +100,19 @@
   }
 
   function getWrapper(input) {
+    if (!input) return null;
+
     return (
       input.closest(".form_field-wrapper") ||
       input.closest(".field-wrapper") ||
       input.closest(".input-wrapper") ||
       input.parentElement
     );
+  }
+
+  function getErrorId(input) {
+    const base = input.id || input.name || "field";
+    return "field-error-" + String(base).replace(/[^a-zA-Z0-9\-_:.]/g, "");
   }
 
   function setError(input, message) {
@@ -115,14 +126,19 @@
 
     wrapper.classList.add("has-error");
 
-    let err = wrapper.querySelector(".field-error");
+    const errorId = getErrorId(input);
+    let err = wrapper.querySelector('.field-error[data-error-for="' + errorId + '"]');
+
     if (!err) {
       err = document.createElement("div");
       err.className = "field-error";
       err.setAttribute("role", "alert");
-      wrapper.appendChild(err);
+      err.setAttribute("id", errorId);
+      err.setAttribute("data-error-for", errorId);
+      input.insertAdjacentElement("afterend", err);
     }
 
+    input.setAttribute("aria-describedby", errorId);
     err.textContent = message;
     err.classList.add("is-visible");
   }
@@ -132,14 +148,42 @@
 
     input.classList.remove("is-invalid");
     input.removeAttribute("aria-invalid");
+    input.removeAttribute("aria-describedby");
 
     const wrapper = getWrapper(input);
     if (!wrapper) return;
 
-    wrapper.classList.remove("has-error");
+    const visibleErrors = wrapper.querySelectorAll(".field-error.is-visible");
+    visibleErrors.forEach(function (err) {
+      if (
+        err.previousElementSibling === input ||
+        err.getAttribute("id") === getErrorId(input)
+      ) {
+        err.classList.remove("is-visible");
+      }
+    });
 
-    const err = wrapper.querySelector(".field-error");
-    if (err) err.classList.remove("is-visible");
+    if (!wrapper.querySelector(".field-error.is-visible")) {
+      wrapper.classList.remove("has-error");
+    }
+  }
+
+  function clearAllErrors(form) {
+    if (!form) return;
+
+    form.querySelectorAll(".is-invalid").forEach(function (input) {
+      input.classList.remove("is-invalid");
+      input.removeAttribute("aria-invalid");
+      input.removeAttribute("aria-describedby");
+    });
+
+    form.querySelectorAll(".has-error").forEach(function (wrapper) {
+      wrapper.classList.remove("has-error");
+    });
+
+    form.querySelectorAll(".field-error.is-visible").forEach(function (err) {
+      err.classList.remove("is-visible");
+    });
   }
 
   function requireValue(input, msg) {
@@ -156,12 +200,15 @@
   function validateEmail(input) {
     if (!input) return true;
     if (!requireValue(input, "Email is required.")) return false;
+
     const v = (input.value || "").trim();
     const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+
     if (!ok) {
       setError(input, "Enter a valid email.");
       return false;
     }
+
     clearError(input);
     return true;
   }
@@ -169,10 +216,12 @@
   function validatePhone(input) {
     if (!input) return true;
     if (!requireValue(input, "Phone number is required.")) return false;
+
     if (!isAustralianMobile(input.value)) {
       setError(input, "Enter a valid Australian mobile (starts with 04, 10 digits).");
       return false;
     }
+
     input.value = normalizeAustralianMobile(input.value);
     clearError(input);
     return true;
@@ -181,11 +230,13 @@
   function validateStreetNumber(input) {
     if (!input) return true;
     if (!requireValue(input, "Street number is required.")) return false;
+
     const v = (input.value || "").trim();
     if (!/^[0-9]{1,6}[A-Za-z]?$/.test(v)) {
       setError(input, "Enter a valid street number (for example 12 or 12A).");
       return false;
     }
+
     clearError(input);
     return true;
   }
@@ -193,11 +244,13 @@
   function validateStreetName(input) {
     if (!input) return true;
     if (!requireValue(input, "Street name is required.")) return false;
+
     const v = (input.value || "").trim();
     if (!/^[A-Za-z0-9 .'\-]{2,}$/.test(v)) {
       setError(input, "Enter a valid street name.");
       return false;
     }
+
     clearError(input);
     return true;
   }
@@ -205,11 +258,13 @@
   function validateSuburb(input) {
     if (!input) return true;
     if (!requireValue(input, "Suburb is required.")) return false;
+
     const v = (input.value || "").trim();
     if (!/^[A-Za-z .'\-]{2,}$/.test(v)) {
       setError(input, "Enter a valid suburb.");
       return false;
     }
+
     clearError(input);
     return true;
   }
@@ -217,11 +272,13 @@
   function validateState(input) {
     if (!input) return true;
     if (!requireValue(input, "State is required.")) return false;
+
     const v = (input.value || "").trim().toUpperCase();
     if (!AU_STATES.has(v)) {
       setError(input, "Use NSW, VIC, QLD, WA, SA, TAS, ACT, or NT.");
       return false;
     }
+
     input.value = v;
     clearError(input);
     return true;
@@ -230,11 +287,13 @@
   function validatePostcode(input) {
     if (!input) return true;
     if (!requireValue(input, "Postcode is required.")) return false;
+
     const v = (input.value || "").trim();
     if (!/^\d{4}$/.test(v)) {
       setError(input, "Postcode must be 4 digits.");
       return false;
     }
+
     clearError(input);
     return true;
   }
@@ -242,11 +301,13 @@
   function validateAddressLine(input) {
     if (!input) return true;
     if (!requireValue(input, "Address is required.")) return false;
+
     const v = (input.value || "").trim();
     if (v.length < 6) {
       setError(input, "Enter a valid address.");
       return false;
     }
+
     clearError(input);
     return true;
   }
@@ -254,10 +315,12 @@
   function validatePassword(input) {
     if (!input) return true;
     if (!requireValue(input, "Password is required.")) return false;
+
     if (!isStrongPassword(input.value || "")) {
       setError(input, "Minimum 8 characters with at least 1 capital letter and 1 number.");
       return false;
     }
+
     clearError(input);
     return true;
   }
@@ -265,10 +328,12 @@
   function validateConfirmPassword(pwInput, confirmInput) {
     if (!confirmInput) return true;
     if (!requireValue(confirmInput, "Please confirm your password.")) return false;
-    if ((pwInput?.value || "") !== (confirmInput.value || "")) {
+
+    if ((pwInput && pwInput.value ? pwInput.value : "") !== (confirmInput.value || "")) {
       setError(confirmInput, "Passwords do not match.");
       return false;
     }
+
     clearError(confirmInput);
     return true;
   }
@@ -304,7 +369,7 @@
     if (!hasRegisterSignals) return;
 
     form.addEventListener("submit", function (e) {
-      form.querySelectorAll(".is-invalid").forEach(clearError);
+      clearAllErrors(form);
 
       let ok = true;
 
