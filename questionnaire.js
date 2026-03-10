@@ -1713,8 +1713,17 @@ h2.react-datepicker__current-month {
 
 /* Prevent browser-enforced minimum width on date inputs on Safari/Chrome mobile */
 input[type="date"].sq-input {
+  -webkit-appearance: none;
+  appearance: none;
   overflow: hidden;
   font-size: 16px;
+}
+
+/* Restore calendar icon hidden by appearance: none */
+input[type="date"].sq-input::-webkit-calendar-picker-indicator {
+  display: block;
+  opacity: 1;
+  cursor: pointer;
 }
 
 .sq-date-input {
