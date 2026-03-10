@@ -2595,3 +2595,17 @@ lucide-react/dist/esm/icons/x.js:
    *)
 
 lucide-react/dist/esm/lucide-react.js:
+  (**
+   * @license lucide-react v0.453.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+react-datepicker/dist/index.es.js:
+  (*!
+    react-datepicker v8.10.0
+    https://github.com/Hacker0x01/react-datepicker
+    Released under the MIT License.
+  *)
+*/
