@@ -3,44 +3,46 @@
 
   const AUTH_PAGE_STATE_KEY = "primed_auth_page_state_v1";
   const LOGIN_UI_STATE_KEY = "primed_auth_login_ui_state_v1";
+  const PAGE_BOOTSTRAP_KEY = "primed_auth_bootstrap_done_v1";
+
   const CSRF_TTL_SECONDS = 7200;
   const CSRF_EXPIRY_COOKIE = "wf_csrf_expires_at";
 
   const CONFIG = {
     LOGIN_ENDPOINT_MAP: {
       "dev-frontend.primedclinic.com.au": "https://api.dev.primedclinic.com.au/api/login",
-      "www.primedclinic.com.au": "https://app.primedclinic.com.au/api/login",
+      "www.primedclinic.com.au": "https://app.primedclinic.com.au/api/login"
     },
     SEND_CODE_ENDPOINT_MAP: {
       "dev-frontend.primedclinic.com.au": "https://api.dev.primedclinic.com.au/api/send-code",
-      "www.primedclinic.com.au": "https://app.primedclinic.com.au/api/send-code",
+      "www.primedclinic.com.au": "https://app.primedclinic.com.au/api/send-code"
     },
     VALIDATE_CODE_ENDPOINT_MAP: {
       "dev-frontend.primedclinic.com.au": "https://api.dev.primedclinic.com.au/api/validate-code",
-      "www.primedclinic.com.au": "https://app.primedclinic.com.au/api/validate-code",
+      "www.primedclinic.com.au": "https://app.primedclinic.com.au/api/validate-code"
     },
     FORGOT_PASSWORD_ENDPOINT_MAP: {
       "dev-frontend.primedclinic.com.au": "https://api.dev.primedclinic.com.au/api/forgot-password",
-      "www.primedclinic.com.au": "https://app.primedclinic.com.au/api/forgot-password",
+      "www.primedclinic.com.au": "https://app.primedclinic.com.au/api/forgot-password"
     },
     REGISTER_ENDPOINT_MAP: {
       "dev-frontend.primedclinic.com.au": "https://api.dev.primedclinic.com.au/api/register/guest",
-      "www.primedclinic.com.au": "https://app.primedclinic.com.au/api/register/guest",
+      "www.primedclinic.com.au": "https://app.primedclinic.com.au/api/register/guest"
     },
     SANCTUM_CSRF_ENDPOINT_MAP: {
       "dev-frontend.primedclinic.com.au": "https://api.dev.primedclinic.com.au/sanctum/csrf-cookie",
-      "www.primedclinic.com.au": "https://app.primedclinic.com.au/sanctum/csrf-cookie",
+      "www.primedclinic.com.au": "https://app.primedclinic.com.au/sanctum/csrf-cookie"
     },
     LOGIN_REDIRECT_MAP: {
       "dev-frontend.primedclinic.com.au": "https://api.dev.primedclinic.com.au/patient",
-      "www.primedclinic.com.au": "https://app.primedclinic.com.au/patient",
+      "www.primedclinic.com.au": "https://app.primedclinic.com.au/patient"
     },
     allowedHosts: new Set([
       "app.primedclinic.com.au",
       "primedclinic.com.au",
       "www.primedclinic.com.au",
       "dev-frontend.primedclinic.com.au",
-      "api.dev.primedclinic.com.au",
+      "api.dev.primedclinic.com.au"
     ])
   };
 
@@ -73,31 +75,44 @@
   }
 
   const pageState = {
-    defaults() {
-      return { activeView: "register", userId: "", dashboardUrl: "" };
-    },
-    get() {
-      const value = loadJson(AUTH_PAGE_STATE_KEY, this.defaults());
+    defaults: function () {
       return {
-        activeView: ["login", "register", "survey"].includes(value.activeView) ? value.activeView : "register",
-        userId: typeof value.userId === "string" ? value.userId : "",
-        dashboardUrl: typeof value.dashboardUrl === "string" ? value.dashboardUrl : ""
+        activeView: "register",
+        userId: "",
+        dashboardUrl: ""
       };
     },
-    set(value) {
+    get: function () {
+      const value = loadJson(AUTH_PAGE_STATE_KEY, this.defaults());
+      return {
+        activeView: ["login", "register", "survey"].includes(value && value.activeView)
+          ? value.activeView
+          : "register",
+        userId: value && typeof value.userId === "string" ? value.userId : "",
+        dashboardUrl: value && typeof value.dashboardUrl === "string" ? value.dashboardUrl : ""
+      };
+    },
+    set: function (value) {
       saveJson(AUTH_PAGE_STATE_KEY, {
-        activeView: ["login", "register", "survey"].includes(value.activeView) ? value.activeView : "register",
-        userId: typeof value.userId === "string" ? value.userId : "",
-        dashboardUrl: typeof value.dashboardUrl === "string" ? value.dashboardUrl : ""
+        activeView: ["login", "register", "survey"].includes(value && value.activeView)
+          ? value.activeView
+          : "register",
+        userId: value && typeof value.userId === "string" ? value.userId : "",
+        dashboardUrl: value && typeof value.dashboardUrl === "string" ? value.dashboardUrl : ""
       });
     },
-    patch(patch) {
+    patch: function (patch) {
       this.set(Object.assign({}, this.get(), patch || {}));
+    },
+    clear: function () {
+      try {
+        localStorage.removeItem(AUTH_PAGE_STATE_KEY);
+      } catch (_e) {}
     }
   };
 
   const loginUiState = {
-    defaults() {
+    defaults: function () {
       return {
         activePanel: "password",
         codeStep: "identifier",
@@ -105,24 +120,32 @@
         codeType: ""
       };
     },
-    get() {
+    get: function () {
       const value = loadJson(LOGIN_UI_STATE_KEY, this.defaults());
       return {
-        activePanel: ["password", "code", "reset"].includes(value.activePanel) ? value.activePanel : "password",
-        codeStep: ["identifier", "otp"].includes(value.codeStep) ? value.codeStep : "identifier",
-        codeIdentifier: typeof value.codeIdentifier === "string" ? value.codeIdentifier : "",
-        codeType: ["email", "phone"].includes(value.codeType) ? value.codeType : ""
+        activePanel: ["password", "code", "reset"].includes(value && value.activePanel)
+          ? value.activePanel
+          : "password",
+        codeStep: ["identifier", "otp"].includes(value && value.codeStep)
+          ? value.codeStep
+          : "identifier",
+        codeIdentifier: value && typeof value.codeIdentifier === "string" ? value.codeIdentifier : "",
+        codeType: ["email", "phone"].includes(value && value.codeType) ? value.codeType : ""
       };
     },
-    set(value) {
+    set: function (value) {
       saveJson(LOGIN_UI_STATE_KEY, {
-        activePanel: ["password", "code", "reset"].includes(value.activePanel) ? value.activePanel : "password",
-        codeStep: ["identifier", "otp"].includes(value.codeStep) ? value.codeStep : "identifier",
-        codeIdentifier: typeof value.codeIdentifier === "string" ? value.codeIdentifier : "",
-        codeType: ["email", "phone"].includes(value.codeType) ? value.codeType : ""
+        activePanel: ["password", "code", "reset"].includes(value && value.activePanel)
+          ? value.activePanel
+          : "password",
+        codeStep: ["identifier", "otp"].includes(value && value.codeStep)
+          ? value.codeStep
+          : "identifier",
+        codeIdentifier: value && typeof value.codeIdentifier === "string" ? value.codeIdentifier : "",
+        codeType: ["email", "phone"].includes(value && value.codeType) ? value.codeType : ""
       });
     },
-    clear() {
+    clear: function () {
       try {
         localStorage.removeItem(LOGIN_UI_STATE_KEY);
       } catch (_e) {}
@@ -183,28 +206,36 @@
   }
 
   async function generateUserToken() {
-    const b64url = (buf) =>
-      btoa(String.fromCharCode(...new Uint8Array(buf)))
+    const b64url = function (buf) {
+      return btoa(String.fromCharCode.apply(null, Array.from(new Uint8Array(buf))))
         .replace(/\+/g, "-")
         .replace(/\//g, "_")
         .replace(/=+$/, "");
-    const encode = (obj) => b64url(new TextEncoder().encode(JSON.stringify(obj)));
+    };
+
+    const encode = function (obj) {
+      return b64url(new TextEncoder().encode(JSON.stringify(obj)));
+    };
+
     const header = encode({ alg: "HS256", typ: "JWT" });
     const payload = encode({
       iat: Math.floor(Date.now() / 1000),
       jti: generateUUID(),
       session: true
     });
+
     const key = await crypto.subtle.generateKey(
       { name: "HMAC", hash: "SHA-256" },
       false,
       ["sign"]
     );
+
     const sig = await crypto.subtle.sign(
       "HMAC",
       key,
       new TextEncoder().encode(`${header}.${payload}`)
     );
+
     return `${header}.${payload}.${b64url(sig)}`;
   }
 
@@ -242,20 +273,67 @@
     }
   }
 
+  function getInitialUrlView() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const view = (params.get("view") || "").trim().toLowerCase();
+      if (view === "login" || view === "register") return view;
+      return null;
+    } catch (_e) {
+      return null;
+    }
+  }
+
+  function stripBootstrapQueryParams() {
+    try {
+      const url = new URL(window.location.href);
+      let changed = false;
+
+      if (url.searchParams.has("view")) {
+        url.searchParams.delete("view");
+        changed = true;
+      }
+
+      if (changed) {
+        history.replaceState(null, "", url.toString());
+      }
+    } catch (_e) {}
+  }
+
+  function bootstrapFromUrlOnce() {
+    try {
+      const alreadyBootstrapped = sessionStorage.getItem(PAGE_BOOTSTRAP_KEY) === "true";
+      if (alreadyBootstrapped) return;
+
+      const initialView = getInitialUrlView();
+      if (initialView) {
+        pageState.patch({
+          activeView: initialView,
+          userId: initialView === "survey" ? pageState.get().userId : "",
+          dashboardUrl: initialView === "survey" ? pageState.get().dashboardUrl : ""
+        });
+      }
+
+      stripBootstrapQueryParams();
+      sessionStorage.setItem(PAGE_BOOTSTRAP_KEY, "true");
+    } catch (_e) {}
+  }
+
   window.PrimedAuthShared = {
-    CONFIG,
-    pageState,
-    loginUiState,
-    showOnlyView,
-    resolveEndpoint,
-    getCookie,
-    setCookie,
-    ensureCsrfCookie,
-    buildHeaders,
-    setUserSessionCookie,
-    safeRedirectUrl,
-    getLoginRedirectUrl,
-    detectIdentifierType,
-    getReferralCodeFromUrl
+    CONFIG: CONFIG,
+    pageState: pageState,
+    loginUiState: loginUiState,
+    showOnlyView: showOnlyView,
+    resolveEndpoint: resolveEndpoint,
+    getCookie: getCookie,
+    setCookie: setCookie,
+    ensureCsrfCookie: ensureCsrfCookie,
+    buildHeaders: buildHeaders,
+    setUserSessionCookie: setUserSessionCookie,
+    safeRedirectUrl: safeRedirectUrl,
+    getLoginRedirectUrl: getLoginRedirectUrl,
+    detectIdentifierType: detectIdentifierType,
+    getReferralCodeFromUrl: getReferralCodeFromUrl,
+    bootstrapFromUrlOnce: bootstrapFromUrlOnce
   };
 })(window);
