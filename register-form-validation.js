@@ -39,10 +39,6 @@
       .field-error-host {
         position: relative;
       }
-
-      .field-error-host.has-error-popup {
-        padding-bottom: 3.5rem;
-      }
     `;
     document.head.appendChild(style);
   }
@@ -117,6 +113,11 @@
     if (host) host.classList.add("has-error-popup");
     err.textContent = message;
     err.classList.add("is-visible");
+
+    if (host) {
+      const popupHeight = err.offsetHeight || 0;
+      host.style.paddingBottom = popupHeight ? popupHeight + 8 + "px" : "";
+    }
   }
 
   function clearError(input) {
@@ -128,7 +129,10 @@
 
     const err = document.getElementById(getErrorId(input));
     const host = getErrorHost(input);
-    if (host) host.classList.remove("has-error-popup");
+    if (host) {
+      host.classList.remove("has-error-popup");
+      host.style.paddingBottom = "";
+    }
     if (err) {
       err.textContent = "";
       err.classList.remove("is-visible");
@@ -144,7 +148,10 @@
       input.removeAttribute("aria-describedby");
 
       const host = getErrorHost(input);
-      if (host) host.classList.remove("has-error-popup");
+      if (host) {
+        host.classList.remove("has-error-popup");
+        host.style.paddingBottom = "";
+      }
     });
 
     form.querySelectorAll(".field-error.is-visible").forEach(function (err) {
@@ -324,6 +331,15 @@
     );
   }
 
+  function bindLiveClear(input) {
+    if (!input || input.__primedLiveClearBound) return;
+    input.__primedLiveClearBound = true;
+
+    input.addEventListener("input", function () {
+      clearError(input);
+    });
+  }
+
   function initOnForm(form) {
     if (!form || form.__primedValidationBound) return;
 
@@ -344,6 +360,21 @@
     if (!hasRegisterSignals) return;
 
     form.__primedValidationBound = true;
+
+    [
+      firstName,
+      lastName,
+      email,
+      phone,
+      address,
+      streetNumber,
+      streetName,
+      suburb,
+      state,
+      postcode,
+      password,
+      confirmPassword
+    ].forEach(bindLiveClear);
 
     function validateForm() {
       clearAllErrors(form);
