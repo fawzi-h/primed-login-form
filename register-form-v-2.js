@@ -1,15 +1,15 @@
-/* register-form-v-2.js — no DOM injection, works with existing Webflow HTML */
+/* register-form-v-2.js — persistent register/survey state */
 
 (function () {
   "use strict";
 
-  // ── UUID fallback (Safari iOS < 15.4 does not support crypto.randomUUID) ──
+  // ── UUID fallback ──────────────────────────────────────────────────────
   function generateUUID() {
     if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
       return crypto.randomUUID();
     }
     return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-      var r = (typeof crypto !== "undefined" && crypto.getRandomValues)
+      var r = (typeof crypto !== "undefined" && typeof crypto.getRandomValues)
         ? (crypto.getRandomValues(new Uint8Array(1))[0] & 15)
         : Math.floor(Math.random() * 16);
       var v = c === "x" ? r : (r & 0x3 | 0x8);
@@ -17,9 +17,11 @@
     });
   }
 
-  // ── Config ──────────────────────────────────────────────────────────────
+  // ── Config ─────────────────────────────────────────────────────────────
   const CSRF_TTL_SECONDS = 7200;
   const CSRF_EXPIRY_COOKIE = "wf_csrf_expires_at";
+
+  const AUTH_PAGE_STATE_KEY = "primed_auth_page_state_v1";
 
   const REGISTER_ENDPOINT_MAP = {
     "dev-frontend.primedclinic.com.au": "https://api.dev.primedclinic.com.au/api/register/guest",
@@ -35,6 +37,62 @@
     "dev-frontend.primedclinic.com.au": "https://api.dev.primedclinic.com.au/sanctum/csrf-cookie",
     "www.primedclinic.com.au": "https://app.primedclinic.com.au/sanctum/csrf-cookie",
   };
+
+  // ── Shared page state ──────────────────────────────────────────────────
+  function getDefaultPageState() {
+    return {
+      activeView: "register",
+      userId: "",
+      dashboardUrl: ""
+    };
+  }
+
+  function loadPageState() {
+    try {
+      const raw = localStorage.getItem(AUTH_PAGE_STATE_KEY);
+      if (!raw) return getDefaultPageState();
+      const parsed = JSON.parse(raw);
+      return {
+        activeView: ["login", "register", "survey"].includes(parsed && parsed.activeView)
+          ? parsed.activeView
+          : "register",
+        userId: parsed && typeof parsed.userId === "string" ? parsed.userId : "",
+        dashboardUrl: parsed && typeof parsed.dashboardUrl === "string" ? parsed.dashboardUrl : ""
+      };
+    } catch (_e) {
+      return getDefaultPageState();
+    }
+  }
+
+  function savePageState(state) {
+    try {
+      localStorage.setItem(
+        AUTH_PAGE_STATE_KEY,
+        JSON.stringify({
+          activeView: ["login", "register", "survey"].includes(state && state.activeView)
+            ? state.activeView
+            : "register",
+          userId: state && typeof state.userId === "string" ? state.userId : "",
+          dashboardUrl: state && typeof state.dashboardUrl === "string" ? state.dashboardUrl : ""
+        })
+      );
+    } catch (_e) {}
+  }
+
+  function patchPageState(patch) {
+    const current = loadPageState();
+    savePageState(Object.assign({}, current, patch || {}));
+  }
+
+  function showOnlyView(viewName) {
+    const loginDiv = document.querySelector("#login-form");
+    const registerDiv = document.querySelector("#signup-form");
+    const surveyDiv = document.querySelector("#primed-survey");
+
+    if (loginDiv) loginDiv.style.display = viewName === "login" ? "block" : "none";
+    if (registerDiv) registerDiv.style.display = viewName === "register" ? "block" : "none";
+    if (surveyDiv) surveyDiv.style.display = viewName === "survey" ? "block" : "none";
+  }
 
   // ── Endpoint resolver ──────────────────────────────────────────────────
   function resolveEndpoint(map) {
@@ -56,7 +114,7 @@
     document.cookie = `${name}=${encodeURIComponent(value)}; Path=/; Max-Age=${maxAgeSeconds}; SameSite=Lax${secure}`;
   }
 
-  // ── CSRF ────────────────────────────────────────────────────────────────
+  // ── CSRF ───────────────────────────────────────────────────────────────
   function csrfIsValid() {
     const xsrfToken = getCookie("XSRF-TOKEN");
     const expiresAt = parseInt(getCookie(CSRF_EXPIRY_COOKIE) || "", 10);
@@ -146,18 +204,15 @@
     }
 
     init() {
-      // Pre-fill referral code from URL if present
       const refInput = this._getReferralInput();
       const refCode = getReferralCodeFromUrl();
       if (refInput && refCode && !refInput.value.trim()) {
         refInput.value = refCode;
       }
 
-      // Hide error wrapper on load
       const errorWrapper = this.container.querySelector(".form_message-error-wrapper");
       if (errorWrapper) errorWrapper.style.display = "none";
 
-      // Inject password error element after Confirm Password if not present
       if (!this.container.querySelector("#password-error")) {
         var _cpEl = this.container.querySelector("#Confirm-Password");
         const confirmWrapper = _cpEl ? _cpEl.closest(".form_field-wrapper") : null;
@@ -171,7 +226,25 @@
       }
 
       this._bindEvents();
+      this._restoreViewState();
       console.log("[RegisterForm] Initialised on #signup-form");
+    }
+
+    _restoreViewState() {
+      const state = loadPageState();
+      const surveyDiv = document.querySelector("#primed-survey");
+
+      if (state.activeView === "survey") {
+        if (state.userId) sessionStorage.setItem("userId", String(state.userId));
+        if (surveyDiv && state.dashboardUrl) {
+          surveyDiv.setAttribute("data-dashboard-url", state.dashboardUrl);
+        }
+        showOnlyView("survey");
+      } else if (state.activeView === "login") {
+        showOnlyView("login");
+      } else {
+        showOnlyView("register");
+      }
     }
 
     _getReferralInput() {
@@ -184,12 +257,9 @@
       const refInput = this._getReferralInput();
       const inputValue = ((refInput ? refInput.value : "") || "").trim();
       const urlValue = getReferralCodeFromUrl();
-
-      // Prefer the user-entered / field value, fall back to URL value
       return inputValue || urlValue || "";
     }
 
-    // ── Show/hide helpers ────────────────────────────────────────────────
     _showError(message) {
       const wrapper = this.container.querySelector(".form_message-error-wrapper");
       const el = this.container.querySelector(".error-text");
@@ -215,20 +285,28 @@
       btn.value = loading ? "Please wait..." : "Create account & Continue";
     }
 
-    // ── Show survey ──────────────────────────────────────────────────────
     _showSurvey(userId, dashboardUrl) {
-      if (userId) sessionStorage.setItem("userId", String(userId));
-      this.container.style.display = "none";
       const surveyDiv = document.querySelector("#primed-survey");
-      if (surveyDiv) {
-        if (dashboardUrl) surveyDiv.setAttribute("data-dashboard-url", dashboardUrl);
-        surveyDiv.style.display = "block";
-      } else {
+
+      if (userId) sessionStorage.setItem("userId", String(userId));
+
+      patchPageState({
+        activeView: "survey",
+        userId: userId ? String(userId) : "",
+        dashboardUrl: dashboardUrl || ""
+      });
+
+      if (surveyDiv && dashboardUrl) {
+        surveyDiv.setAttribute("data-dashboard-url", dashboardUrl);
+      }
+
+      showOnlyView("survey");
+
+      if (!surveyDiv) {
         console.warn("[RegisterForm] #primed-survey not found");
       }
     }
 
-    // ── Auto-login after registration ────────────────────────────────────
     async _autoLogin(email, password, userId) {
       let dashboardUrl = null;
       try {
@@ -261,7 +339,6 @@
       this._showSurvey(userId, dashboardUrl);
     }
 
-    // ── Submit handler ───────────────────────────────────────────────────
     async _handleSubmit(e) {
       e.preventDefault();
       e.stopPropagation();
@@ -276,12 +353,10 @@
         return;
       }
 
-      // Reset password error state
       if (pwError) pwError.style.display = "none";
       password.classList.remove("is-error");
       confirm.classList.remove("is-error");
 
-      // Validate password match
       if (password.value !== confirm.value) {
         if (pwError) pwError.style.display = "block";
         password.classList.add("is-error");
@@ -354,7 +429,6 @@
           password: password.value
         };
 
-        // Only include referral_code when it actually has a value
         if (referralCode) {
           payload.referral_code = referralCode;
         }
@@ -391,17 +465,17 @@
       }
     }
 
-    // ── Back to login ────────────────────────────────────────────────────
     _handleBackToLogin() {
-      const url = new URL(window.location.href);
-      url.searchParams.delete("view");
-      if (url.hash === "#register") url.hash = "";
-      history.replaceState(null, "", url.toString());
+      patchPageState({
+        activeView: "login",
+        userId: "",
+        dashboardUrl: ""
+      });
+
+      showOnlyView("login");
 
       const loginContainer = document.querySelector("#login-form");
       if (loginContainer) {
-        this.container.style.display = "none";
-        loginContainer.style.display = "block";
         var _lf = loginContainer.querySelector("#log-in_input-form");
         if (_lf) _lf.focus();
       } else {
@@ -409,7 +483,6 @@
       }
     }
 
-    // ── Event binding ────────────────────────────────────────────────────
     _bindEvents() {
       const form = this.container.querySelector("form.signup_input-form");
       const password = this.container.querySelector("#Password");
@@ -421,13 +494,11 @@
         return;
       }
 
-      // Prevent Webflow's default form submission
       if (form.dataset.registerBound !== "true") {
         form.dataset.registerBound = "true";
         form.addEventListener("submit", (e) => this._handleSubmit(e));
       }
 
-      // Clear password mismatch error on re-type
       if (confirm) {
         confirm.addEventListener("input", function () {
           if (pwError && pwError.style.display === "block") {
@@ -438,7 +509,6 @@
         });
       }
 
-      // Back to login — any link inside signup-form pointing to login
       this.container.querySelectorAll(
         'a[href*="sign-up-login"]:not([href*="register"]), a[href="/sign-up-login"]'
       ).forEach((el) =>
@@ -457,6 +527,7 @@
       console.warn("[RegisterForm] #signup-form not found in DOM.");
       return;
     }
+
     const ctrl = new RegisterFormController(container);
     ctrl.init();
   }
