@@ -11,6 +11,7 @@
     state: "state",
     postcode: "postcode",
   };
+  const MANUAL_TOGGLE_ID = "address-manual-toggle";
 
   // Match your form spacing. If your form uses a different rhythm, change this.
   const ROW_GAP_PX = 16;
@@ -38,6 +39,33 @@
       #${DETAILS_WRAPPER_ID} .form_field-2col .form_field-wrapper + .form_field-wrapper {
         margin-top: 0;
       }
+
+      .address-manual-toggle {
+        display: none;
+        margin-top: ${ROW_GAP_PX}px;
+        font-size: 0.95rem;
+        line-height: 1.4;
+      }
+
+      .address-manual-toggle.is-visible {
+        display: block;
+      }
+
+      .address-manual-toggle label {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+      }
+
+      .address-manual-toggle input[type="checkbox"] {
+        margin: 0;
+      }
+
+      .address-field-is-locked {
+        background: #f7f7f7;
+        cursor: not-allowed;
+      }
     `;
     document.head.appendChild(style);
   }
@@ -51,6 +79,67 @@
       const el = $(id);
       if (el) el.value = "";
     });
+  }
+
+  function getAddressFieldElements() {
+    return Object.values(FIELD_IDS)
+      .map(function (id) { return $(id); })
+      .filter(Boolean);
+  }
+
+  function ensureManualToggle(wrapper) {
+    if (!wrapper) return null;
+
+    let toggle = document.getElementById(MANUAL_TOGGLE_ID);
+    if (toggle) return toggle;
+
+    toggle = document.createElement("div");
+    toggle.id = MANUAL_TOGGLE_ID;
+    toggle.className = "address-manual-toggle";
+    toggle.innerHTML =
+      '<label for="address-manual-entry-checkbox">' +
+      '<input type="checkbox" id="address-manual-entry-checkbox" />' +
+      "<span>Manually enter address</span>" +
+      "</label>";
+
+    wrapper.appendChild(toggle);
+
+    const checkbox = toggle.querySelector('input[type="checkbox"]');
+    if (checkbox) {
+      checkbox.addEventListener("change", function () {
+        setAddressFieldsReadOnly(!checkbox.checked);
+      });
+    }
+
+    return toggle;
+  }
+
+  function setAddressFieldsReadOnly(readOnly) {
+    getAddressFieldElements().forEach(function (el) {
+      el.readOnly = !!readOnly;
+      el.classList.toggle("address-field-is-locked", !!readOnly);
+      el.setAttribute("aria-readonly", readOnly ? "true" : "false");
+    });
+  }
+
+  function showManualToggle(wrapper, checked) {
+    const toggle = ensureManualToggle(wrapper);
+    if (!toggle) return;
+
+    const checkbox = toggle.querySelector('input[type="checkbox"]');
+    if (checkbox) checkbox.checked = !!checked;
+    toggle.classList.add("is-visible");
+    setAddressFieldsReadOnly(!checked);
+  }
+
+  function hideManualToggle(wrapper) {
+    const toggle = ensureManualToggle(wrapper);
+    if (!toggle) return;
+
+    const checkbox = toggle.querySelector('input[type="checkbox"]');
+    if (checkbox) checkbox.checked = false;
+    toggle.classList.remove("is-visible");
+    setAddressFieldsReadOnly(false);
   }
 
   function getComponent(place, type) {
@@ -166,6 +255,7 @@
     wrapper.style.maxHeight = "0px";
     wrapper.style.pointerEvents = "none";
     wrapper.classList.add("addr-anim");
+    ensureManualToggle(wrapper);
 
     waitForPlaces(
       function () {
@@ -183,12 +273,16 @@
 
           populateAddress(place);
           showAnimated(wrapper);
+          showManualToggle(wrapper, false);
         });
 
         lookupInput.addEventListener("input", function () {
           if (!lookupInput.value.trim()) {
             clearAddressFields();
+            hideManualToggle(wrapper);
             hideAnimatedToNone(wrapper);
+          } else {
+            hideManualToggle(wrapper);
           }
         });
       },
@@ -198,6 +292,7 @@
         wrapper.style.opacity = "1";
         wrapper.style.maxHeight = "none";
         wrapper.style.pointerEvents = "auto";
+        showManualToggle(wrapper, true);
       }
     );
 
