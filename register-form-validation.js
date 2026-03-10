@@ -14,6 +14,7 @@
 
       .field-error {
         display: none;
+        width: 100%;
         color: #d93025;
         background: #fff;
         border: 1px solid rgba(217, 48, 37, 0.18);
@@ -34,6 +35,17 @@
 
       .field-error-host {
         position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .field-error-host > .form_input,
+      .field-error-host > .w-input,
+      .field-error-host > input,
+      .field-error-host > textarea,
+      .field-error-host > select {
+        width: 100%;
       }
     `;
     document.head.appendChild(style);
