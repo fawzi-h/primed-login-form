@@ -20,16 +20,12 @@
         border-radius: 0.5rem;
         box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
         padding: 0.55rem 0.75rem;
+        margin-top: 0.45rem;
         font-family: inherit;
         font-size: 0.875rem;
         font-weight: 500;
         line-height: 1.35;
         letter-spacing: inherit;
-        position: absolute;
-        top: calc(100% + 0.35rem);
-        left: 0;
-        right: 0;
-        z-index: 20;
       }
 
       .field-error.is-visible {
@@ -110,14 +106,8 @@
     input.setAttribute("aria-invalid", "true");
     input.setAttribute("aria-describedby", err.id);
 
-    if (host) host.classList.add("has-error-popup");
     err.textContent = message;
     err.classList.add("is-visible");
-
-    if (host) {
-      const popupHeight = err.offsetHeight || 0;
-      host.style.paddingBottom = popupHeight ? popupHeight + 8 + "px" : "";
-    }
   }
 
   function clearError(input) {
@@ -128,11 +118,6 @@
     input.removeAttribute("aria-describedby");
 
     const err = document.getElementById(getErrorId(input));
-    const host = getErrorHost(input);
-    if (host) {
-      host.classList.remove("has-error-popup");
-      host.style.paddingBottom = "";
-    }
     if (err) {
       err.textContent = "";
       err.classList.remove("is-visible");
@@ -147,11 +132,6 @@
       input.removeAttribute("aria-invalid");
       input.removeAttribute("aria-describedby");
 
-      const host = getErrorHost(input);
-      if (host) {
-        host.classList.remove("has-error-popup");
-        host.style.paddingBottom = "";
-      }
     });
 
     form.querySelectorAll(".field-error.is-visible").forEach(function (err) {
