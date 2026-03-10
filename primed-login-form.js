@@ -60,17 +60,6 @@
       });
     }
 
-    showLogin() {
-      Shared.pageState.patch({ activeView: "login" });
-      Shared.showOnlyView("login");
-      this.emailInput.focus();
-    }
-
-    showRegister() {
-      Shared.pageState.patch({ activeView: "register", userId: "", dashboardUrl: "" });
-      Shared.showOnlyView("register");
-    }
-
     restore() {
       const pageState = Shared.pageState.get();
 
@@ -105,6 +94,25 @@
       }
 
       this.syncUiState();
+    }
+
+    showLogin() {
+      Shared.pageState.patch({
+        activeView: "login",
+        userId: "",
+        dashboardUrl: ""
+      });
+      Shared.showOnlyView("login");
+      this.emailInput.focus();
+    }
+
+    showRegister() {
+      Shared.pageState.patch({
+        activeView: "register",
+        userId: "",
+        dashboardUrl: ""
+      });
+      Shared.showOnlyView("register");
     }
 
     showMessage(type, text) {
@@ -144,21 +152,26 @@
 
     setSubmitState(loading) {
       this.submitBtn.disabled = loading;
-      this.submitBtn.value = loading
-        ? (this.activePanel === "password"
+
+      if (loading) {
+        this.submitBtn.value =
+          this.activePanel === "password"
             ? "Logging in..."
             : this.activePanel === "reset"
             ? "Sending..."
             : this.codeStep === "identifier"
             ? "Sending..."
-            : "Verifying...")
-        : (this.activePanel === "password"
+            : "Verifying...";
+      } else {
+        this.submitBtn.value =
+          this.activePanel === "password"
             ? "Login"
             : this.activePanel === "reset"
             ? "Send Reset Link"
             : this.codeStep === "identifier"
             ? "Send Code"
-            : "Verify Code");
+            : "Verify Code";
+      }
     }
 
     switchCodeStep(step, skipSave) {
@@ -170,8 +183,13 @@
       if (identifierStep) identifierStep.style.display = step === "identifier" ? "" : "none";
       if (otpStep) otpStep.style.display = step === "otp" ? "" : "none";
 
-      if (!skipSave) this.syncUiState();
+      if (step === "otp") {
+        const otpInput = this.form.querySelector("[data-login-otp]");
+        if (otpInput) otpInput.focus();
+      }
+
       this.setSubmitState(false);
+      if (!skipSave) this.syncUiState();
     }
 
     switchPanel(panel, skipSave) {
@@ -198,7 +216,14 @@
       if (toggleWrapper) toggleWrapper.style.display = isReset ? "none" : "";
       if (registerBtnWrapper) registerBtnWrapper.style.display = isReset ? "none" : "";
 
-      if (panel === "code") this.switchCodeStep(this.codeStep || "identifier", true);
+      if (panel === "code") {
+        this.switchCodeStep(this.codeStep || "identifier", true);
+      }
+
+      if (panel === "reset") {
+        const resetEmail = this.form.querySelector("[data-reset-email]");
+        if (resetEmail) resetEmail.focus();
+      }
 
       this.container.querySelectorAll(".form_toggle-btn").forEach((btn) => {
         btn.classList.toggle("is-active", btn.dataset.toggle === panel);
@@ -224,27 +249,41 @@
       try {
         await Shared.ensureCsrfCookie();
         const xsrf = Shared.getCookie("XSRF-TOKEN");
+
         const res = await fetch(Shared.resolveEndpoint(Shared.CONFIG.LOGIN_ENDPOINT_MAP), {
           method: "POST",
           credentials: "include",
           headers: Shared.buildHeaders(xsrf),
-          body: JSON.stringify({ email, password })
+          body: JSON.stringify({ email: email, password: password })
         });
 
         const data = await res.json().catch(() => ({}));
+
         if (!res.ok) {
-          this.showMessage("error", data.message || data.error || "Login failed. Please check your details and try again.");
+          this.showMessage(
+            "error",
+            (data && data.message) ||
+            (data && data.error) ||
+            "Login failed. Please check your details and try again."
+          );
           return;
         }
 
         await Shared.setUserSessionCookie();
         Shared.loginUiState.clear();
-        Shared.pageState.patch({ activeView: "login", userId: "", dashboardUrl: "" });
+        Shared.pageState.patch({
+          activeView: "login",
+          userId: "",
+          dashboardUrl: ""
+        });
 
         this.showMessage("success", "Logged in successfully.");
-        window.location.href = Shared.safeRedirectUrl(data && data.panel && data.panel.url) || Shared.getLoginRedirectUrl();
+        window.location.href =
+          Shared.safeRedirectUrl(data && data.panel && data.panel.url) ||
+          Shared.getLoginRedirectUrl();
       } catch (err) {
-        this.showMessage("error", err.message || "Login failed due to a network error.");
+        this.showMessage("error", (err && err.message) || "Login failed due to a network error.");
+        console.error("[LoginForm] Login error:", err);
       } finally {
         this.setSubmitState(false);
       }
@@ -267,7 +306,10 @@
           identifierError.textContent = "Please enter a valid email address or phone number.";
           identifierError.style.display = "block";
         }
-        if (identifierInput) identifierInput.classList.add("is-error");
+        if (identifierInput) {
+          identifierInput.classList.add("is-error");
+          identifierInput.focus();
+        }
         return;
       }
 
@@ -276,6 +318,7 @@
       try {
         await Shared.ensureCsrfCookie();
         const xsrf = Shared.getCookie("XSRF-TOKEN");
+
         const res = await fetch(Shared.resolveEndpoint(Shared.CONFIG.SEND_CODE_ENDPOINT_MAP), {
           method: "POST",
           credentials: "include",
@@ -287,17 +330,25 @@
         });
 
         const data = await res.json().catch(() => ({}));
+
         if (!res.ok) {
-          this.showMessage("error", data.message || data.error || "Failed to send code. Please try again.");
+          this.showMessage(
+            "error",
+            (data && data.message) ||
+            (data && data.error) ||
+            "Failed to send code. Please try again."
+          );
           return;
         }
 
         this.codeIdentifier = raw;
         this.codeType = type;
         this.syncUiState();
+        this.hideMessages();
         this.switchCodeStep("otp");
       } catch (err) {
-        this.showMessage("error", err.message || "Failed to send code due to a network error.");
+        this.showMessage("error", (err && err.message) || "Failed to send code due to a network error.");
+        console.error("[LoginForm] Send code error:", err);
       } finally {
         this.setSubmitState(false);
       }
@@ -319,7 +370,10 @@
           otpError.textContent = "Please enter the code sent to you.";
           otpError.style.display = "block";
         }
-        if (otpInput) otpInput.classList.add("is-error");
+        if (otpInput) {
+          otpInput.classList.add("is-error");
+          otpInput.focus();
+        }
         return;
       }
 
@@ -328,6 +382,7 @@
       try {
         await Shared.ensureCsrfCookie();
         const xsrf = Shared.getCookie("XSRF-TOKEN");
+
         const res = await fetch(Shared.resolveEndpoint(Shared.CONFIG.VALIDATE_CODE_ENDPOINT_MAP), {
           method: "POST",
           credentials: "include",
@@ -335,14 +390,18 @@
           body: JSON.stringify({
             email: this.codeType === "email" ? this.codeIdentifier : "",
             phone: this.codeType === "phone" ? this.codeIdentifier : "",
-            code
+            code: code
           })
         });
 
         const data = await res.json().catch(() => ({}));
+
         if (!res.ok) {
           if (otpError) {
-            otpError.textContent = data.message || data.error || "Invalid code. Please try again.";
+            otpError.textContent =
+              (data && data.message) ||
+              (data && data.error) ||
+              "Invalid code. Please try again.";
             otpError.style.display = "block";
           }
           if (otpInput) otpInput.classList.add("is-error");
@@ -351,12 +410,19 @@
 
         await Shared.setUserSessionCookie();
         Shared.loginUiState.clear();
-        Shared.pageState.patch({ activeView: "login", userId: "", dashboardUrl: "" });
+        Shared.pageState.patch({
+          activeView: "login",
+          userId: "",
+          dashboardUrl: ""
+        });
 
         this.showMessage("success", "Logged in successfully.");
-        window.location.href = Shared.safeRedirectUrl(data && data.panel && data.panel.url) || Shared.getLoginRedirectUrl();
+        window.location.href =
+          Shared.safeRedirectUrl(data && data.panel && data.panel.url) ||
+          Shared.getLoginRedirectUrl();
       } catch (err) {
-        this.showMessage("error", err.message || "Verification failed due to a network error.");
+        this.showMessage("error", (err && err.message) || "Verification failed due to a network error.");
+        console.error("[LoginForm] Validate code error:", err);
       } finally {
         this.setSubmitState(false);
       }
@@ -378,7 +444,10 @@
           emailErr.textContent = "Please enter your email address.";
           emailErr.style.display = "block";
         }
-        if (emailEl) emailEl.classList.add("is-error");
+        if (emailEl) {
+          emailEl.classList.add("is-error");
+          emailEl.focus();
+        }
         return;
       }
 
@@ -387,22 +456,30 @@
       try {
         await Shared.ensureCsrfCookie();
         const xsrf = Shared.getCookie("XSRF-TOKEN");
+
         const res = await fetch(Shared.resolveEndpoint(Shared.CONFIG.FORGOT_PASSWORD_ENDPOINT_MAP), {
           method: "POST",
           credentials: "include",
           headers: Shared.buildHeaders(xsrf),
-          body: JSON.stringify({ email })
+          body: JSON.stringify({ email: email })
         });
 
         const data = await res.json().catch(() => ({}));
+
         if (!res.ok) {
-          this.showMessage("error", data.message || data.error || "Failed to send reset link. Please try again.");
+          this.showMessage(
+            "error",
+            (data && data.message) ||
+            (data && data.error) ||
+            "Failed to send reset link. Please try again."
+          );
           return;
         }
 
         this.showMessage("success", "If an account exists for that email, a password reset link has been sent.");
       } catch (err) {
-        this.showMessage("error", err.message || "Failed to send reset link due to a network error.");
+        this.showMessage("error", (err && err.message) || "Failed to send reset link due to a network error.");
+        console.error("[LoginForm] Forgot password error:", err);
       } finally {
         this.setSubmitState(false);
       }
@@ -418,15 +495,30 @@
 
         this.hideMessages();
 
-        if (this.activePanel === "password") return this.handlePasswordSubmit();
-        if (this.activePanel === "reset") return this.handleForgotPassword();
-        if (this.codeStep === "identifier") return this.handleSendCode();
-        return this.handleValidateCode();
+        try {
+          if (this.activePanel === "password") {
+            await this.handlePasswordSubmit();
+          } else if (this.activePanel === "reset") {
+            await this.handleForgotPassword();
+          } else if (this.codeStep === "identifier") {
+            await this.handleSendCode();
+          } else {
+            await this.handleValidateCode();
+          }
+        } catch (err) {
+          console.error("[LoginForm] Submit error:", err);
+          this.showMessage("error", "Something went wrong. Please try again.");
+          this.setSubmitState(false);
+        }
+
+        return false;
       }, true);
 
       this.container.querySelectorAll(".form_toggle-btn").forEach((btn) => {
         btn.addEventListener("click", () => {
-          if (btn.dataset.toggle === "password") this.codeStep = "identifier";
+          if (btn.dataset.toggle === "password") {
+            this.codeStep = "identifier";
+          }
           this.switchPanel(btn.dataset.toggle);
         });
       });
@@ -448,10 +540,13 @@
 
         if (e.target.closest("[data-resend-code]")) {
           e.preventDefault();
+
           if (this.codeStep !== "otp" || !this.codeIdentifier) return;
+
           this.switchCodeStep("identifier");
           const identifierInput = this.form.querySelector("[data-login-identifier]");
           if (identifierInput) identifierInput.value = this.codeIdentifier;
+
           await this.handleSendCode();
         }
       });
@@ -480,12 +575,15 @@
       if (!document.getElementById("lf-panel-style")) {
         const style = document.createElement("style");
         style.id = "lf-panel-style";
-        style.textContent = "[data-login-panel]{display:none!important}[data-login-panel].lf-active{display:block!important}";
+        style.textContent =
+          "[data-login-panel] { display: none !important; } " +
+          "[data-login-panel].lf-active { display: block !important; }";
         document.head.appendChild(style);
       }
 
       const passwordPanel = document.createElement("div");
       passwordPanel.setAttribute("data-login-panel", "password");
+      passwordPanel.style.display = "none";
 
       const emailWrapper = this.emailInput.closest(".form_field-wrapper");
       const passWrapper = this.passInput.closest(".form_field-wrapper");
@@ -500,11 +598,13 @@
         <div class="form_toggle-wrapper" style="display:flex; gap:0.5rem; margin-bottom:1rem;">
           <button type="button" class="form_toggle-btn is-active" data-toggle="password">Password</button>
           <button type="button" class="form_toggle-btn" data-toggle="code">Code</button>
-        </div>`;
+        </div>
+      `;
       passwordPanel.parentNode.insertBefore(toggleWrapper, passwordPanel);
 
       const codePanel = document.createElement("div");
       codePanel.setAttribute("data-login-panel", "code");
+      codePanel.style.display = "none";
       codePanel.innerHTML = `
         <div data-code-step="identifier">
           <div class="form_field-wrapper">
@@ -522,31 +622,36 @@
           <div style="margin-bottom:0.5rem;">
             <a href="#" class="text-style-link text-size-small" data-resend-code="true">Resend code</a>
           </div>
-        </div>`;
+        </div>
+      `;
       passwordPanel.after(codePanel);
 
       const resetPanel = document.createElement("div");
       resetPanel.setAttribute("data-login-panel", "reset");
+      resetPanel.style.display = "none";
       resetPanel.innerHTML = `
         <div class="margin-bottom margin-small">
-          <p class="text-size-small" style="margin-bottom:0.75rem;">Enter your email and we'll send you a reset link.</p>
+          <p class="text-size-small" style="margin-bottom:0.75rem;">
+            Enter your email and we'll send you a reset link.
+          </p>
         </div>
         <div class="form_field-wrapper">
           <div class="form_field-label">Email</div>
-          <input class="form_input w-input" maxlength="256" name="reset-email" type="email" data-reset-email="true"/>
+          <input class="form_input w-input" maxlength="256" name="reset-email" placeholder="" type="email" data-reset-email="true"/>
           <div data-reset-email-error="true" style="display:none; color:#e53e3e; font-size:0.875rem; margin-top:0.25rem;"></div>
         </div>
         <div style="margin-bottom:0.75rem;">
           <a href="#" class="text-style-link text-size-small" data-back-to-login="true">← Back to login</a>
-        </div>`;
+        </div>
+      `;
       codePanel.after(resetPanel);
 
       const registerBtnWrapper = document.createElement("div");
       registerBtnWrapper.setAttribute("data-login-register-btn-wrapper", "");
       const submitGrid = this.submitBtn.closest(".w-layout-grid") || this.submitBtn.parentNode;
-      const wfParagraph = Array.from(this.form.querySelectorAll("p.text-size-small")).find(el => !el.closest("[data-login-panel]"));
+      const wfParagraph = Array.from(this.form.querySelectorAll("p.text-size-small")).find((el) => !el.closest("[data-login-panel]"));
       const marginBottom = wfParagraph && wfParagraph.closest(".margin-bottom");
-      const buttonGroup = Array.from(this.form.querySelectorAll(".button-group")).find(el => !el.closest("[data-login-panel]"));
+      const buttonGroup = Array.from(this.form.querySelectorAll(".button-group")).find((el) => !el.closest("[data-login-panel]"));
 
       submitGrid.after(registerBtnWrapper);
       if (marginBottom) registerBtnWrapper.appendChild(marginBottom);
@@ -555,9 +660,16 @@
   }
 
   function init() {
+    Shared.bootstrapFromUrlOnce();
+
     const container = document.querySelector("#login-form");
-    if (!container) return;
-    new LoginFormController(container).init();
+    if (!container) {
+      console.warn("[LoginForm] #login-form not found.");
+      return;
+    }
+
+    const ctrl = new LoginFormController(container);
+    ctrl.init();
   }
 
   if (document.readyState === "loading") {
