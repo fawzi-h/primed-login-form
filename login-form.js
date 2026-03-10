@@ -1,5 +1,4 @@
-/* login-form.js — persistent login/register UI state via localStorage */
-/* Works with existing Webflow HTML */
+/* login-form.js — shared top-level state + persistent login UI state */
 
 (function () {
   "use strict";
@@ -22,11 +21,8 @@
   const CSRF_TTL_SECONDS   = 7200;
   const CSRF_EXPIRY_COOKIE = "wf_csrf_expires_at";
 
-  const REGISTER_PARAM_NAME  = "view";
-  const REGISTER_PARAM_VALUE = "register";
-  const LOGIN_PARAM_VALUE    = "login";
-
-  const UI_STATE_KEY = "primed_auth_ui_state_v2";
+  const AUTH_PAGE_STATE_KEY = "primed_auth_page_state_v1";
+  const LOGIN_UI_STATE_KEY  = "primed_auth_login_ui_state_v1";
 
   const LOGIN_ENDPOINT_MAP = {
     "dev-frontend.primedclinic.com.au": "https://api.dev.primedclinic.com.au/api/login",
@@ -53,7 +49,125 @@
     "www.primedclinic.com.au":          "https://app.primedclinic.com.au/patient",
   };
 
-  // ── Endpoint resolver ───────────────────────────────────────────────────
+  // ── Shared page state ───────────────────────────────────────────────────
+  function getDefaultPageState() {
+    return {
+      activeView: "register",
+      userId: "",
+      dashboardUrl: ""
+    };
+  }
+
+  function loadPageState() {
+    try {
+      const raw = localStorage.getItem(AUTH_PAGE_STATE_KEY);
+      if (!raw) return getDefaultPageState();
+      const parsed = JSON.parse(raw);
+      return {
+        activeView: ["login", "register", "survey"].includes(parsed && parsed.activeView)
+          ? parsed.activeView
+          : "register",
+        userId: parsed && typeof parsed.userId === "string" ? parsed.userId : "",
+        dashboardUrl: parsed && typeof parsed.dashboardUrl === "string" ? parsed.dashboardUrl : ""
+      };
+    } catch (_e) {
+      return getDefaultPageState();
+    }
+  }
+
+  function savePageState(state) {
+    try {
+      localStorage.setItem(
+        AUTH_PAGE_STATE_KEY,
+        JSON.stringify({
+          activeView: ["login", "register", "survey"].includes(state && state.activeView)
+            ? state.activeView
+            : "register",
+          userId: state && typeof state.userId === "string" ? state.userId : "",
+          dashboardUrl: state && typeof state.dashboardUrl === "string" ? state.dashboardUrl : ""
+        })
+      );
+    } catch (_e) {}
+  }
+
+  function patchPageState(patch) {
+    const current = loadPageState();
+    savePageState(Object.assign({}, current, patch || {}));
+  }
+
+  function showOnlyView(viewName) {
+    const loginDiv = document.querySelector("#login-form");
+    const registerDiv = document.querySelector("#signup-form");
+    const surveyDiv = document.querySelector("#primed-survey");
+
+    if (loginDiv) loginDiv.style.display = viewName === "login" ? "block" : "none";
+    if (registerDiv) registerDiv.style.display = viewName === "register" ? "block" : "none";
+    if (surveyDiv) surveyDiv.style.display = viewName === "survey" ? "block" : "none";
+  }
+
+  // ── Login UI state ──────────────────────────────────────────────────────
+  function getDefaultLoginUiState() {
+    return {
+      activePanel: "password",
+      codeStep: "identifier",
+      codeIdentifier: "",
+      codeType: ""
+    };
+  }
+
+  function loadLoginUiState() {
+    try {
+      const raw = localStorage.getItem(LOGIN_UI_STATE_KEY);
+      if (!raw) return getDefaultLoginUiState();
+      const parsed = JSON.parse(raw);
+      return {
+        activePanel: parsed && ["password", "code", "reset"].includes(parsed.activePanel)
+          ? parsed.activePanel
+          : "password",
+        codeStep: parsed && ["identifier", "otp"].includes(parsed.codeStep)
+          ? parsed.codeStep
+          : "identifier",
+        codeIdentifier: parsed && typeof parsed.codeIdentifier === "string"
+          ? parsed.codeIdentifier
+          : "",
+        codeType: parsed && ["email", "phone"].includes(parsed.codeType)
+          ? parsed.codeType
+          : ""
+      };
+    } catch (_e) {
+      return getDefaultLoginUiState();
+    }
+  }
+
+  function saveLoginUiState(state) {
+    try {
+      localStorage.setItem(
+        LOGIN_UI_STATE_KEY,
+        JSON.stringify({
+          activePanel: ["password", "code", "reset"].includes(state && state.activePanel)
+            ? state.activePanel
+            : "password",
+          codeStep: ["identifier", "otp"].includes(state && state.codeStep)
+            ? state.codeStep
+            : "identifier",
+          codeIdentifier: state && typeof state.codeIdentifier === "string"
+            ? state.codeIdentifier
+            : "",
+          codeType: ["email", "phone"].includes(state && state.codeType)
+            ? state.codeType
+            : ""
+        })
+      );
+    } catch (_e) {}
+  }
+
+  function clearLoginUiState() {
+    try {
+      localStorage.removeItem(LOGIN_UI_STATE_KEY);
+    } catch (_e) {}
+  }
+
+  // ── Endpoint resolver ────────────────────────────────────────────────────
   function resolveEndpoint(map) {
     const hostname = window.location.hostname;
     for (const [key, url] of Object.entries(map)) {
@@ -62,7 +176,7 @@
     return Object.values(map)[0];
   }
 
-  // ── Redirect helpers ────────────────────────────────────────────────────
+  // ── Redirect helpers ─────────────────────────────────────────────────────
   function getLoginRedirectUrl() {
     const hostname = window.location.hostname;
     for (const [key, url] of Object.entries(LOGIN_REDIRECT_MAP)) {
@@ -88,7 +202,7 @@
     }
   }
 
-  // ── Cookie helpers ──────────────────────────────────────────────────────
+  // ── Cookie helpers ────────────────────────────────────────────────────────
   function getCookie(name) {
     const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
     return match ? decodeURIComponent(match[2]) : null;
@@ -99,62 +213,7 @@
     document.cookie = `${name}=${encodeURIComponent(value)}; Path=/; Max-Age=${maxAgeSeconds}; SameSite=Lax${secure}`;
   }
 
-  // ── Persistent UI state ─────────────────────────────────────────────────
-  function getDefaultUiState() {
-    return {
-      view: "register",          // register | login
-      activePanel: "password",   // password | code | reset
-      codeStep: "identifier",    // identifier | otp
-      codeIdentifier: "",
-      codeType: ""               // email | phone | ""
-    };
-  }
-
-  function loadUiState() {
-    try {
-      const raw = localStorage.getItem(UI_STATE_KEY);
-      if (!raw) return getDefaultUiState();
-      const parsed = JSON.parse(raw);
-      return {
-        view: parsed && parsed.view === "login" ? "login" : "register",
-        activePanel:
-          parsed && ["password", "code", "reset"].includes(parsed.activePanel)
-            ? parsed.activePanel
-            : "password",
-        codeStep:
-          parsed && ["identifier", "otp"].includes(parsed.codeStep)
-            ? parsed.codeStep
-            : "identifier",
-        codeIdentifier: parsed && typeof parsed.codeIdentifier === "string" ? parsed.codeIdentifier : "",
-        codeType:
-          parsed && ["email", "phone"].includes(parsed.codeType)
-            ? parsed.codeType
-            : ""
-      };
-    } catch (_e) {
-      return getDefaultUiState();
-    }
-  }
-
-  function saveUiState(state) {
-    try {
-      localStorage.setItem(UI_STATE_KEY, JSON.stringify({
-        view: state.view === "login" ? "login" : "register",
-        activePanel: ["password", "code", "reset"].includes(state.activePanel) ? state.activePanel : "password",
-        codeStep: ["identifier", "otp"].includes(state.codeStep) ? state.codeStep : "identifier",
-        codeIdentifier: typeof state.codeIdentifier === "string" ? state.codeIdentifier : "",
-        codeType: ["email", "phone"].includes(state.codeType) ? state.codeType : ""
-      }));
-    } catch (_e) {}
-  }
-
-  function clearUiState() {
-    try {
-      localStorage.removeItem(UI_STATE_KEY);
-    } catch (_e) {}
-  }
-
-  // ── JWT / session cookie ────────────────────────────────────────────────
+  // ── JWT / session cookie ──────────────────────────────────────────────────
   async function generateUserToken() {
     const b64url = (buf) =>
       btoa(String.fromCharCode(...new Uint8Array(buf)))
@@ -173,7 +232,7 @@
     document.cookie = `__user=${encodeURIComponent(token)}; Path=/; SameSite=Lax${secure}`;
   }
 
-  // ── CSRF ────────────────────────────────────────────────────────────────
+  // ── CSRF ──────────────────────────────────────────────────────────────────
   function csrfIsValid() {
     const token     = getCookie("XSRF-TOKEN");
     const expiresAt = parseInt(getCookie(CSRF_EXPIRY_COOKIE) || "", 10);
@@ -183,10 +242,7 @@
 
   async function ensureCsrfCookie() {
     if (csrfIsValid()) return;
-    await fetch(resolveEndpoint(SANCTUM_CSRF_ENDPOINT_MAP), {
-      method: "GET",
-      credentials: "include"
-    });
+    await fetch(resolveEndpoint(SANCTUM_CSRF_ENDPOINT_MAP), { method: "GET", credentials: "include" });
     const expiresAt = Math.floor(Date.now() / 1000) + CSRF_TTL_SECONDS;
     setCookie(CSRF_EXPIRY_COOKIE, String(expiresAt), CSRF_TTL_SECONDS);
   }
@@ -199,14 +255,14 @@
     };
   }
 
-  // ── Identifier detection ────────────────────────────────────────────────
+  // ── Identifier detection ──────────────────────────────────────────────────
   function detectIdentifierType(value) {
     if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return "email";
     if (/^\+?[\d\s\-().]{7,15}$/.test(value)) return "phone";
     return null;
   }
 
-  // ── DOM injection ───────────────────────────────────────────────────────
+  // ── DOM injection ─────────────────────────────────────────────────────────
   function injectPanels(form, emailInput, passInput, submitBtn) {
     passInput.type = "password";
 
@@ -288,7 +344,6 @@
 
     const registerBtnWrapper = document.createElement("div");
     registerBtnWrapper.setAttribute("data-login-register-btn-wrapper", "");
-
     const submitGrid   = submitBtn.closest(".w-layout-grid") || submitBtn.parentNode;
     const wfParagraph  = Array.from(form.querySelectorAll("p.text-size-small")).find(el => !el.closest("[data-login-panel]"));
     const marginBottom = wfParagraph && wfParagraph.closest(".margin-bottom");
@@ -299,10 +354,11 @@
     if (buttonGroup)  registerBtnWrapper.appendChild(buttonGroup);
   }
 
-  // ── Main init ───────────────────────────────────────────────────────────
+  // ── Main init ─────────────────────────────────────────────────────────────
   function init() {
     const loginDiv    = document.getElementById("login-form");
     const registerDiv = document.getElementById("signup-form");
+    const surveyDiv   = document.getElementById("primed-survey");
 
     if (!loginDiv) {
       console.warn("[LoginForm] #login-form not found.");
@@ -322,8 +378,7 @@
 
     injectPanels(form, emailInput, passInput, submitBtn);
 
-    let uiState = loadUiState();
-
+    let uiState = loadLoginUiState();
     let activePanel    = uiState.activePanel || "password";
     let codeStep       = uiState.codeStep || "identifier";
     let codeIdentifier = uiState.codeIdentifier || "";
@@ -343,15 +398,13 @@
       errorWrapper.classList.remove("w-form-fail");
     }
 
-    function syncUiState() {
-      uiState = {
-        view: loginDiv.style.display === "none" ? "register" : "login",
+    function syncLoginUiState() {
+      saveLoginUiState({
         activePanel: activePanel,
         codeStep: codeStep,
         codeIdentifier: codeIdentifier,
         codeType: codeType
-      };
-      saveUiState(uiState);
+      });
     }
 
     // ── UI helpers ────────────────────────────────────────────────────────
@@ -429,7 +482,7 @@
       }
 
       updateSubmitLabel(false);
-      if (!skipSave) syncUiState();
+      if (!skipSave) syncLoginUiState();
     }
 
     function switchPanel(panel, skipSave) {
@@ -471,44 +524,25 @@
 
       hideMessages();
       updateSubmitLabel(false);
-      if (!skipSave) syncUiState();
+      if (!skipSave) syncLoginUiState();
     }
 
-    // ── Login / Register swap ─────────────────────────────────────────────
-    function showRegister(updateUrl) {
-      loginDiv.style.display = "none";
-      if (registerDiv) registerDiv.style.display = "block";
-
-      if (updateUrl) {
-        const url = new URL(window.location.href);
-        url.searchParams.set(REGISTER_PARAM_NAME, REGISTER_PARAM_VALUE);
-        history.replaceState(null, "", url.toString());
-      }
-
-      syncUiState();
+    // ── Top-level view switching ──────────────────────────────────────────
+    function showRegister() {
+      patchPageState({
+        activeView: "register",
+        userId: "",
+        dashboardUrl: ""
+      });
+      showOnlyView("register");
     }
 
-    function showLogin(updateUrl) {
-      loginDiv.style.display = "block";
-      if (registerDiv) registerDiv.style.display = "none";
-
-      if (updateUrl) {
-        const url = new URL(window.location.href);
-        url.searchParams.set(REGISTER_PARAM_NAME, LOGIN_PARAM_VALUE);
-        if (url.hash === `#${REGISTER_PARAM_VALUE}`) url.hash = "";
-        history.replaceState(null, "", url.toString());
-      }
-
-      syncUiState();
+    function showLogin() {
+      patchPageState({
+        activeView: "login"
+      });
+      showOnlyView("login");
       emailInput.focus();
-    }
-
-    function getUrlIntent() {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get(REGISTER_PARAM_NAME) === LOGIN_PARAM_VALUE) return "login";
-      if (params.get(REGISTER_PARAM_NAME) === REGISTER_PARAM_VALUE) return "register";
-      if (window.location.hash === `#${REGISTER_PARAM_VALUE}`) return "register";
-      return null;
     }
 
     // ── Submit handlers ───────────────────────────────────────────────────
@@ -541,7 +575,12 @@
         }
 
         await setUserSessionCookie();
-        clearUiState();
+        clearLoginUiState();
+        patchPageState({
+          activeView: "login",
+          userId: "",
+          dashboardUrl: ""
+        });
         showMessage("success", "Logged in successfully.");
         window.location.href = safeRedirectUrl(data && data.panel && data.panel.url) || getLoginRedirectUrl();
       } catch (err) {
@@ -599,7 +638,7 @@
         codeIdentifier = raw;
         codeType       = type;
         hideMessages();
-        syncUiState();
+        syncLoginUiState();
         switchCodeStep("otp");
       } catch (err) {
         showMessage("error", err.message || "Failed to send code due to a network error.");
@@ -658,7 +697,12 @@
         }
 
         await setUserSessionCookie();
-        clearUiState();
+        clearLoginUiState();
+        patchPageState({
+          activeView: "login",
+          userId: "",
+          dashboardUrl: ""
+        });
         showMessage("success", "Logged in successfully.");
         window.location.href = safeRedirectUrl(data && data.panel && data.panel.url) || getLoginRedirectUrl();
       } catch (err) {
@@ -787,7 +831,7 @@
     loginDiv.querySelectorAll('a[href*="register"]').forEach(function (link) {
       link.addEventListener("click", function (e) {
         e.preventDefault();
-        showRegister(true);
+        showRegister();
       });
     });
 
@@ -795,26 +839,31 @@
       registerDiv.querySelectorAll('a[href*="sign-up-login"]:not([href*="register"]), a[href="/sign-up-login"]').forEach(function (link) {
         link.addEventListener("click", function (e) {
           e.preventDefault();
-          showLogin(true);
+          showLogin();
         });
       });
     }
 
-    // ── Restore UI state ──────────────────────────────────────────────────
-    const urlIntent = getUrlIntent();
+    // ── Restore state ─────────────────────────────────────────────────────
+    const pageState = loadPageState();
 
-    if (urlIntent === "login") {
-      uiState.view = "login";
-      saveUiState(uiState);
-    } else if (urlIntent === "register") {
-      uiState.view = "register";
-      saveUiState(uiState);
+    if (pageState.activeView === "survey") {
+      if (surveyDiv && pageState.dashboardUrl) {
+        surveyDiv.setAttribute("data-dashboard-url", pageState.dashboardUrl);
+      }
+      if (pageState.userId) {
+        sessionStorage.setItem("userId", String(pageState.userId));
+      }
+      showOnlyView("survey");
+      return;
     }
 
-    if (uiState.view === "login") {
-      showLogin(false);
+    if (pageState.activeView === "login") {
+      showOnlyView("login");
+    } else if (pageState.activeView === "register") {
+      showOnlyView("register");
     } else {
-      showRegister(false);
+      showOnlyView("register");
     }
 
     switchPanel(uiState.activePanel || "password", true);
@@ -833,13 +882,14 @@
       switchCodeStep("identifier", true);
     }
 
-    syncUiState();
+    syncLoginUiState();
   }
 
-  // ── Boot ────────────────────────────────────────────────────────────────
+  // ── Boot ──────────────────────────────────────────────────────────────────
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);
   } else {
     init();
   }
+
 })();
