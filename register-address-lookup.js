@@ -174,6 +174,12 @@
     if (suburbEl) suburbEl.value = suburbC ? suburbC.long_name : "";
     if (stateEl) stateEl.value = stateC ? (stateC.short_name || stateC.long_name) : "";
     if (postcodeEl) postcodeEl.value = postcodeC ? postcodeC.long_name : "";
+
+    [streetNumberEl, streetNameEl, suburbEl, stateEl, postcodeEl].forEach(function (el) {
+      if (!el) return;
+      el.dispatchEvent(new Event("input", { bubbles: true }));
+      el.dispatchEvent(new Event("change", { bubbles: true }));
+    });
   }
 
   function showAnimated(el) {
