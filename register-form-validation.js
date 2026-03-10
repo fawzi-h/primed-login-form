@@ -14,20 +14,34 @@
 
       .field-error {
         display: none;
-        margin-top: 0.4rem;
         color: #d93025;
-        background: transparent;
-        border: 0;
-        padding: 0;
+        background: #fff;
+        border: 1px solid rgba(217, 48, 37, 0.18);
+        border-radius: 0.5rem;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+        padding: 0.55rem 0.75rem;
         font-family: inherit;
-        font-size: inherit;
-        font-weight: inherit;
-        line-height: inherit;
+        font-size: 0.875rem;
+        font-weight: 500;
+        line-height: 1.35;
         letter-spacing: inherit;
+        position: absolute;
+        top: calc(100% + 0.35rem);
+        left: 0;
+        right: 0;
+        z-index: 20;
       }
 
       .field-error.is-visible {
         display: block;
+      }
+
+      .field-error-host {
+        position: relative;
+      }
+
+      .field-error-host.has-error-popup {
+        padding-bottom: 3.5rem;
       }
     `;
     document.head.appendChild(style);
@@ -68,28 +82,39 @@
 
     const errorId = getErrorId(input);
     let err = document.getElementById(errorId);
+    const host = getErrorHost(input);
+
+    if (!host) return null;
 
     if (!err) {
       err = document.createElement("div");
       err.className = "field-error";
       err.id = errorId;
       err.setAttribute("role", "alert");
-      input.insertAdjacentElement("afterend", err);
+      host.classList.add("field-error-host");
+      host.appendChild(err);
     }
 
     return err;
+  }
+
+  function getErrorHost(input) {
+    if (!input) return null;
+    return input.closest(".form_field-wrapper") || input.parentElement;
   }
 
   function setError(input, message) {
     if (!input) return;
 
     const err = getOrCreateErrorNode(input);
+    const host = getErrorHost(input);
     if (!err) return;
 
     input.classList.add("is-invalid");
     input.setAttribute("aria-invalid", "true");
     input.setAttribute("aria-describedby", err.id);
 
+    if (host) host.classList.add("has-error-popup");
     err.textContent = message;
     err.classList.add("is-visible");
   }
@@ -102,6 +127,8 @@
     input.removeAttribute("aria-describedby");
 
     const err = document.getElementById(getErrorId(input));
+    const host = getErrorHost(input);
+    if (host) host.classList.remove("has-error-popup");
     if (err) {
       err.textContent = "";
       err.classList.remove("is-visible");
@@ -115,6 +142,9 @@
       input.classList.remove("is-invalid");
       input.removeAttribute("aria-invalid");
       input.removeAttribute("aria-describedby");
+
+      const host = getErrorHost(input);
+      if (host) host.classList.remove("has-error-popup");
     });
 
     form.querySelectorAll(".field-error.is-visible").forEach(function (err) {
@@ -281,6 +311,19 @@
     return null;
   }
 
+  function focusFirstInvalid(form) {
+    if (!form) return;
+    const firstInvalid = form.querySelector(".is-invalid");
+    if (firstInvalid) firstInvalid.focus();
+  }
+
+  function isSubmitTrigger(el) {
+    if (!el || !el.matches) return false;
+    return el.matches(
+      'button[type="submit"], input[type="submit"], input[type="image"], button:not([type])'
+    );
+  }
+
   function initOnForm(form) {
     if (!form || form.__primedValidationBound) return;
 
@@ -302,7 +345,7 @@
 
     form.__primedValidationBound = true;
 
-    form.addEventListener("submit", function (e) {
+    function validateForm() {
       clearAllErrors(form);
 
       let ok = true;
@@ -319,10 +362,34 @@
       ok = validatePassword(password) && ok;
       ok = validateConfirmPassword(password, confirmPassword) && ok;
 
-      if (!ok) {
+      return ok;
+    }
+
+    form.addEventListener(
+      "click",
+      function (e) {
+        const submitTrigger = e.target.closest(
+          'button[type="submit"], input[type="submit"], input[type="image"], button:not([type])'
+        );
+
+        if (!submitTrigger || !form.contains(submitTrigger) || !isSubmitTrigger(submitTrigger)) {
+          return;
+        }
+
+        if (!validateForm()) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          focusFirstInvalid(form);
+        }
+      },
+      true
+    );
+
+    form.addEventListener("submit", function (e) {
+      if (!validateForm()) {
         e.preventDefault();
-        const firstInvalid = form.querySelector(".is-invalid");
-        if (firstInvalid) firstInvalid.focus();
+        e.stopImmediatePropagation();
+        focusFirstInvalid(form);
       }
     });
   }
