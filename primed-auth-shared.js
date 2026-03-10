@@ -4,6 +4,7 @@
   const AUTH_PAGE_STATE_KEY = "primed_auth_page_state_v1";
   const LOGIN_UI_STATE_KEY = "primed_auth_login_ui_state_v1";
   const PAGE_BOOTSTRAP_KEY = "primed_auth_bootstrap_done_v1";
+  const PAGE_PATH_KEY = "primed_auth_page_path_v1";
 
   const CSRF_TTL_SECONDS = 7200;
   const CSRF_EXPIRY_COOKIE = "wf_csrf_expires_at";
@@ -71,6 +72,37 @@
   function saveJson(key, value) {
     try {
       localStorage.setItem(key, JSON.stringify(value));
+    } catch (_e) {}
+  }
+
+  function getCurrentPageKey() {
+    return window.location.pathname;
+  }
+
+  function clearAllAuthState() {
+    try {
+      localStorage.removeItem(AUTH_PAGE_STATE_KEY);
+    } catch (_e) {}
+
+    try {
+      localStorage.removeItem(LOGIN_UI_STATE_KEY);
+    } catch (_e) {}
+
+    try {
+      sessionStorage.removeItem(PAGE_BOOTSTRAP_KEY);
+    } catch (_e) {}
+  }
+
+  function clearStateIfPageChanged() {
+    try {
+      const currentPageKey = getCurrentPageKey();
+      const previousPageKey = sessionStorage.getItem(PAGE_PATH_KEY);
+
+      if (previousPageKey && previousPageKey !== currentPageKey) {
+        clearAllAuthState();
+      }
+
+      sessionStorage.setItem(PAGE_PATH_KEY, currentPageKey);
     } catch (_e) {}
   }
 
@@ -302,6 +334,8 @@
 
   function bootstrapFromUrlOnce() {
     try {
+      clearStateIfPageChanged();
+
       const alreadyBootstrapped = sessionStorage.getItem(PAGE_BOOTSTRAP_KEY) === "true";
       if (alreadyBootstrapped) return;
 
@@ -309,8 +343,8 @@
       if (initialView) {
         pageState.patch({
           activeView: initialView,
-          userId: initialView === "survey" ? pageState.get().userId : "",
-          dashboardUrl: initialView === "survey" ? pageState.get().dashboardUrl : ""
+          userId: "",
+          dashboardUrl: ""
         });
       }
 
@@ -334,6 +368,7 @@
     getLoginRedirectUrl: getLoginRedirectUrl,
     detectIdentifierType: detectIdentifierType,
     getReferralCodeFromUrl: getReferralCodeFromUrl,
-    bootstrapFromUrlOnce: bootstrapFromUrlOnce
+    bootstrapFromUrlOnce: bootstrapFromUrlOnce,
+    clearAllAuthState: clearAllAuthState
   };
 })(window);
