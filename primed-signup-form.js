@@ -57,6 +57,7 @@
       if (!this.container.querySelector("#password-error")) {
         const confirmEl = this.container.querySelector("#Confirm-Password");
         const confirmWrapper = confirmEl ? confirmEl.closest(".form_field-wrapper") : null;
+
         if (confirmWrapper) {
           const pwError = document.createElement("div");
           pwError.id = "password-error";
@@ -133,7 +134,7 @@
           method: "POST",
           credentials: "include",
           headers: Shared.buildHeaders(xsrfToken),
-          body: JSON.stringify({ email, password })
+          body: JSON.stringify({ email: email, password: password })
         });
 
         const data = await res.json().catch(() => ({}));
@@ -141,9 +142,11 @@
         if (res.ok) {
           await Shared.setUserSessionCookie();
           dashboardUrl = Shared.safeRedirectUrl(data && data.panel && data.panel.url);
+        } else {
+          console.warn("[RegisterForm] Auto-login failed, continuing without session");
         }
       } catch (err) {
-        console.warn("[RegisterForm] Auto-login error", err);
+        console.warn("[RegisterForm] Auto-login error, continuing without session", err);
       }
 
       this.showSurvey(userId, dashboardUrl);
@@ -218,13 +221,18 @@
         const data = await res.json().catch(() => ({}));
 
         if (!res.ok) {
-          this.showError(data.message || data.error || "Registration failed. Please check your details and try again.");
+          this.showError(
+            (data && data.message) ||
+            (data && data.error) ||
+            "Registration failed. Please check your details and try again."
+          );
           return;
         }
 
         await this.autoLogin(payload.email, password.value, data.user_id);
       } catch (err) {
         this.showError((err && err.message) || "Registration failed due to a network error.");
+        console.error("[RegisterForm] Register error:", err);
       } finally {
         this.setSubmitState(false);
       }
@@ -243,6 +251,8 @@
       if (loginContainer) {
         const input = loginContainer.querySelector("#log-in_input-form");
         if (input) input.focus();
+      } else {
+        console.error("[RegisterForm] #login-form not found");
       }
     }
 
@@ -278,9 +288,16 @@
   }
 
   function init() {
+    Shared.bootstrapFromUrlOnce();
+
     const container = document.querySelector("#signup-form");
-    if (!container) return;
-    new RegisterFormController(container).init();
+    if (!container) {
+      console.warn("[RegisterForm] #signup-form not found in DOM.");
+      return;
+    }
+
+    const ctrl = new RegisterFormController(container);
+    ctrl.init();
   }
 
   if (document.readyState === "loading") {
