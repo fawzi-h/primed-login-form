@@ -522,9 +522,13 @@ body .questionCheckbox {
   accent-color: var(--primed-color-checkbox, #0d9488) !important;
 }
 @media (max-width: 500px) {
-  body .questionairre-wrapper .questionairre-container .questionairre-card .card-body .questionairre-title {
-    line-height: 1 !important;
-    font-size: 28px !important;
+  body .questionnaire-wrapper .questionnaire-container .questionnaire-card .card-body .questionnaire-title {
+    line-height: 1.05;
+    font-size: 28px;
+  }
+
+  body .questionnaire-wrapper .questionnaire-container {
+    margin-top: 24px;
   }
 }
 /* coming soon */
@@ -2246,6 +2250,9 @@ input[type="date"].sq-input::-webkit-calendar-picker-indicator {
   padding: 0;
   -webkit-appearance: none;
   appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  background-clip: padding-box;
+  box-sizing: border-box;
   transition:
     border-color 0.25s ease,
     box-shadow 0.35s ease,
@@ -2378,10 +2385,12 @@ input[type="date"].sq-input::-webkit-calendar-picker-indicator {
   gap: 8px;
   padding: 14px 14px;
   position: relative;
+  min-width: 0;
 }
 
 .treatment-card-label {
   flex: 1;
+  min-width: 0;
   font-size: 14px;
   font-weight: 600;
   color: var(--primed-color-text, #131313);
@@ -2463,24 +2472,30 @@ input[type="date"].sq-input::-webkit-calendar-picker-indicator {
 
   .treatment-card {
     flex-direction: row;
-    height: 80px;
+    height: 96px;
   }
 
   .treatment-card-image-wrap {
-    width: 100px;
+    width: 92px;
     height: 100%;
     flex-shrink: 0;
     order: 1;
   }
 
   .treatment-card-label-area {
-    padding: 10px 10px;
+    padding: 12px 40px 12px 12px;
     flex: 1;
     order: 2;
   }
 
   .treatment-card-label {
     font-size: 13px;
+    line-height: 1.25;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
   }
 
   .treatment-card-check {
@@ -2511,6 +2526,20 @@ input[type="date"].sq-input::-webkit-calendar-picker-indicator {
     text-align: center;
     padding: 14px 24px;
   }
+}
+
+/* Repeat critical border rules with higher specificity so host-page/button
+   resets on embedded mobile Safari do not wipe out the card border. */
+.treatment-selection-wrapper .treatment-card {
+  border: 2px solid var(--primed-color-fog, #E5ECEC) !important;
+}
+
+.treatment-selection-wrapper .treatment-card:hover {
+  border-color: var(--primed-color-focus, #43a6aa) !important;
+}
+
+.treatment-selection-wrapper .treatment-card--selected {
+  border-color: var(--primed-color-primary, #014548) !important;
 }
 
 @keyframes ts-accentBarVertical {
