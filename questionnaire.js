@@ -1726,6 +1726,9 @@ input[type="date"].sq-input {
   box-sizing: border-box;
   overflow: hidden;
   font-size: 16px;
+  position: relative;
+  padding-right: 48px;
+  color-scheme: light;
 }
 
 /* Restore calendar icon hidden by appearance: none */
@@ -1733,6 +1736,18 @@ input[type="date"].sq-input::-webkit-calendar-picker-indicator {
   display: block;
   opacity: 1;
   cursor: pointer;
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  padding: 0;
+  transform: translateY(-50%);
+}
+
+input[type="date"].sq-input::-webkit-date-and-time-value {
+  text-align: left;
 }
 
 .sq-date-input {
@@ -2041,7 +2056,7 @@ input[type="date"].sq-input::-webkit-calendar-picker-indicator {
   }
 
   input[type="date"].sq-input {
-    padding: 14px 12px;
+    padding: 14px 40px 14px 12px;
   }
 
   .sq-textarea {
