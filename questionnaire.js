@@ -1715,6 +1715,11 @@ h2.react-datepicker__current-month {
 input[type="date"].sq-input {
   -webkit-appearance: none;
   appearance: none;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   overflow: hidden;
   font-size: 16px;
 }
@@ -2031,6 +2036,10 @@ input[type="date"].sq-input::-webkit-calendar-picker-indicator {
     font-size: 16px;
   }
 
+  input[type="date"].sq-input {
+    padding: 14px 12px;
+  }
+
   .sq-textarea {
     padding: 14px 16px;
     font-size: 16px;
@@ -2235,6 +2244,8 @@ input[type="date"].sq-input::-webkit-calendar-picker-indicator {
   width: 100%;
   text-align: left;
   padding: 0;
+  -webkit-appearance: none;
+  appearance: none;
   transition:
     border-color 0.25s ease,
     box-shadow 0.35s ease,
