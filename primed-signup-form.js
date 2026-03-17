@@ -163,7 +163,7 @@
         last_name: q("#Last-Name"),
         email: q("#Email"),
         phone: q("#Phone"),
-        address: q("#Address"),
+        address: q("#register-address"),
         streetNumber: q("#streetNumber"),
         streetName: q("#streetName"),
         suburb: q("#suburb"),
