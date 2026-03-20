@@ -1,204 +1,246 @@
 # Primed Login Form
 
-Standalone login, registration, and logout scripts for Primed Clinic. Built as native Custom Elements and plain JavaScript, they can be dropped into any HTML page or Webflow project without a framework.
+Standalone frontend authentication assets for Primed Clinic. This repository contains the current login, signup, logout, auth-state, and questionnaire scripts used in a plain HTML or Webflow-style setup, plus older prototypes kept under `deprecated/`.
 
----
+## Folder Structure
 
-## Files
+```text
+primed-login-form/
+|-- .github/
+|   `-- workflows/
+|       `-- static.yml
+|-- deprecated/
+|   |-- index.html
+|   |-- login-form.js
+|   |-- register-form.js
+|   |-- register-form-v-2.js
+|   |-- signup-embed.js
+|   |-- signup-embed-1.js
+|   |-- signup-embed-1.tsx
+|   |-- survey-questions.js
+|   `-- survey-widget.js
+|-- auth.js
+|-- logout.js
+|-- primed-auth-shared.js
+|-- primed-login-form.js
+|-- primed-signup-form.js
+|-- questionnaire.js
+|-- register-address-lookup.js
+|-- register-form-validation.js
+|-- style.css
+|-- LICENSE
+`-- README.md
+```
 
-| File | Type | Description |
-|---|---|---|
-| `login-form.js` | Custom Element `<login-form>` | Login form with password and OTP code flows, CSRF verification, and session cookie management |
-| `register-form.js` | Custom Element `<register-form>` | Registration form with full guest account creation and email verification prompt |
-| `logout.js` | Plain script | Binds to any `[data-logout-button="true"]` element and handles server logout + cookie cleanup |
-| `auth.js` | Plain script | Reads the `__user` JWT cookie to determine auth state and show/hide `[data-auth]` elements |
-| `style.css` | Stylesheet | Error states, form toggle, and field validation styles |
+## Active Files
 
----
+| File | Purpose |
+| --- | --- |
+| `primed-auth-shared.js` | Shared config, endpoint resolution, CSRF handling, localStorage/sessionStorage state, referral parsing, safe redirects, and shared helpers used by the current auth flow |
+| `primed-login-form.js` | Current login controller for password login, one-time code login, and password reset UI inside the existing page markup |
+| `primed-signup-form.js` | Current signup controller, including referral code prefill, registration submit, auto-login, and handoff into the questionnaire view |
+| `questionnaire.js` | Bundled questionnaire experience shown after signup; includes its own styles and survey UI logic |
+| `register-address-lookup.js` | Address autocomplete/manual-entry helper for the registration form |
+| `register-form-validation.js` | Client-side validation helpers for signup fields, including email, Australian mobile, address, and password rules |
+| `auth.js` | Reads the local `__user` cookie, toggles `[data-auth]` visibility, and optionally confirms session validity against an `/auth-status` endpoint |
+| `logout.js` | Binds click handlers to `[data-logout-button="true"]`, calls the logout endpoint, clears the local session cookie, and redirects |
+| `style.css` | Shared styling for auth toggles, hidden panels, and validation/error states |
 
-## Installation
+## Dependency Diagram
 
-### 1. Add the files to your project
+```mermaid
+graph TD
+  A[primed-auth-shared.js]
+  B[primed-login-form.js]
+  C[primed-signup-form.js]
+  D[register-form-validation.js]
+  E[register-address-lookup.js]
+  F[questionnaire.js]
+  G[auth.js]
+  H[logout.js]
+  I[style.css]
+  J[Page markup<br/>#login-form / #signup-form / #primed-survey]
+  K[Primed API endpoints<br/>login / register / code / csrf / auth-status / logout]
+  L[Browser storage + cookies<br/>localStorage / sessionStorage / __user / XSRF-TOKEN]
 
-Copy all `.js` files and `style.css` into your project's asset directory.
+  A --> B
+  A --> C
+  A --> K
+  A --> L
+  B --> J
+  B --> K
+  B --> L
+  C --> J
+  C --> K
+  C --> L
+  C --> F
+  D --> J
+  E --> J
+  G --> J
+  G --> K
+  G --> L
+  H --> J
+  H --> K
+  H --> L
+  I --> J
+```
 
-### 2. Load the scripts and stylesheet
+Load-order summary:
 
-Add the following to your HTML page:
+- `primed-auth-shared.js` must load before `primed-login-form.js` and `primed-signup-form.js`
+- `register-form-validation.js` and `register-address-lookup.js` enhance the signup page markup
+- `questionnaire.js` is independent at file level, but is revealed by the signup flow
+- `auth.js` and `logout.js` can run alongside the main auth controllers
+- `style.css` supports the page markup and validation/auth UI states
+
+## Deprecated Files
+
+Everything inside `deprecated/` is legacy and not part of the current recommended integration.
+
+These files show earlier iterations of the auth and survey widgets:
+
+- `deprecated/login-form.js`
+- `deprecated/register-form.js`
+- `deprecated/register-form-v-2.js`
+- `deprecated/signup-embed.js`
+- `deprecated/signup-embed-1.js`
+- `deprecated/signup-embed-1.tsx`
+- `deprecated/survey-questions.js`
+- `deprecated/survey-widget.js`
+- `deprecated/index.html`
+
+The current codebase has moved away from those standalone custom elements and now relies on the shared controller setup in `primed-auth-shared.js`, `primed-login-form.js`, and `primed-signup-form.js`.
+
+## How The Current Flow Works
+
+1. `primed-auth-shared.js` boots first and exposes `window.PrimedAuthShared`.
+2. `primed-login-form.js` and `primed-signup-form.js` attach behavior to the existing page containers and forms.
+3. Shared page state determines whether the user sees the login view, signup view, or survey view.
+4. Signup can auto-login the user and then reveal `#primed-survey`.
+5. `questionnaire.js` powers the post-signup questionnaire experience.
+6. `auth.js` can independently show or hide page elements marked with `data-auth="in"` and `data-auth="out"`.
+7. `logout.js` binds logout buttons anywhere on the page.
+
+## Required Page Structure
+
+The current scripts expect existing markup on the page rather than a single custom element tag.
+
+Important container IDs:
+
+- `#login-form`
+- `#signup-form`
+- `#primed-survey`
+
+Important login form selectors used by `primed-login-form.js` include:
+
+- `form.login_input-form`
+- `#login-form_email`
+- `#login-form_password`
+
+Important signup form selectors used by `primed-signup-form.js` include:
+
+- `form.signup_input-form`
+- `#First-Name`
+- `#Last-Name`
+- `#Email`
+- `#Phone`
+- `#Password`
+- `#Confirm-Password`
+- `#register-address`
+- `#streetNumber`
+- `#streetName`
+- `#suburb`
+- `#state`
+- `#postcode`
+
+If those IDs or classes change in the page markup, the scripts will need to be updated to match.
+
+## Script Load Order
+
+Load the assets in this order so dependencies are available before the controllers run:
 
 ```html
-<!-- In <head> -->
-<link rel="stylesheet" href="/path/to/style.css">
-<script src="/path/to/login-form.js" defer></script>
-<script src="/path/to/register-form.js" defer></script>
-<script src="/path/to/logout.js" defer></script>
-<script src="/path/to/auth.js" defer></script>
+<link rel="stylesheet" href="/style.css">
+
+<script src="/primed-auth-shared.js" defer></script>
+<script src="/register-form-validation.js" defer></script>
+<script src="/register-address-lookup.js" defer></script>
+<script src="/primed-login-form.js" defer></script>
+<script src="/primed-signup-form.js" defer></script>
+<script src="/questionnaire.js" defer></script>
+<script src="/auth.js" defer></script>
+<script src="/logout.js" defer></script>
 ```
 
-> `login-form.js` and `register-form.js` must both be loaded — they reference each other when swapping between forms.
+## Auth And API Behaviour
 
-### 3. Place the login form
+### Environment mapping
 
-Add `<login-form>` anywhere in your page body:
+Most endpoints are selected from hostname maps inside `primed-auth-shared.js`. At the moment the live mappings target:
 
-```html
-<login-form></login-form>
-```
+- `dev-frontend.primedclinic.com.au`
+- `www.primedclinic.com.au`
 
-The register form does not need to be placed manually. It is swapped in when the user clicks **Register**, and swapped back when they click **Back to Login**.
+Configured endpoint groups include:
 
-### 4. Add a logout trigger
+- login
+- send code
+- validate code
+- forgot password
+- register guest
+- Sanctum CSRF cookie
+- login redirect
 
-Add `data-logout-button="true"` to any existing element:
-
-```html
-<a href="#" data-logout-button="true">Log out</a>
-<button data-logout-button="true">Log out</button>
-```
-
-### 5. Show/hide elements based on auth state
-
-Add `data-auth="in"` or `data-auth="out"` to any element to conditionally show or hide it based on the user's session:
-
-```html
-<nav data-auth="in">Welcome back!</nav>
-<nav data-auth="out"><login-form></login-form></nav>
-```
-
----
-
-## Webflow Installation
-
-### 1. Upload the files
-
-Go to **Assets** in your Webflow project and upload all `.js` files and `style.css`.
-
-### 2. Add scripts to the page
-
-In your **Page Settings**, add the stylesheet to **Inside `<head>` tag**:
-
-```html
-<link rel="stylesheet" href="[YOUR_STYLE_CSS_ASSET_URL]">
-```
-
-And add the scripts to **Before `</body>` tag**:
-
-```html
-<script src="[YOUR_LOGIN_FORM_JS_ASSET_URL]" defer></script>
-<script src="[YOUR_REGISTER_FORM_JS_ASSET_URL]" defer></script>
-<script src="[YOUR_LOGOUT_JS_ASSET_URL]" defer></script>
-<script src="[YOUR_AUTH_JS_ASSET_URL]" defer></script>
-```
-
-Replace the bracketed URLs with the CDN URLs provided by Webflow after uploading.
-
-### 3. Place the login form
-
-In the Webflow Designer, add an **HTML Embed** element and paste:
-
-```html
-<login-form></login-form>
-```
-
-### 4. Add logout and auth visibility
-
-Apply the data attributes directly to any Webflow element via the **Custom Attributes** panel in the Designer:
-
-| Attribute | Value | Effect |
-|---|---|---|
-| `data-logout-button` | `true` | Triggers logout on click |
-| `data-auth` | `in` | Visible only when logged in |
-| `data-auth` | `out` | Visible only when logged out |
-
----
-
-## Configuration
-
-### `login-form.js`
-
-Update the static properties at the top of the file:
-
-```js
-static LOGIN_ENDPOINT         = "https://your-api.com/api/login";
-static SEND_CODE_ENDPOINT     = "https://your-api.com/api/send-code";
-static VALIDATE_CODE_ENDPOINT = "https://your-api.com/api/validate-code";
-static SANCTUM_CSRF_ENDPOINT  = "https://your-api.com/sanctum/csrf-cookie";
-```
-
-### `register-form.js`
-
-```js
-static REGISTER_ENDPOINT     = "https://your-api.com/api/register/guest";
-static SANCTUM_CSRF_ENDPOINT = "https://your-api.com/sanctum/csrf-cookie";
-```
-
-### `logout.js`
-
-```js
-const LOGOUT_ENDPOINT = "https://your-api.com/api/logout";
-```
-
-### Redirect targets
-
-After a successful login or logout, the page redirects to `/` by default. Search for `window.location.href` in `login-form.js` and `logout.js` to change these targets.
-
----
-
-## How It Works
-
-### Login — Password flow
-
-1. User enters email and password and submits.
-2. The form fetches the Sanctum CSRF cookie if one isn't already valid.
-3. Credentials are `POST`ed to `/api/login` with `credentials: "include"` so session cookies are exchanged automatically.
-4. On success, a `__user` JWT session cookie is set client-side and the page redirects.
-
-### Login — OTP / Code flow
-
-1. User switches to **Login with Code** and enters their email or phone number.
-2. The input is validated with regex to detect whether it is an email or phone number.
-3. The identifier is `POST`ed to `/api/send-code`. On success the form advances to the OTP input step.
-4. The user enters the code received and submits. This is `POST`ed to `/api/validate-code`.
-5. On success, the same `__user` cookie is set and the page redirects — identical to the password flow.
-6. A **Resend code** link is available on the OTP step that re-triggers the send-code request without requiring the user to go back.
-
-### Registration
-
-1. User fills in all fields and submits.
-2. Client-side check confirms both password fields match before any API call is made.
-3. The payload is `POST`ed to `/api/register/guest` with CSRF verification.
-4. On success the form is replaced with an email verification prompt. No session cookie is created — the user must verify their email and log in separately.
-
-### Logout
-
-1. Click on any `[data-logout-button="true"]` element triggers a `POST` to `/api/logout` with `credentials: "include"`.
-2. The `XSRF-TOKEN` cookie is read and sent as the `X-XSRF-TOKEN` header.
-3. On completion (success or otherwise), the `__user` cookie is cleared and the page redirects to `/`.
-
-### Auth state visibility (`auth.js`)
-
-On page load, `auth.js` reads the `__user` cookie and attempts to parse it as a JWT. If the cookie is present and the token is not expired:
-- All `[data-auth="in"]` elements are shown.
-- All `[data-auth="out"]` elements are hidden.
-
-If the cookie is absent or invalid, the reverse applies. Note that this is a client-side check only — it does not verify the JWT signature against a server secret.
+`auth.js` and `logout.js` keep their own hostname maps for `auth-status` and logout respectively.
 
 ### CSRF
 
-All `POST` requests use Laravel Sanctum's CSRF cookie pattern. Before each request, the scripts check whether a valid `XSRF-TOKEN` cookie exists (using a locally stored expiry timestamp). If not, they fetch the `/sanctum/csrf-cookie` endpoint first. The token is then extracted from the cookie and sent as the `X-XSRF-TOKEN` request header. The `primed_clinic_session` cookie is attached automatically by the browser via `credentials: "include"`.
+The current flow uses Laravel Sanctum's CSRF-cookie pattern. Before write requests, the scripts fetch the configured `/sanctum/csrf-cookie` endpoint when the cached CSRF cookie has expired.
 
-### Session cookie (`__user`)
+### Session state
 
-On successful login, a `__user` cookie is set containing a signed HS256 JWT. The signing key is generated fresh using `crypto.subtle.generateKey()` with `extractable: false`, meaning it exists only in memory for that browser session. The token contains an `iat` (issued-at) timestamp and a `jti` (unique ID). The cookie expires when the browser session ends.
+After login, the frontend creates a local `__user` cookie. `auth.js` uses that cookie for fast client-side visibility changes, then optionally verifies the server session with `/auth-status`.
 
----
+### Redirect safety
 
-## Dependencies
+Shared redirect helpers only allow redirects to approved Primed hosts defined in `primed-auth-shared.js`.
 
-No external libraries or frameworks required. The components use:
+## Supporting Utilities
 
-- [Custom Elements API](https://developer.mozilla.org/en-US/docs/Web/API/CustomElementRegistry/define) — web component lifecycle
-- [Web Crypto API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API) — JWT generation (`crypto.subtle`, `crypto.randomUUID`)
-- [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) — all HTTP requests
+### `register-form-validation.js`
 
-All are supported in all modern browsers.
+Adds inline validation styling and messages for:
+
+- required fields
+- email format
+- Australian mobile numbers
+- street number and street name
+- suburb, state, and postcode
+- password strength
+
+### `register-address-lookup.js`
+
+Handles address-detail population and manual-entry fallback for the signup form. It expects the address input to exist and manages these fields:
+
+- `streetNumber`
+- `streetName`
+- `suburb`
+- `state`
+- `postcode`
+
+## GitHub Pages Workflow
+
+`.github/workflows/static.yml` publishes the repository as a static site through GitHub Pages on pushes to `main`.
+
+The workflow:
+
+1. Checks out the repo.
+2. Configures GitHub Pages.
+3. Uploads the repository root as the Pages artifact.
+4. Deploys it.
+
+## Notes
+
+- There is currently no root-level `index.html` checked into this repository.
+- `questionnaire.js` is a large bundled build artifact rather than hand-authored source.
+- The README previously described the older `login-form.js` and `register-form.js` flow; those files now live only in `deprecated/`.
