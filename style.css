@@ -43,3 +43,25 @@
     background: #16161c;
     color: #e8e4dd;
 }
+
+/* Google Places Autocomplete dropdown — match your input font */
+.pac-container,
+.pac-container * {
+  font-family: inherit !important;
+  font-size: inherit !important;
+  font-weight: inherit !important;
+  line-height: inherit !important;
+  letter-spacing: inherit !important;
+}
+
+/* Match your Webflow input class more explicitly */
+.pac-container {
+  font-family: var(--body-font, inherit) !important;
+  border-radius: 0.5rem;
+}
+
+/* Optional: make items feel closer to your form fields */
+.pac-item,
+.pac-item-query {
+  font: inherit !important;
+}
