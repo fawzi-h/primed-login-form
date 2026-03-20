@@ -49,33 +49,36 @@ primed-login-form/
 ## Dependency Diagram
 
 ```mermaid
-graph TD
-  A[primed-auth-shared.js]
-  B[primed-login-form.js]
-  C[primed-signup-form.js]
-  D[register-form-validation.js]
-  E[register-address-lookup.js]
-  F[questionnaire.js]
-  G[auth.js]
-  H[logout.js]
-  I[style.css]
-  J[Page markup<br/>#login-form / #signup-form / #primed-survey]
-  K[Primed API endpoints<br/>login / register / code / csrf / auth-status / logout]
-  L[Browser storage + cookies<br/>localStorage / sessionStorage / __user / XSRF-TOKEN]
+flowchart TB
+  A["primed-auth-shared.js<br/><br/>shared config, endpoint maps,<br/>csrf helpers, storage state,<br/>safe redirect logic"]
+  B["primed-login-form.js<br/><br/>password login,<br/>code login,<br/>reset flow"]
+  C["primed-signup-form.js<br/><br/>registration submit,<br/>auto-login,<br/>survey handoff"]
+  D["register-form-validation.js<br/><br/>signup field validation<br/>and inline errors"]
+  E["register-address-lookup.js<br/><br/>address autocomplete<br/>and manual entry"]
+  F["questionnaire.js<br/><br/>post-signup survey UI"]
+  G["auth.js<br/><br/>auth visibility toggles<br/>and auth-status check"]
+  H["logout.js<br/><br/>logout button binding<br/>and session cleanup"]
+  I["style.css<br/><br/>shared auth and validation styles"]
+  J["Page Markup<br/><br/>#login-form<br/>#signup-form<br/>#primed-survey"]
+  K["Primed API Endpoints<br/><br/>login<br/>register<br/>send code<br/>validate code<br/>forgot password<br/>csrf cookie<br/>auth-status<br/>logout"]
+  L["Browser Storage And Cookies<br/><br/>localStorage<br/>sessionStorage<br/>__user<br/>XSRF-TOKEN"]
 
   A --> B
   A --> C
-  A --> K
-  A --> L
+  A --> G
+
   B --> J
   B --> K
   B --> L
+
   C --> J
   C --> K
   C --> L
   C --> F
+
   D --> J
   E --> J
+  F --> J
   G --> J
   G --> K
   G --> L
