@@ -92,10 +92,6 @@
     try {
       sessionStorage.removeItem(PAGE_BOOTSTRAP_KEY);
     } catch (_e) {}
-
-    try {
-      sessionStorage.removeItem(REFERRAL_CODE_KEY);
-    } catch (_e) {}
   }
 
   function clearStateIfPageChanged() {
