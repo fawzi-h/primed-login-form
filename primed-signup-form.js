@@ -29,6 +29,12 @@
       const state = Shared.pageState.get();
       const surveyDiv = document.querySelector("#primed-survey");
 
+      if (Shared.getReferralCode()) {
+        Shared.pageState.patch({ activeView: "register", userId: "", dashboardUrl: "" });
+        Shared.showOnlyView("register");
+        return;
+      }
+
       if (state.activeView === "survey") {
         if (state.userId) sessionStorage.setItem("userId", String(state.userId));
         if (surveyDiv && state.dashboardUrl) {
@@ -44,9 +50,30 @@
 
     prefillReferralCode() {
       const refInput = this.getReferralInput();
-      const refCode = Shared.getReferralCodeFromUrl();
-      if (refInput && refCode && !refInput.value.trim()) {
+      const refCode = Shared.getReferralCode();
+      if (!refInput) return;
+
+      const refWrapper = refInput.closest(".form_field-wrapper");
+      const originalType = refInput.dataset.originalType || refInput.type || "text";
+      refInput.dataset.originalType = originalType;
+
+      if (!refCode) {
+        if (refWrapper) {
+          refWrapper.style.display = "";
+        } else {
+          refInput.type = originalType;
+        }
+        return;
+      }
+
+      if (!refInput.value.trim()) {
         refInput.value = refCode;
+      }
+
+      if (refWrapper) {
+        refWrapper.style.display = "none";
+      } else {
+        refInput.type = "hidden";
       }
     }
 
@@ -77,8 +104,8 @@
     getReferralCode() {
       const refInput = this.getReferralInput();
       const inputValue = ((refInput ? refInput.value : "") || "").trim();
-      const urlValue = Shared.getReferralCodeFromUrl();
-      return inputValue || urlValue || "";
+      const storedValue = Shared.getReferralCode();
+      return inputValue || storedValue || "";
     }
 
     showError(message) {

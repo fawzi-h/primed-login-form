@@ -5,6 +5,7 @@
   const LOGIN_UI_STATE_KEY = "primed_auth_login_ui_state_v1";
   const PAGE_BOOTSTRAP_KEY = "primed_auth_bootstrap_done_v1";
   const PAGE_PATH_KEY = "primed_auth_page_path_v1";
+  const REFERRAL_CODE_KEY = "primed_auth_referral_code_v1";
 
   const CSRF_TTL_SECONDS = 7200;
   const CSRF_EXPIRY_COOKIE = "wf_csrf_expires_at";
@@ -90,6 +91,10 @@
 
     try {
       sessionStorage.removeItem(PAGE_BOOTSTRAP_KEY);
+    } catch (_e) {}
+
+    try {
+      sessionStorage.removeItem(REFERRAL_CODE_KEY);
     } catch (_e) {}
   }
 
@@ -305,6 +310,50 @@
     }
   }
 
+  function getStoredReferralCode() {
+    try {
+      return (sessionStorage.getItem(REFERRAL_CODE_KEY) || "").trim();
+    } catch (_e) {
+      return "";
+    }
+  }
+
+  function setStoredReferralCode(value) {
+    try {
+      const referralCode = (value || "").trim();
+      if (referralCode) {
+        sessionStorage.setItem(REFERRAL_CODE_KEY, referralCode);
+      } else {
+        sessionStorage.removeItem(REFERRAL_CODE_KEY);
+      }
+    } catch (_e) {}
+  }
+
+  function getReferralCode() {
+    return getStoredReferralCode() || getReferralCodeFromUrl();
+  }
+
+  function bootstrapReferralCodeFromUrl() {
+    try {
+      const url = new URL(window.location.href);
+      const referralCode = (url.searchParams.get("referral_code") || "").trim();
+      let changed = false;
+
+      if (referralCode) {
+        setStoredReferralCode(referralCode);
+      }
+
+      if (url.searchParams.has("referral_code")) {
+        url.searchParams.delete("referral_code");
+        changed = true;
+      }
+
+      if (changed) {
+        history.replaceState(null, "", url.toString());
+      }
+    } catch (_e) {}
+  }
+
   function getInitialUrlView() {
     try {
       const params = new URLSearchParams(window.location.search);
@@ -335,6 +384,7 @@
   function bootstrapFromUrlOnce() {
     try {
       clearStateIfPageChanged();
+      bootstrapReferralCodeFromUrl();
 
       const alreadyBootstrapped = sessionStorage.getItem(PAGE_BOOTSTRAP_KEY) === "true";
       if (alreadyBootstrapped) return;
@@ -368,6 +418,8 @@
     getLoginRedirectUrl: getLoginRedirectUrl,
     detectIdentifierType: detectIdentifierType,
     getReferralCodeFromUrl: getReferralCodeFromUrl,
+    getStoredReferralCode: getStoredReferralCode,
+    getReferralCode: getReferralCode,
     bootstrapFromUrlOnce: bootstrapFromUrlOnce,
     clearAllAuthState: clearAllAuthState
   };
