@@ -7,6 +7,39 @@
     return;
   }
 
+  const AUSTRALIAN_TIMEZONES = new Set([
+    "Australia/Sydney",
+    "Australia/Melbourne",
+    "Australia/Brisbane",
+    "Australia/Perth",
+    "Australia/Adelaide",
+    "Australia/Darwin",
+    "Australia/Hobart",
+    "Australia/Lord_Howe",
+    "Australia/Broken_Hill",
+    "Australia/Lindeman",
+    "Antarctica/Macquarie",
+    "Indian/Christmas",
+    "Indian/Cocos",
+    "Australia/Currie",
+    "Australia/Eucla"
+  ]);
+
+  function getAustralianTimezone() {
+    const fallbackTimezone = "Australia/Sydney";
+
+    try {
+      const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      if (browserTimezone && AUSTRALIAN_TIMEZONES.has(browserTimezone)) {
+        return browserTimezone;
+      }
+    } catch (err) {
+      console.warn("[RegisterForm] Unable to resolve browser timezone.", err);
+    }
+
+    return fallbackTimezone;
+  }
+
   class RegisterFormController {
     constructor(container) {
       this.container = container;
@@ -20,6 +53,7 @@
       }
 
       this.prefillReferralCode();
+      this.ensureTimezoneField();
       this.prepareErrors();
       this.bindEvents();
       this.restore();
@@ -95,6 +129,22 @@
       return inputValue || storedValue || "";
     }
 
+    ensureTimezoneField() {
+      if (!this.form) return null;
+
+      let timezoneInput = this.form.querySelector("#timezone, input[name='timezone']");
+      if (!timezoneInput) {
+        timezoneInput = document.createElement("input");
+        timezoneInput.type = "hidden";
+        timezoneInput.name = "timezone";
+        timezoneInput.id = "timezone";
+        this.form.appendChild(timezoneInput);
+      }
+
+      timezoneInput.value = getAustralianTimezone();
+      return timezoneInput;
+    }
+
     showError(message) {
       const wrapper = this.container.querySelector(".form_message-error-wrapper");
       const el = this.container.querySelector(".error-text");
@@ -167,6 +217,7 @@
     }
 
     collectPayload(passwordValue) {
+      const timezoneInput = this.ensureTimezoneField();
       const q = (selector) => {
         const el = this.container.querySelector(selector);
         return ((el ? el.value : "") || "").trim();
@@ -183,6 +234,7 @@
         suburb: q("#suburb"),
         state: q("#state"),
         postcode: q("#postcode"),
+        timezone: ((timezoneInput ? timezoneInput.value : "") || getAustralianTimezone()).trim(),
         password: passwordValue
       };
 
