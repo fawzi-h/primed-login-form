@@ -82,15 +82,20 @@
       if (errorWrapper) errorWrapper.style.display = "none";
 
       if (!this.container.querySelector("#password-error")) {
+        const passwordEl = this.container.querySelector("#Password");
         const confirmEl = this.container.querySelector("#Confirm-Password");
+        const passwordWrapper = passwordEl ? passwordEl.closest(".form_field-wrapper") : null;
         const confirmWrapper = confirmEl ? confirmEl.closest(".form_field-wrapper") : null;
+        const groupedWrapper = passwordWrapper && confirmWrapper && passwordWrapper.parentElement === confirmWrapper.parentElement
+          ? confirmWrapper.parentElement
+          : null;
 
-        if (confirmWrapper) {
+        if (groupedWrapper || confirmWrapper) {
           const pwError = document.createElement("div");
           pwError.id = "password-error";
           pwError.style.cssText = "display:none; color:#e53e3e; font-size:0.85rem; margin-top:0.25rem;";
           pwError.textContent = "Passwords do not match.";
-          confirmWrapper.after(pwError);
+          (groupedWrapper || confirmWrapper).appendChild(pwError);
         }
       }
     }

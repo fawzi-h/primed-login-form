@@ -107,6 +107,34 @@
     return input.closest(".form_field-wrapper") || input.parentElement;
   }
 
+  function getGroupedPasswordErrorHost(passwordInput, confirmInput) {
+    const passwordHost = getErrorHost(passwordInput);
+    const confirmHost = getErrorHost(confirmInput);
+
+    if (passwordHost && confirmHost && passwordHost.parentElement === confirmHost.parentElement) {
+      return confirmHost.parentElement;
+    }
+
+    return confirmHost || passwordHost;
+  }
+
+  function getCustomErrorNode(id, host) {
+    if (!id || !host) return null;
+
+    let err = document.getElementById(id);
+    if (!err) {
+      err = document.createElement("div");
+      err.className = "field-error";
+      err.id = id;
+      err.setAttribute("role", "alert");
+      host.appendChild(err);
+    } else if (err.parentElement !== host) {
+      host.appendChild(err);
+    }
+
+    return err;
+  }
+
   function setError(input, message) {
     if (!input) return;
 
@@ -134,6 +162,37 @@
       err.textContent = "";
       err.classList.remove("is-visible");
     }
+  }
+
+  function clearPasswordMismatchError(passwordInput, confirmInput) {
+    [passwordInput, confirmInput].forEach(function (input) {
+      if (!input) return;
+      input.classList.remove("is-invalid");
+      input.removeAttribute("aria-invalid");
+      input.removeAttribute("aria-describedby");
+    });
+
+    const err = document.getElementById("field-error-password-mismatch");
+    if (err) {
+      err.textContent = "";
+      err.classList.remove("is-visible");
+    }
+  }
+
+  function setPasswordMismatchError(passwordInput, confirmInput, message) {
+    const host = getGroupedPasswordErrorHost(passwordInput, confirmInput);
+    const err = getCustomErrorNode("field-error-password-mismatch", host);
+    if (!err) return;
+
+    [passwordInput, confirmInput].forEach(function (input) {
+      if (!input) return;
+      input.classList.add("is-invalid");
+      input.setAttribute("aria-invalid", "true");
+      input.setAttribute("aria-describedby", err.id);
+    });
+
+    err.textContent = message;
+    err.classList.add("is-visible");
   }
 
   function clearAllErrors(form) {
@@ -294,10 +353,12 @@
     if (!requireValue(confirmInput, "Please confirm your password.")) return false;
 
     if ((pwInput && pwInput.value ? pwInput.value : "") !== (confirmInput.value || "")) {
-      setError(confirmInput, "Passwords do not match.");
+      clearError(confirmInput);
+      setPasswordMismatchError(pwInput, confirmInput, "Passwords do not match.");
       return false;
     }
 
+    clearPasswordMismatchError(pwInput, confirmInput);
     clearError(confirmInput);
     return true;
   }
@@ -329,6 +390,9 @@
 
     input.addEventListener("input", function () {
       clearError(input);
+      if (input.name === "Password" || input.name === "Confirm-Password" || input.id === "register-password" || input.id === "register-confirm-password") {
+        clearPasswordMismatchError(input.form && findField(input.form, ['#register-password', 'input[name="Register-Password"]', 'input[name="Password"]']), input.form && findField(input.form, ['#register-confirm-password', 'input[name="Register-Confirm-Password"]', 'input[name="Confirm-Password"]']));
+      }
     });
   }
 
