@@ -35,9 +35,8 @@
 
       .field-error-host {
         position: relative;
-        display: flex;
-        flex-direction: column;
-        align-items: stretch;
+        display: block;
+        width: 100%;
       }
 
       .field-error-host > .form_input,
