@@ -215,10 +215,10 @@
 
     if (!hint.dataset.initialized) {
       hint.innerHTML = [
-        '<div class="password-rule" data-password-rule="length">At least 8 characters</div>',
-        '<div class="password-rule" data-password-rule="uppercase">At least 1 capital letter</div>',
-        '<div class="password-rule" data-password-rule="number">At least 1 number</div>',
-        '<div class="password-rule" data-password-rule="match">Passwords match</div>'
+        '<div class="password-rule" data-password-rule="length">At least 8 characters.</div>',
+        '<div class="password-rule" data-password-rule="uppercase">At least 1 capital letter.</div>',
+        '<div class="password-rule" data-password-rule="number">At least 1 number.</div>',
+        '<div class="password-rule" data-password-rule="match">Passwords match.</div>'
       ].join("");
       hint.dataset.initialized = "true";
     }
@@ -276,34 +276,27 @@
   }
 
   function clearPasswordMismatchError(passwordInput, confirmInput) {
-    [passwordInput, confirmInput].forEach(function (input) {
-      if (!input) return;
-      input.classList.remove("is-invalid");
-      input.removeAttribute("aria-invalid");
-      input.removeAttribute("aria-describedby");
-    });
+    const mismatchStillActive = !!(
+      passwordInput &&
+      confirmInput &&
+      (passwordInput.value || "") !== "" &&
+      (confirmInput.value || "") !== "" &&
+      (passwordInput.value || "") !== (confirmInput.value || "")
+    );
+
+    if (!mismatchStillActive) {
+      [passwordInput, confirmInput].forEach(function (input) {
+        if (!input) return;
+        input.classList.remove("is-invalid");
+        input.removeAttribute("aria-invalid");
+        input.removeAttribute("aria-describedby");
+      });
+    }
 
     const err = document.getElementById("field-error-password-mismatch");
     if (err) {
-      err.textContent = "";
-      err.classList.remove("is-visible");
+      err.remove();
     }
-  }
-
-  function setPasswordMismatchError(passwordInput, confirmInput, message) {
-    const host = getGroupedPasswordErrorHost(passwordInput, confirmInput);
-    const err = getCustomErrorNode("field-error-password-mismatch", host);
-    if (!err) return;
-
-    [passwordInput, confirmInput].forEach(function (input) {
-      if (!input) return;
-      input.classList.add("is-invalid");
-      input.setAttribute("aria-invalid", "true");
-      input.setAttribute("aria-describedby", err.id);
-    });
-
-    err.textContent = message;
-    err.classList.add("is-visible");
   }
 
   function markInvalidWithoutError(input, describedById) {
@@ -482,7 +475,7 @@
     if ((pwInput && pwInput.value ? pwInput.value : "") !== (confirmInput.value || "")) {
       renderPasswordHint(pwInput, confirmInput, { showInvalid: true });
       clearError(confirmInput);
-      setPasswordMismatchError(pwInput, confirmInput, "Passwords do not match.");
+      markInvalidWithoutError(confirmInput, "field-hint-password-rules");
       return false;
     }
 
