@@ -94,7 +94,11 @@
         const pwHint = document.createElement("div");
         pwHint.id = "password-hint";
         pwHint.style.cssText = "display:none; color:#4a5568; font-size:0.85rem; margin-top:0.25rem;";
-        pwHint.textContent = "Use at least 8 characters, including 1 capital letter and 1 number.";
+        pwHint.innerHTML = [
+          '<div data-password-rule="length" style="color:#718096;">At least 8 characters</div>',
+          '<div data-password-rule="uppercase" style="color:#718096;">At least 1 capital letter</div>',
+          '<div data-password-rule="number" style="color:#718096;">At least 1 number</div>'
+        ].join("");
         feedbackHost.appendChild(pwHint);
       }
 
@@ -119,29 +123,38 @@
       );
     }
 
+    getPasswordRuleState(value) {
+      const passwordValue = value || "";
+      return {
+        length: passwordValue.length >= 8,
+        uppercase: /[A-Z]/.test(passwordValue),
+        number: /[0-9]/.test(passwordValue)
+      };
+    }
+
     updatePasswordHint() {
       const password = this.container.querySelector("#Password");
       const pwHint = this.container.querySelector("#password-hint");
       if (!password || !pwHint) return;
 
       const value = password.value || "";
+      const ruleState = this.getPasswordRuleState(value);
       if (!value) {
         pwHint.style.display = "none";
-        pwHint.style.color = "#4a5568";
-        pwHint.textContent = "Use at least 8 characters, including 1 capital letter and 1 number.";
-        return;
-      }
-
-      if (this.passwordMeetsRequirements(value)) {
-        pwHint.style.display = "block";
-        pwHint.style.color = "#2f855a";
-        pwHint.textContent = "Password meets the requirements.";
+        pwHint.querySelectorAll("[data-password-rule]").forEach((el) => {
+          el.style.color = "#718096";
+          el.style.fontWeight = "400";
+        });
         return;
       }
 
       pwHint.style.display = "block";
-      pwHint.style.color = "#4a5568";
-      pwHint.textContent = "Use at least 8 characters, including 1 capital letter and 1 number.";
+      pwHint.querySelectorAll("[data-password-rule]").forEach((el) => {
+        const ruleName = el.getAttribute("data-password-rule");
+        const satisfied = !!ruleState[ruleName];
+        el.style.color = satisfied ? "#2f855a" : "#718096";
+        el.style.fontWeight = satisfied ? "600" : "400";
+      });
     }
 
     getReferralInput() {
