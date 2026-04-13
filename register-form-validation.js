@@ -138,6 +138,7 @@
       err.id = errorId;
       err.setAttribute("role", "alert");
       host.classList.add("field-error-host");
+      err.style.fontFamily = (window.getComputedStyle(host).fontFamily || "").trim() || '"Bondia", sans-serif';
       host.appendChild(err);
     }
 
@@ -168,6 +169,7 @@
       hint = document.createElement("div");
       hint.className = "field-hint password-feedback";
       hint.id = id;
+      hint.style.fontFamily = (window.getComputedStyle(host).fontFamily || "").trim() || '"Bondia", sans-serif';
       host.appendChild(hint);
     } else if (hint.parentElement !== host) {
       host.appendChild(hint);
