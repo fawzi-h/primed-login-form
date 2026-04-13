@@ -47,6 +47,39 @@
       .field-error-host > select {
         width: 100%;
       }
+
+      .field-hint {
+        display: none;
+        width: 100%;
+        color: #4a5568;
+        background: #f7fafc;
+        border: 1px solid rgba(160, 174, 192, 0.3);
+        border-radius: 0.5rem;
+        padding: 0.55rem 0.75rem;
+        margin-top: 0.45rem;
+        font-family: inherit;
+        font-size: 0.875rem;
+        font-weight: 400;
+        line-height: 1.35;
+        letter-spacing: inherit;
+      }
+
+      .field-hint.is-visible {
+        display: block;
+      }
+
+      .password-rule {
+        color: #718096;
+      }
+
+      .password-rule + .password-rule {
+        margin-top: 0.2rem;
+      }
+
+      .password-rule.is-met {
+        color: #2f855a;
+        font-weight: 600;
+      }
     `;
     document.head.appendChild(style);
   }
@@ -133,6 +166,62 @@
     }
 
     return err;
+  }
+
+  function getCustomHintNode(id, host) {
+    if (!id || !host) return null;
+
+    let hint = document.getElementById(id);
+    if (!hint) {
+      hint = document.createElement("div");
+      hint.className = "field-hint";
+      hint.id = id;
+      host.appendChild(hint);
+    } else if (hint.parentElement !== host) {
+      host.appendChild(hint);
+    }
+
+    return hint;
+  }
+
+  function getPasswordRuleState(value) {
+    const passwordValue = value || "";
+    return {
+      length: passwordValue.length >= 8,
+      uppercase: /[A-Z]/.test(passwordValue),
+      number: /[0-9]/.test(passwordValue)
+    };
+  }
+
+  function renderPasswordHint(passwordInput, confirmInput) {
+    const host = getGroupedPasswordErrorHost(passwordInput, confirmInput);
+    const hint = getCustomHintNode("field-hint-password-rules", host);
+    if (!hint) return;
+
+    if (!hint.dataset.initialized) {
+      hint.innerHTML = [
+        '<div class="password-rule" data-password-rule="length">At least 8 characters</div>',
+        '<div class="password-rule" data-password-rule="uppercase">At least 1 capital letter</div>',
+        '<div class="password-rule" data-password-rule="number">At least 1 number</div>'
+      ].join("");
+      hint.dataset.initialized = "true";
+    }
+
+    const value = passwordInput && passwordInput.value ? passwordInput.value : "";
+    if (!value) {
+      hint.classList.remove("is-visible");
+      hint.querySelectorAll("[data-password-rule]").forEach(function (el) {
+        el.classList.remove("is-met");
+      });
+      return;
+    }
+
+    const ruleState = getPasswordRuleState(value);
+    hint.classList.add("is-visible");
+    hint.querySelectorAll("[data-password-rule]").forEach(function (el) {
+      const ruleName = el.getAttribute("data-password-rule");
+      el.classList.toggle("is-met", !!ruleState[ruleName]);
+    });
   }
 
   function setError(input, message) {
@@ -391,7 +480,11 @@
     input.addEventListener("input", function () {
       clearError(input);
       if (input.name === "Password" || input.name === "Confirm-Password" || input.id === "register-password" || input.id === "register-confirm-password") {
-        clearPasswordMismatchError(input.form && findField(input.form, ['#register-password', 'input[name="Register-Password"]', 'input[name="Password"]']), input.form && findField(input.form, ['#register-confirm-password', 'input[name="Register-Confirm-Password"]', 'input[name="Confirm-Password"]']));
+        const form = input.form || input.closest("form");
+        const passwordInput = form && findField(form, ['#register-password', 'input[name="Register-Password"]', 'input[name="Password"]']);
+        const confirmInput = form && findField(form, ['#register-confirm-password', 'input[name="Register-Confirm-Password"]', 'input[name="Confirm-Password"]']);
+        clearPasswordMismatchError(passwordInput, confirmInput);
+        renderPasswordHint(passwordInput, confirmInput);
       }
     });
   }
@@ -431,6 +524,8 @@
       password,
       confirmPassword
     ].forEach(bindLiveClear);
+
+    renderPasswordHint(password, confirmPassword);
 
     function validateForm() {
       clearAllErrors(form);
