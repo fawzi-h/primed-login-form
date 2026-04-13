@@ -193,6 +193,11 @@
     };
   }
 
+  function getPasswordMatchState(passwordValue, confirmValue) {
+    if (!passwordValue || !confirmValue) return false;
+    return passwordValue === confirmValue;
+  }
+
   function renderPasswordHint(passwordInput, confirmInput) {
     const host = getGroupedPasswordErrorHost(passwordInput, confirmInput);
     const hint = getCustomHintNode("field-hint-password-rules", host);
@@ -202,12 +207,14 @@
       hint.innerHTML = [
         '<div class="password-rule" data-password-rule="length">At least 8 characters</div>',
         '<div class="password-rule" data-password-rule="uppercase">At least 1 capital letter</div>',
-        '<div class="password-rule" data-password-rule="number">At least 1 number</div>'
+        '<div class="password-rule" data-password-rule="number">At least 1 number</div>',
+        '<div class="password-rule" data-password-rule="match">Passwords match</div>'
       ].join("");
       hint.dataset.initialized = "true";
     }
 
     const value = passwordInput && passwordInput.value ? passwordInput.value : "";
+    const confirmValue = confirmInput && confirmInput.value ? confirmInput.value : "";
     if (!value) {
       hint.classList.remove("is-visible");
       hint.querySelectorAll("[data-password-rule]").forEach(function (el) {
@@ -220,7 +227,10 @@
     hint.classList.add("is-visible");
     hint.querySelectorAll("[data-password-rule]").forEach(function (el) {
       const ruleName = el.getAttribute("data-password-rule");
-      el.classList.toggle("is-met", !!ruleState[ruleName]);
+      const isMet = ruleName === "match"
+        ? getPasswordMatchState(value, confirmValue)
+        : !!ruleState[ruleName];
+      el.classList.toggle("is-met", isMet);
     });
   }
 

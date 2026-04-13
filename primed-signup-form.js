@@ -80,81 +80,6 @@
     prepareErrors() {
       const errorWrapper = this.container.querySelector(".form_message-error-wrapper");
       if (errorWrapper) errorWrapper.style.display = "none";
-
-      const passwordEl = this.container.querySelector("#Password");
-      const confirmEl = this.container.querySelector("#Confirm-Password");
-      const passwordWrapper = passwordEl ? passwordEl.closest(".form_field-wrapper") : null;
-      const confirmWrapper = confirmEl ? confirmEl.closest(".form_field-wrapper") : null;
-      const groupedWrapper = passwordWrapper && confirmWrapper && passwordWrapper.parentElement === confirmWrapper.parentElement
-        ? confirmWrapper.parentElement
-        : null;
-      const feedbackHost = groupedWrapper || confirmWrapper;
-
-      if (feedbackHost && !this.container.querySelector("#password-hint")) {
-        const pwHint = document.createElement("div");
-        pwHint.id = "password-hint";
-        pwHint.style.cssText = "display:none; color:#4a5568; font-size:0.85rem; margin-top:0.25rem;";
-        pwHint.innerHTML = [
-          '<div data-password-rule="length" style="color:#718096;">At least 8 characters</div>',
-          '<div data-password-rule="uppercase" style="color:#718096;">At least 1 capital letter</div>',
-          '<div data-password-rule="number" style="color:#718096;">At least 1 number</div>'
-        ].join("");
-        feedbackHost.appendChild(pwHint);
-      }
-
-      if (!this.container.querySelector("#password-error")) {
-        if (feedbackHost) {
-          const pwError = document.createElement("div");
-          pwError.id = "password-error";
-          pwError.style.cssText = "display:none; color:#e53e3e; font-size:0.85rem; margin-top:0.25rem;";
-          pwError.textContent = "Passwords do not match.";
-          feedbackHost.appendChild(pwError);
-        }
-      }
-    }
-
-    passwordMeetsRequirements(value) {
-      const passwordValue = value || "";
-      return (
-        passwordValue.length >= 8 &&
-        /[A-Z]/.test(passwordValue) &&
-        /[0-9]/.test(passwordValue) &&
-        /[a-zA-Z]/.test(passwordValue)
-      );
-    }
-
-    getPasswordRuleState(value) {
-      const passwordValue = value || "";
-      return {
-        length: passwordValue.length >= 8,
-        uppercase: /[A-Z]/.test(passwordValue),
-        number: /[0-9]/.test(passwordValue)
-      };
-    }
-
-    updatePasswordHint() {
-      const password = this.container.querySelector("#Password");
-      const pwHint = this.container.querySelector("#password-hint");
-      if (!password || !pwHint) return;
-
-      const value = password.value || "";
-      const ruleState = this.getPasswordRuleState(value);
-      if (!value) {
-        pwHint.style.display = "none";
-        pwHint.querySelectorAll("[data-password-rule]").forEach((el) => {
-          el.style.color = "#718096";
-          el.style.fontWeight = "400";
-        });
-        return;
-      }
-
-      pwHint.style.display = "block";
-      pwHint.querySelectorAll("[data-password-rule]").forEach((el) => {
-        const ruleName = el.getAttribute("data-password-rule");
-        const satisfied = !!ruleState[ruleName];
-        el.style.color = satisfied ? "#2f855a" : "#718096";
-        el.style.fontWeight = satisfied ? "600" : "400";
-      });
     }
 
     getReferralInput() {
@@ -273,22 +198,9 @@
 
       const password = this.container.querySelector("#Password");
       const confirm = this.container.querySelector("#Confirm-Password");
-      const pwError = this.container.querySelector("#password-error");
 
       if (!password || !confirm) {
         this.showError("Form is missing required fields. Please refresh the page.");
-        return;
-      }
-
-      if (pwError) pwError.style.display = "none";
-      password.classList.remove("is-error");
-      confirm.classList.remove("is-error");
-
-      if (password.value !== confirm.value) {
-        if (pwError) pwError.style.display = "block";
-        password.classList.add("is-error");
-        confirm.classList.add("is-error");
-        confirm.focus();
         return;
       }
 
@@ -350,33 +262,6 @@
         this.form.dataset.registerBound = "true";
         this.form.addEventListener("submit", (e) => this.handleSubmit(e));
       }
-
-      const password = this.container.querySelector("#Password");
-      const confirm = this.container.querySelector("#Confirm-Password");
-      const pwError = this.container.querySelector("#password-error");
-
-      if (password) {
-        password.addEventListener("input", () => {
-          this.updatePasswordHint();
-          if (pwError && pwError.style.display === "block" && confirm && password.value === confirm.value) {
-            pwError.style.display = "none";
-            confirm.classList.remove("is-error");
-            password.classList.remove("is-error");
-          }
-        });
-      }
-
-      if (confirm) {
-        confirm.addEventListener("input", function () {
-          if (pwError && pwError.style.display === "block") {
-            pwError.style.display = "none";
-            confirm.classList.remove("is-error");
-            if (password) password.classList.remove("is-error");
-          }
-        });
-      }
-
-      this.updatePasswordHint();
 
       this.container.querySelectorAll(
         'a[href*="sign-up-login"]:not([href*="register"]), a[href="/sign-up-login"]'
