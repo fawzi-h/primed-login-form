@@ -67,6 +67,11 @@
         display: block;
       }
 
+      .field-hint.password-feedback {
+        grid-column: 1 / -1;
+        width: 100%;
+      }
+
       .password-rule {
         color: #718096;
       }
@@ -78,6 +83,11 @@
       .password-rule.is-met {
         color: #2f855a;
         font-weight: 600;
+      }
+
+      .field-hint.show-invalid .password-rule:not(.is-met) {
+        color: #d93025;
+        font-weight: 500;
       }
     `;
     document.head.appendChild(style);
@@ -173,7 +183,7 @@
     let hint = document.getElementById(id);
     if (!hint) {
       hint = document.createElement("div");
-      hint.className = "field-hint";
+      hint.className = "field-hint password-feedback";
       hint.id = id;
       host.appendChild(hint);
     } else if (hint.parentElement !== host) {
@@ -197,7 +207,8 @@
     return passwordValue === confirmValue;
   }
 
-  function renderPasswordHint(passwordInput, confirmInput) {
+  function renderPasswordHint(passwordInput, confirmInput, options) {
+    const showInvalid = !!(options && options.showInvalid);
     const host = getGroupedPasswordErrorHost(passwordInput, confirmInput);
     const hint = getCustomHintNode("field-hint-password-rules", host);
     if (!hint) return;
@@ -216,6 +227,7 @@
     const confirmValue = confirmInput && confirmInput.value ? confirmInput.value : "";
     if (!value) {
       hint.classList.remove("is-visible");
+      hint.classList.remove("show-invalid");
       hint.querySelectorAll("[data-password-rule]").forEach(function (el) {
         el.classList.remove("is-met");
       });
@@ -224,6 +236,7 @@
 
     const ruleState = getPasswordRuleState(value);
     hint.classList.add("is-visible");
+    hint.classList.toggle("show-invalid", showInvalid);
     hint.querySelectorAll("[data-password-rule]").forEach(function (el) {
       const ruleName = el.getAttribute("data-password-rule");
       const isMet = ruleName === "match"
@@ -452,7 +465,7 @@
     if (!isStrongPassword(input.value || "")) {
       const form = input.form || input.closest("form");
       const confirmInput = form && findField(form, ['#register-confirm-password', 'input[name="Register-Confirm-Password"]', 'input[name="Confirm-Password"]']);
-      renderPasswordHint(input, confirmInput);
+      renderPasswordHint(input, confirmInput, { showInvalid: true });
       clearError(input);
       markInvalidWithoutError(input, "field-hint-password-rules");
       return false;
@@ -467,6 +480,7 @@
     if (!requireValue(confirmInput, "Please confirm your password.")) return false;
 
     if ((pwInput && pwInput.value ? pwInput.value : "") !== (confirmInput.value || "")) {
+      renderPasswordHint(pwInput, confirmInput, { showInvalid: true });
       clearError(confirmInput);
       setPasswordMismatchError(pwInput, confirmInput, "Passwords do not match.");
       return false;
