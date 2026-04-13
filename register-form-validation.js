@@ -293,6 +293,18 @@
     err.classList.add("is-visible");
   }
 
+  function markInvalidWithoutError(input, describedById) {
+    if (!input) return;
+
+    input.classList.add("is-invalid");
+    input.setAttribute("aria-invalid", "true");
+    if (describedById) {
+      input.setAttribute("aria-describedby", describedById);
+    } else {
+      input.removeAttribute("aria-describedby");
+    }
+  }
+
   function clearAllErrors(form) {
     if (!form) return;
 
@@ -438,7 +450,11 @@
     if (!requireValue(input, "Password is required.")) return false;
 
     if (!isStrongPassword(input.value || "")) {
-      setError(input, "Minimum 8 characters with at least 1 capital letter and 1 number.");
+      const form = input.form || input.closest("form");
+      const confirmInput = form && findField(form, ['#register-confirm-password', 'input[name="Register-Confirm-Password"]', 'input[name="Confirm-Password"]']);
+      renderPasswordHint(input, confirmInput);
+      clearError(input);
+      markInvalidWithoutError(input, "field-hint-password-rules");
       return false;
     }
 
