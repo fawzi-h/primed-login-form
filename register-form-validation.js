@@ -160,23 +160,6 @@
     return confirmHost || passwordHost;
   }
 
-  function getCustomErrorNode(id, host) {
-    if (!id || !host) return null;
-
-    let err = document.getElementById(id);
-    if (!err) {
-      err = document.createElement("div");
-      err.className = "field-error";
-      err.id = id;
-      err.setAttribute("role", "alert");
-      host.appendChild(err);
-    } else if (err.parentElement !== host) {
-      host.appendChild(err);
-    }
-
-    return err;
-  }
-
   function getCustomHintNode(id, host) {
     if (!id || !host) return null;
 
@@ -275,28 +258,13 @@
     }
   }
 
-  function clearPasswordMismatchError(passwordInput, confirmInput) {
-    const mismatchStillActive = !!(
-      passwordInput &&
-      confirmInput &&
-      (passwordInput.value || "") !== "" &&
-      (confirmInput.value || "") !== "" &&
-      (passwordInput.value || "") !== (confirmInput.value || "")
-    );
-
-    if (!mismatchStillActive) {
-      [passwordInput, confirmInput].forEach(function (input) {
-        if (!input) return;
-        input.classList.remove("is-invalid");
-        input.removeAttribute("aria-invalid");
-        input.removeAttribute("aria-describedby");
-      });
-    }
-
-    const err = document.getElementById("field-error-password-mismatch");
-    if (err) {
-      err.remove();
-    }
+  function clearPasswordValidationState(passwordInput, confirmInput) {
+    [passwordInput, confirmInput].forEach(function (input) {
+      if (!input) return;
+      input.classList.remove("is-invalid");
+      input.removeAttribute("aria-invalid");
+      input.removeAttribute("aria-describedby");
+    });
   }
 
   function markInvalidWithoutError(input, describedById) {
@@ -470,7 +438,6 @@
 
   function validateConfirmPassword(pwInput, confirmInput) {
     if (!confirmInput) return true;
-    if (!requireValue(confirmInput, "Please confirm your password.")) return false;
 
     if ((pwInput && pwInput.value ? pwInput.value : "") !== (confirmInput.value || "")) {
       renderPasswordHint(pwInput, confirmInput, { showInvalid: true });
@@ -479,7 +446,7 @@
       return false;
     }
 
-    clearPasswordMismatchError(pwInput, confirmInput);
+    clearPasswordValidationState(pwInput, confirmInput);
     clearError(confirmInput);
     return true;
   }
@@ -515,7 +482,7 @@
         const form = input.form || input.closest("form");
         const passwordInput = form && findField(form, ['#register-password', 'input[name="Register-Password"]', 'input[name="Password"]']);
         const confirmInput = form && findField(form, ['#register-confirm-password', 'input[name="Register-Confirm-Password"]', 'input[name="Confirm-Password"]']);
-        clearPasswordMismatchError(passwordInput, confirmInput);
+        clearPasswordValidationState(passwordInput, confirmInput);
         renderPasswordHint(passwordInput, confirmInput);
       }
     });
