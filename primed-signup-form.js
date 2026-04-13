@@ -81,23 +81,67 @@
       const errorWrapper = this.container.querySelector(".form_message-error-wrapper");
       if (errorWrapper) errorWrapper.style.display = "none";
 
-      if (!this.container.querySelector("#password-error")) {
-        const passwordEl = this.container.querySelector("#Password");
-        const confirmEl = this.container.querySelector("#Confirm-Password");
-        const passwordWrapper = passwordEl ? passwordEl.closest(".form_field-wrapper") : null;
-        const confirmWrapper = confirmEl ? confirmEl.closest(".form_field-wrapper") : null;
-        const groupedWrapper = passwordWrapper && confirmWrapper && passwordWrapper.parentElement === confirmWrapper.parentElement
-          ? confirmWrapper.parentElement
-          : null;
+      const passwordEl = this.container.querySelector("#Password");
+      const confirmEl = this.container.querySelector("#Confirm-Password");
+      const passwordWrapper = passwordEl ? passwordEl.closest(".form_field-wrapper") : null;
+      const confirmWrapper = confirmEl ? confirmEl.closest(".form_field-wrapper") : null;
+      const groupedWrapper = passwordWrapper && confirmWrapper && passwordWrapper.parentElement === confirmWrapper.parentElement
+        ? confirmWrapper.parentElement
+        : null;
+      const feedbackHost = groupedWrapper || confirmWrapper;
 
-        if (groupedWrapper || confirmWrapper) {
+      if (feedbackHost && !this.container.querySelector("#password-hint")) {
+        const pwHint = document.createElement("div");
+        pwHint.id = "password-hint";
+        pwHint.style.cssText = "display:none; color:#4a5568; font-size:0.85rem; margin-top:0.25rem;";
+        pwHint.textContent = "Use at least 8 characters, including 1 capital letter and 1 number.";
+        feedbackHost.appendChild(pwHint);
+      }
+
+      if (!this.container.querySelector("#password-error")) {
+        if (feedbackHost) {
           const pwError = document.createElement("div");
           pwError.id = "password-error";
           pwError.style.cssText = "display:none; color:#e53e3e; font-size:0.85rem; margin-top:0.25rem;";
           pwError.textContent = "Passwords do not match.";
-          (groupedWrapper || confirmWrapper).appendChild(pwError);
+          feedbackHost.appendChild(pwError);
         }
       }
+    }
+
+    passwordMeetsRequirements(value) {
+      const passwordValue = value || "";
+      return (
+        passwordValue.length >= 8 &&
+        /[A-Z]/.test(passwordValue) &&
+        /[0-9]/.test(passwordValue) &&
+        /[a-zA-Z]/.test(passwordValue)
+      );
+    }
+
+    updatePasswordHint() {
+      const password = this.container.querySelector("#Password");
+      const pwHint = this.container.querySelector("#password-hint");
+      if (!password || !pwHint) return;
+
+      const value = password.value || "";
+      if (!value) {
+        pwHint.style.display = "none";
+        pwHint.style.color = "#4a5568";
+        pwHint.textContent = "Use at least 8 characters, including 1 capital letter and 1 number.";
+        return;
+      }
+
+      if (this.passwordMeetsRequirements(value)) {
+        pwHint.style.display = "block";
+        pwHint.style.color = "#2f855a";
+        pwHint.textContent = "Password meets the requirements.";
+        return;
+      }
+
+      pwHint.style.display = "block";
+      pwHint.style.color = "#4a5568";
+      pwHint.textContent = "Use at least 8 characters, including 1 capital letter and 1 number.";
     }
 
     getReferralInput() {
@@ -298,6 +342,17 @@
       const confirm = this.container.querySelector("#Confirm-Password");
       const pwError = this.container.querySelector("#password-error");
 
+      if (password) {
+        password.addEventListener("input", () => {
+          this.updatePasswordHint();
+          if (pwError && pwError.style.display === "block" && confirm && password.value === confirm.value) {
+            pwError.style.display = "none";
+            confirm.classList.remove("is-error");
+            password.classList.remove("is-error");
+          }
+        });
+      }
+
       if (confirm) {
         confirm.addEventListener("input", function () {
           if (pwError && pwError.style.display === "block") {
@@ -307,6 +362,8 @@
           }
         });
       }
+
+      this.updatePasswordHint();
 
       this.container.querySelectorAll(
         'a[href*="sign-up-login"]:not([href*="register"]), a[href="/sign-up-login"]'
