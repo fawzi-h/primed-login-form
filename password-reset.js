@@ -95,10 +95,13 @@
         font-weight: 500;
       }
 
-      .primed-reset-email-locked[readonly] {
+      .primed-reset-email-locked[readonly],
+      .primed-reset-email-locked[disabled] {
         background: #f7fafc;
         color: rgba(15, 23, 42, 0.78);
         cursor: not-allowed;
+        pointer-events: none;
+        opacity: 1;
       }
 
       .password-reset.is-initializing .password-reset_form-block {
@@ -533,10 +536,14 @@
     emailInput.value = email;
     emailInput.defaultValue = email;
     emailInput.readOnly = true;
+    emailInput.disabled = true;
     emailInput.setAttribute("readonly", "readonly");
+    emailInput.setAttribute("disabled", "disabled");
     emailInput.setAttribute("aria-readonly", "true");
+    emailInput.setAttribute("aria-disabled", "true");
     emailInput.setAttribute("autocomplete", "off");
     emailInput.setAttribute("spellcheck", "false");
+    emailInput.tabIndex = -1;
     emailInput.classList.add("primed-reset-email-locked");
   }
 
@@ -573,9 +580,14 @@
     if (ctx.submitButton) ctx.submitButton.disabled = true;
 
     if (ctx.title) ctx.title.textContent = "Invalid reset link";
-    if (ctx.subtitle) ctx.subtitle.textContent = "Please request a new password reset link and try again.";
-
-    showMessage(ctx, "error", message);
+    if (ctx.subtitle) {
+      const normalizedMessage = (message || "This password reset link is invalid or incomplete.").trim();
+      const endsWithPunctuation = /[.!?]$/.test(normalizedMessage);
+      ctx.subtitle.textContent =
+        normalizedMessage +
+        (endsWithPunctuation ? "" : ".") +
+        " Please request a new password reset link and try again.";
+    }
 
     if (ctx.loginLink && !ctx.loginLink.getAttribute("href")) {
       ctx.loginLink.setAttribute("href", LOGIN_URL);
@@ -797,7 +809,7 @@
     bindLiveValidation(ctx);
 
     if (!linkState.hasValidFormat) {
-      setInvalidLinkState(ctx, "This password reset link is invalid or incomplete. Please request a new reset link.");
+      setInvalidLinkState(ctx, "This password reset link is invalid or incomplete.");
     } else {
       revealReadyState(ctx);
     }
