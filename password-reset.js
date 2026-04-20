@@ -488,6 +488,9 @@
 
   function getTokenFromUrl() {
     try {
+      const tokenParam = (new URLSearchParams(window.location.search).get("token") || "").trim();
+      if (tokenParam) return tokenParam;
+
       const parts = window.location.pathname.split("/").filter(Boolean);
       const resetIndex = parts.indexOf("password-reset");
       return resetIndex !== -1 && parts[resetIndex + 1]
@@ -579,7 +582,6 @@
     if (ctx.confirmInput) ctx.confirmInput.disabled = true;
     if (ctx.submitButton) ctx.submitButton.disabled = true;
 
-    if (ctx.title) ctx.title.textContent = "Invalid reset link";
     if (ctx.subtitle) {
       const normalizedMessage = (message || "This password reset link is invalid or incomplete.").trim();
       const endsWithPunctuation = /[.!?]$/.test(normalizedMessage);
