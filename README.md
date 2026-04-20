@@ -21,6 +21,7 @@ primed-login-form/
 |   `-- survey-widget.js
 |-- auth.js
 |-- logout.js
+|-- password-reset.js
 |-- primed-auth-shared.js
 |-- primed-login-form.js
 |-- primed-signup-form.js
@@ -28,6 +29,9 @@ primed-login-form/
 |-- register-address-lookup.js
 |-- register-form-validation.js
 |-- style.css
+|-- tests/
+|   |-- all.test.js
+|   `-- ...
 |-- LICENSE
 `-- README.md
 ```
@@ -44,6 +48,7 @@ primed-login-form/
 | `register-form-validation.js` | Client-side validation helpers for signup fields, including email, Australian mobile, address, and password rules |
 | `auth.js` | Reads the local `__user` cookie, toggles `[data-auth]` visibility, and optionally confirms session validity against an `/auth-status` endpoint |
 | `logout.js` | Binds click handlers to `[data-logout-button="true"]`, calls the logout endpoint, clears the local session cookie, and redirects |
+| `password-reset.js` | Password reset controller that validates reset links, locks the email field to the URL value, and submits password resets |
 | `style.css` | Shared styling for auth toggles, hidden panels, and validation/error states |
 
 ## Dependency Diagram
@@ -230,6 +235,36 @@ Handles address-detail population and manual-entry fallback for the signup form.
 - `suburb`
 - `state`
 - `postcode`
+
+## Running Tests
+
+The repository includes a committed Node-based test suite under `tests/`.
+
+Recommended:
+
+1. Make sure you have Node installed. The test suite uses Node's built-in test runner.
+2. From the repository root, run:
+
+```bash
+node --test --test-isolation=none tests/all.test.js
+```
+
+This runs the committed aggregate test entrypoint at `tests/all.test.js`, which loads the maintained unit suites for:
+
+- `auth.js`
+- `logout.js`
+- `password-reset.js`
+- `primed-auth-shared.js`
+- `primed-login-form.js`
+- `primed-signup-form.js`
+- `register-address-lookup.js`
+- `register-form-validation.js`
+
+Notes:
+
+- `--test-isolation=none` is intentional for this repo's lightweight browser-mock harness.
+- The local `package.json` some contributors may use is not required to run the committed tests.
+- `questionnaire.js`, `deprecated/`, and `webflow-footer.js` are not included in this unit-test pass.
 
 ## GitHub Pages Workflow
 
