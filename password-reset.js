@@ -709,13 +709,17 @@
     setSubmitState(ctx, true);
 
     try {
+      // get csrf token
+      await PrimedAuthShared.ensureCsrfCookie();
+      const xsrfToken = PrimedAuthShared.getCookie("XSRF-TOKEN");
       const res = await fetch(PROD_RESET_PASSWORD_ENDPOINT, {
         method: "POST",
         credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json"
-        },
+        headers: PrimedAuthShared.buildHeaders(xsrfToken),
+        // headers: {
+        //   "Content-Type": "application/json",
+        //   "Accept": "application/json"
+        // },
         body: JSON.stringify(payload)
       });
 
